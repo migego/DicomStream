@@ -1,0 +1,10 @@
+A) File Prefetch
+
+- blocking queue with list<Iterator<string>>
+- iterator can be an UpDownIterator, or a FragmentIterator
+- can group N iterators together (linked stacking)  How?
+
+- ability to re-prioritize the list:
+      - push one iterator to top of list
+      - reset primary frame
+      - 
