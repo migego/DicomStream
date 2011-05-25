@@ -23,7 +23,7 @@
 							<builder buildPath="${workspace_loc:/DicomStream/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.2005342963" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.10966759" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.1878796648" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
-								<option id="macosx.cpp.link.option.other.1879541035" name="Other options (-Xlinker [option])" superClass="macosx.cpp.link.option.other" valueType="stringList"/>
+								<option id="macosx.cpp.link.option.other.1879541035" name="Other options (-Xlinker [option])" superClass="macosx.cpp.link.option.other"/>
 								<option id="macosx.cpp.link.option.libs.387083832" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="ev"/>
 									<listOptionValue builtIn="false" value="boost_thread"/>
@@ -43,6 +43,15 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.debug.1792511256" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.debug">
 								<option id="gnu.cpp.compilermacosx.exe.debug.option.optimization.level.307303305" name="Optimization Level" superClass="gnu.cpp.compilermacosx.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level.28558098" name="Debug Level" superClass="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.927776480" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/Attribute}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/Common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/DataDictionary}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/DataStructureAndEncodingDefinition}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/InformationObjectDefinition}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DicomStream/gdcm/MediaStorageAndFileFormat}&quot;"/>
+									<listOptionValue builtIn="false" value="/Users/aboxer/src/gdcmbin/Source/Common"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.211300051" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug.818410687" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug">
@@ -74,6 +83,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="MessageExchangeDefinition/*|MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.*|MediaStorageAndFileFormat/gdcmJPEGBITSCodec.*|MediaStorageAndFileFormat/gdcmJPEG12Codec.*|MediaStorageAndFileFormat/gdcmJPEG12Codec.cxx|MediaStorageAndFileFormat/gdcmJPEG12Codec.h|MediaStorageAndFileFormat/gdcmJPEG16Codec.cxx|MediaStorageAndFileFormat/gdcmJPEG16Codec.h|MediaStorageAndFileFormat/gdcmJPEG2000Codec.cxx|MediaStorageAndFileFormat/gdcmJPEG2000Codec.h|MediaStorageAndFileFormat/gdcmJPEG8Codec.cxx|MediaStorageAndFileFormat/gdcmJPEG8Codec.h|MediaStorageAndFileFormat/gdcmJPEGBITSCodec.cxx|MediaStorageAndFileFormat/gdcmJPEGCodec.cxx|MediaStorageAndFileFormat/gdcmJPEGCodec.h|MediaStorageAndFileFormat/gdcmJPEGLSCodec.cxx|MediaStorageAndFileFormat/gdcmJPEGLSCodec.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="gdcm"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
