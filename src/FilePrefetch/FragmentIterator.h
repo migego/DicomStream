@@ -45,10 +45,6 @@ protected:
 		}
 		return true;
 	}
-    bool isDone()
-    {
-    	return done;
-    }
 };
 
 #endif /* FRAGMENTITERATOR_H_ */

@@ -11,7 +11,7 @@
 #include "../Parse/protocol.h"
 
 
-template class SimplFragmentIterator<typename Data>  {
+template <typename Data> class SimplFragmentIterator {
 
 private:
 	Data item;
@@ -32,10 +32,6 @@ public:
 		done = true;
 		return true;
 	}
-    bool isDone()
-    {
-    	return done;
-    }
 };
 
 #endif /* SIMPLEFRAGMENTITERATOR_H_ */

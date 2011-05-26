@@ -13,18 +13,17 @@
 #include <boost/thread/condition_variable.hpp>
 #include "UpDownIterator.h"
 
-template<typename Data>
-class concurrent_queue
+template < typename Data, typename Iterator > class concurrent_queue
 {
 protected:
-    std::list<Data> the_queue;
+    std::list<Iterator> the_queue;
     mutable boost::mutex the_mutex;
     boost::condition_variable the_condition_variable;
 public:
-    void push(Data const& data)
+    void push(Iterator const& iterator)
     {
         boost::mutex::scoped_lock lock(the_mutex);
-        the_queue.push_back(data);
+        the_queue.push_back(iterator);
         lock.unlock();
         the_condition_variable.notify_one();
     }
@@ -43,8 +42,10 @@ public:
             return false;
         }
 
-        popped_value=the_queue.front();
-        the_queue.pop_front();
+        Iterator iter = the_queue.front();
+        while (!iter.nextFragment(popped_value))
+            the_queue.pop_front();
+
         return true;
     }
 

@@ -11,68 +11,72 @@
 using namespace std;
 #include <vector>
 
-template <typename Data, typename Iterator> class UpDownIterator {
+template <typename Data, typename FragmentIterator> class UpDownIterator {
 protected:
-	vector<Iterator> items;
+	vector<FragmentIterator> items;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
 	bool done;
 public:
-	UpDownIterator(vector<Iterator> items, size_t primaryIndex) : items(items), primaryIndex(primaryIndex)
+	UpDownIterator(vector<FragmentIterator> items, size_t primaryIndex) : items(items),
+																primaryIndex(primaryIndex),
+																currentIndex(primaryIndex)
 	{
-		currentIndex= primaryIndex;
 		count=0;
 		done = false;
+		if (items.empty() || currentIndex < 0 || currentIndex >= items.count())
+			done = true;
 
 	}
 	bool next(Data& item)
 	{
-		if (done())
+		if (done)
 			return false;
 
 		//first time
 		if (count == 0)
 		{
-			  nextFragment(item);
+			  if (nextFragment(item))
+			     return true;
+			  //after first item is done, then increment count to 2
 			  count = 2;
-			  return true;
 		}
 
 		//is there another fragment ?
 		if (nextFragment(item))
 			return true;
 
-
-		//try both directions
-		for (int i = 0; i < 2; ++i)
+		int maxIncr = max(primaryIndex, items.count - primaryIndex)-1;
+		int incr = 0;
+		while (incr <= maxIncr)
 		{
-			count++;
-			int incr = count >> 1;
-			if ( count&1 == 1)
-				incr *= -1;
-
-			int nextIndex = primaryIndex + incr;
-			if (nextIndex >= 0 && nextIndex < items.size())
+			//try both directions
+			for (int i = 0; i < 2; ++i)
 			{
-				currentIndex = nextIndex;
-				return nextFragment(item);
+				count++;
+			    incr = count >> 1;
+				if ( count&1 == 1)
+					incr *= -1;
+
+				int nextIndex = primaryIndex + incr;
+				if (nextIndex >= 0 && nextIndex < items.size())
+				{
+					currentIndex = nextIndex;
+					if (!nextFragment(item))
+						continue;
+					return true;
+				}
 			}
 		}
 		done = true;
 		return false;
 
 	}
-	bool isDone()
+    bool nextFragment(Data& fragment)
 	{
-		return (items.empty() || done);
-	}
-protected:
-	virtual bool nextFragment(Data& fragment)
-	{
-		Iterator iter  = items[currentIndex];
-		bool rc =  iter.nextFragment(fragment);
-		return rc;
+    	FragmentIterator iter  = items[currentIndex];
+		return  iter.nextFragment(fragment);
 	}
 
 };

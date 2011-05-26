@@ -23,7 +23,8 @@ using namespace std;
 #include <string>
 
 #include "FilePrefetch/concurrent_queue.h"
-#include "FilePrefetch/FragmentIterator.h"
+#include "FilePrefetch/UpDownIterator.h"
+#include "FilePrefetch/SimpleFragmentIterator.h"
 
 struct client {
         int fd;
@@ -90,7 +91,7 @@ static void accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 }
 
 
-concurrent_queue<string> precacheQueue;
+concurrent_queue< string, UpDownIterator< string, SimplFragmentIterator<string> > > precacheQueue;
 bool stopPrecache = false;
 void workerFunc()
 {

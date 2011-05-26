@@ -11,7 +11,6 @@ RM := rm -rf
 -include subdir.mk
 -include src/subdir.mk
 -include src/Response/subdir.mk
--include src/FilePrefetch/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
