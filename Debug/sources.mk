@@ -26,9 +26,4 @@ SUBDIRS := \
 src \
 src/Response \
 src/FilePrefetch \
-gdcm/MediaStorageAndFileFormat \
-gdcm/InformationObjectDefinition \
-gdcm/DataStructureAndEncodingDefinition \
-gdcm/DataDictionary \
-gdcm/Common \
 

@@ -11,15 +11,15 @@
 using namespace std;
 #include <vector>
 
-template <typename Data> class UpDownIterator {
+template <typename Data, typename Iterator> class UpDownIterator {
 protected:
-	vector<Data> items;
+	vector<Iterator> items;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
 	bool done;
 public:
-	UpDownIterator(vector<Data> items, size_t primaryIndex) : items(items), primaryIndex(primaryIndex)
+	UpDownIterator(vector<Iterator> items, size_t primaryIndex) : items(items), primaryIndex(primaryIndex)
 	{
 		currentIndex= primaryIndex;
 		count=0;
@@ -70,8 +70,9 @@ public:
 protected:
 	virtual bool nextFragment(Data& fragment)
 	{
-		fragment = items[currentIndex];
-		return true;
+		Iterator iter  = items[currentIndex];
+		bool rc =  iter.nextFragment(fragment);
+		return rc;
 	}
 
 };

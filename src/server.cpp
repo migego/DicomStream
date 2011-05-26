@@ -113,7 +113,7 @@ int main()
 	try {
 		read_info("src/DicomStream.cfg", pTree);
 	}
-	catch (boost::property_tree::info_parser_error e) {
+	catch (boost::property_tree::info_parser_error &e) {
 		std::cout << "error" << std::endl;
 	}
 	unsigned short port;
@@ -121,7 +121,7 @@ int main()
 		port = pTree.get<int>("server.port");
 	}
 
-	catch(boost::property_tree::ptree_bad_path e) {
+	catch(boost::property_tree::ptree_bad_path &e) {
 		std::cout << "error" << std::endl;
 	}
 

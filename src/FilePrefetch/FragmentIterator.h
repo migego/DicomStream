@@ -8,32 +8,47 @@
 #ifndef FRAGMENTITERATOR_H_
 #define FRAGMENTITERATOR_H_
 
-#include "UpDownIterator.h"
 #include "../Parse/protocol.h"
+#include <math.h>
 
-struct Foo
-{
 
-};
+class FragmentIterator  {
 
-class FragmentIterator : UpDownIterator< FrameFrag> {
+private:
+	bool done;
+	size_t size;
+	size_t offset;
+	size_t chunk;
 
 public:
 
-	FragmentIterator(vector< FrameFrag> items, size_t primaryIndex) : UpDownIterator<FrameFrag>(items, primaryIndex)
+	FragmentIterator(size_t size, size_t chunk) : done(false), size(size), chunk(chunk)
 	{
 
 	}
 
 private:
-	int fragmentCount;
+
 
 protected:
-	virtual bool nextFragment( FrameFrag& fragment)
+	virtual bool nextFragment( FrameFragment& fragment)
 	{
-		fragment = items[currentIndex];
+		if (done)
+			return false;
+		size_t size = min(chunk, size-offset);
+		fragment.offset = offset;
+		fragment.size = size;
+		offset += size;
+		if (offset == size)
+		{
+			done = true;
+		}
 		return true;
 	}
+    bool isDone()
+    {
+    	return done;
+    }
 };
 
 #endif /* FRAGMENTITERATOR_H_ */

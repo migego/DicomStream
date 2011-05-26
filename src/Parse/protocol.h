@@ -24,41 +24,75 @@ TAG(byte) SIZE(unsigned short) VALUE(bytes)
 ///////////////////////////////////////////////////
 // Request Messages////////////////////////////////
 
-enum Priority
+namespace Protocol
 {
-	Selected,
-	Visible,
-	Hidden
-};
+
+	enum Priority
+	{
+		Selected,
+		Visible,
+		Hidden
+	};
 
 
-enum Request
-{
-	//////////////////
-	// request series
-	SeriesRequest,
-	SeriesUid,
-	SeriesNumber,
-	InstanceUid,
-	InstanceNumber,
-	NumberOfFrames,
-	SeriesPriority, //see priority above
+	enum Request
+	{
+		//////////////////
+		// request series
+		SeriesRequest,
+		SeriesUid,
+		SeriesNumber,
+		InstanceUid,
+		InstanceNumber,
+		NumberOfFrames,
+		SeriesPriority, //see priority above
 
-	/////////////////////
-	// change priority
-	SeriesPriorityChanged,
-
-
-	//////////////////////////////////////
-	//set series primary frame (default is 0)
-	SetPrimaryFrame, // instance and frame number
-
-    /////////////////////////////
-	// cancel (cancel series or study)
-	Cancel
+		/////////////////////
+		// change priority
+		SeriesPriorityChanged,
 
 
-};
+		//////////////////////////////////////
+		//set series primary frame (default is 0)
+		SetPrimaryFrame, // instance and frame number
+
+		/////////////////////////////
+		// cancel (cancel series or study)
+		Cancel
+
+
+	};
+
+
+	// Response Messages
+	enum Response
+	{
+		///////////////
+		FrameHeader,
+		PixelDataSize,
+		Width,
+		Height,
+		// ......
+
+		//////////////////
+		FrameFragment,
+		Offset,
+		Size,
+
+
+		///////////////////
+		Error,
+		NasTimeout,
+		InstanceMissing,
+
+		///////////////////
+		OK
+
+
+	};
+
+
+}
 
 struct FrameRequest
 {
@@ -67,7 +101,7 @@ struct FrameRequest
 	string instanceUid;
 	long instanceNumber;  // used to avoid passing instance uid every time
 	list<int> frameNumbers;
-	Priority priority;
+	Protocol::Priority priority;
 };
 
 struct Frames
@@ -79,36 +113,11 @@ struct Frames
 };
 ///////////////////////////////////////////////////////
 
-// Response Messages
-enum Response
+
+
+struct FrameHeader
 {
-	///////////////
-	FrameHeader,
-	PixelDataSize,
-	Width,
-	Height,
-	// ......
-
-	//////////////////
-	FrameFragment,
-	Offset,
-	Size,
-
-
-	///////////////////
-	Error,
-	NasTimeout,
-	InstanceMissing,
-
-	///////////////////
-	OK
-
-
-};
-
-struct FrameHdr
-{
-	long pixelDataSize;
+	size_t pixelDataSize;
 	int width;
 	int height;
 	//.... various basic dicom tags
@@ -116,14 +125,13 @@ struct FrameHdr
 
 };
 
-struct FrameFrag
+struct FrameFragment
 {
-    long offset;
-    long size;
-
+    size_t offset;
+    size_t size;
 };
 
-struct FrameResponse : FrameFrag
+struct FrameResponse : FrameFragment
 {
 	long seriesNumber;    // used to avoid passing series uid every time
 	long instanceNumber;  // used to avoid passing instance uid every time

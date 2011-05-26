@@ -1,28 +1,34 @@
-A) File Prefetch
+A) FILE PREFETCH
 
 - blocking queue with list<Iterator<string>>
-- iterator can be an UpDownIterator, or a FragmentIterator
+- iterator can be an SimpleIterator, or a FragmentIterator
 
 - ability to re-prioritize the list:
-      - push one iterator to top of list
-      - reset primary frame
+      - push one iterator to top of list and/or reset primary frame
       
- Need to tests if posix_fadvise works for CIFS mount:
-    On Linux
-    
-    Show Free Memory:
-        $  free -m
-    
-    Clear disk cache:
-       $  echo 3 | sudo tee /proc/sys/vm/drop_caches 
-       
-     Time to cat a file name "bigfile"
-       $ time cat bigfile > /dev/null
-       
-       http://www.linuxatemyram.com/play.html
-       
-B) Get libeio working for file reads
+      
+B) LIBEIO - FILE READS
 
-C) modify gdcmStreamImageReader to read from memory buffer
-    - handle multi-frame       
+C) DICOM 
+
+modify gdcmStreamImageReader to read from memory buffer
+    - handle multi-frame - ask about this on news group
+    
+D) PROTOCOL
+
+1 byte (message type)
+length of message (unsigned int)
+protocol buffer
+
+
+E) CLIENT
+
+step 1 - unix client
+step 2 -  - c# client
+          - need to re-implement request protocol in c#
+
+F) TEST
+
+- install testing framework
+- write tests
       - 

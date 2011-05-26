@@ -12,11 +12,6 @@ RM := rm -rf
 -include src/subdir.mk
 -include src/Response/subdir.mk
 -include src/FilePrefetch/subdir.mk
--include gdcm/MediaStorageAndFileFormat/subdir.mk
--include gdcm/InformationObjectDefinition/subdir.mk
--include gdcm/DataStructureAndEncodingDefinition/subdir.mk
--include gdcm/DataDictionary/subdir.mk
--include gdcm/Common/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)

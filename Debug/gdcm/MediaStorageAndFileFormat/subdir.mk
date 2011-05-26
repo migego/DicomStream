@@ -13,6 +13,7 @@ CXX_SRCS += \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDICOMDIR.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDICOMDIRGenerator.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDataSetHelper.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDictPrinter.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDirectionCosines.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDirectoryHelper.cxx \
@@ -35,6 +36,13 @@ CXX_SRCS += \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmImageReader.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmImageToImageFilter.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmImageWriter.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG12Codec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG16Codec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG2000Codec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG8Codec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGBITSCodec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGCodec.cxx \
+/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGLSCodec.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmKAKADUCodec.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmLookupTable.cxx \
 /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmOrientation.cxx \
@@ -79,6 +87,7 @@ OBJS += \
 ./gdcm/MediaStorageAndFileFormat/gdcmDICOMDIR.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmDICOMDIRGenerator.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmDataSetHelper.o \
+./gdcm/MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmDictPrinter.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmDirectionCosines.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmDirectoryHelper.o \
@@ -101,6 +110,13 @@ OBJS += \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageReader.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageToImageFilter.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageWriter.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG12Codec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG16Codec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG2000Codec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG8Codec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGBITSCodec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGCodec.o \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGLSCodec.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmKAKADUCodec.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmLookupTable.o \
 ./gdcm/MediaStorageAndFileFormat/gdcmOrientation.o \
@@ -145,6 +161,7 @@ CXX_DEPS += \
 ./gdcm/MediaStorageAndFileFormat/gdcmDICOMDIR.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmDICOMDIRGenerator.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmDataSetHelper.d \
+./gdcm/MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmDictPrinter.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmDirectionCosines.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmDirectoryHelper.d \
@@ -167,6 +184,13 @@ CXX_DEPS += \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageReader.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageToImageFilter.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmImageWriter.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG12Codec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG16Codec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG2000Codec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEG8Codec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGBITSCodec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGCodec.d \
+./gdcm/MediaStorageAndFileFormat/gdcmJPEGLSCodec.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmKAKADUCodec.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmLookupTable.d \
 ./gdcm/MediaStorageAndFileFormat/gdcmOrientation.d \
@@ -260,6 +284,13 @@ gdcm/MediaStorageAndFileFormat/gdcmDICOMDIRGenerator.o: /Users/aboxer/src/gdcm/S
 	@echo ' '
 
 gdcm/MediaStorageAndFileFormat/gdcmDataSetHelper.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDataSetHelper.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmDeltaEncodingCodec.cxx
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
 	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
@@ -414,6 +445,55 @@ gdcm/MediaStorageAndFileFormat/gdcmImageToImageFilter.o: /Users/aboxer/src/gdcm/
 	@echo ' '
 
 gdcm/MediaStorageAndFileFormat/gdcmImageWriter.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmImageWriter.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEG12Codec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG12Codec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEG16Codec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG16Codec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEG2000Codec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG2000Codec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEG8Codec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEG8Codec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEGBITSCodec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGBITSCodec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEGCodec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGCodec.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gdcm/MediaStorageAndFileFormat/gdcmJPEGLSCodec.o: /Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat/gdcmJPEGLSCodec.cxx
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
 	g++ -I"/Users/aboxer/src/gdcm/Source/Attribute" -I"/Users/aboxer/src/gdcm/Source/Common" -I"/Users/aboxer/src/gdcm/Source/DataDictionary" -I"/Users/aboxer/src/gdcm/Source/DataStructureAndEncodingDefinition" -I"/Users/aboxer/src/gdcm/Source/InformationObjectDefinition" -I"/Users/aboxer/src/gdcm/Source/MediaStorageAndFileFormat" -I/Users/aboxer/src/gdcmbin/Source/Common -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
