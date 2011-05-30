@@ -37,6 +37,25 @@ public:
     bool try_pop(Data& popped_value)
     {
         boost::mutex::scoped_lock lock(the_mutex);
+
+        return doPop(popped_value);
+
+
+    }
+
+    bool wait_and_pop(Data& popped_value)
+    {
+        boost::mutex::scoped_lock lock(the_mutex);
+        while(the_queue.empty())
+        {
+            the_condition_variable.wait(lock);
+        }
+
+        return doPop(popped_value);
+    }
+private:
+    bool doPop(Data& popped_value)
+    {
         if(the_queue.empty())
         {
             return false;
@@ -47,18 +66,6 @@ public:
             the_queue.pop_front();
 
         return true;
-    }
-
-    void wait_and_pop(Data& popped_value)
-    {
-        boost::mutex::scoped_lock lock(the_mutex);
-        while(the_queue.empty())
-        {
-            the_condition_variable.wait(lock);
-        }
-
-        popped_value=the_queue.front();
-        the_queue.pop();
     }
 
 };

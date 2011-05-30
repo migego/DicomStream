@@ -24,14 +24,9 @@ public:
 
 	FragmentIterator(size_t size, size_t chunk) : done(false), size(size), chunk(chunk)
 	{
-
+       offset = 0;
 	}
-
-private:
-
-
-protected:
-	virtual bool nextFragment( FrameFragment& fragment)
+    bool nextFragment( FrameFragment& fragment)
 	{
 		if (done)
 			return false;

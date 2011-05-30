@@ -22,9 +22,9 @@ using namespace std;
 #include <boost/property_tree/info_parser.hpp>
 #include <string>
 
-#include "FilePrefetch/concurrent_queue.h"
-#include "FilePrefetch/UpDownIterator.h"
-#include "FilePrefetch/SimpleFragmentIterator.h"
+#include "Queue/concurrent_queue.h"
+#include "Queue/UpDownIterator.h"
+#include "Queue/SimpleFragmentIterator.h"
 
 struct client {
         int fd;
