@@ -11,6 +11,9 @@ RM := rm -rf
 -include subdir.mk
 -include src/subdir.mk
 -include src/Response/subdir.mk
+-include src/Dicom/subdir.mk
+-include imebra/imebra/src/subdir.mk
+-include imebra/base/src/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -48,13 +51,18 @@ DicomStream: $(OBJS) $(USER_OBJS)
 	g++ -L/Users/aboxer/src/boost_1_46_1/stage/lib -o "DicomStream" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
+	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
 	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) DicomStream
 	-@echo ' '
 
+post-build:
+	-/usr/local/bin/protoc  --cpp_out=../src/Parse   --proto_path=/Users/aboxer/src/DicomStream/src/Parse/  /Users/aboxer/src/DicomStream/src/Parse/stream.proto
+	-@echo ' '
+
 .PHONY: all clean dependents
-.SECONDARY:
+.SECONDARY: post-build
 
 -include ../makefile.targets

@@ -14,6 +14,8 @@ class FileParser {
 public:
 	FileParser();
 	virtual ~FileParser();
+
+	void parse();
 };
 
 #endif /* FILEPARSER_H_ */
