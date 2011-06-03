@@ -25,6 +25,7 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 src \
 src/Response \
+src/Parse \
 src/Dicom \
 imebra/imebra/src \
 imebra/base/src \
