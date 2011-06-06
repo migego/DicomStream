@@ -38,6 +38,27 @@ class FrameHeader;
 class FrameResponse;
 class FrameFragment;
 
+enum SeriesRequest_RequestType {
+  SeriesRequest_RequestType_Fetch = 0,
+  SeriesRequest_RequestType_PriorityChanged = 1,
+  SeriesRequest_RequestType_SetPrimaryFrame = 2,
+  SeriesRequest_RequestType_Cancel = 3
+};
+bool SeriesRequest_RequestType_IsValid(int value);
+const SeriesRequest_RequestType SeriesRequest_RequestType_RequestType_MIN = SeriesRequest_RequestType_Fetch;
+const SeriesRequest_RequestType SeriesRequest_RequestType_RequestType_MAX = SeriesRequest_RequestType_Cancel;
+const int SeriesRequest_RequestType_RequestType_ARRAYSIZE = SeriesRequest_RequestType_RequestType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* SeriesRequest_RequestType_descriptor();
+inline const ::std::string& SeriesRequest_RequestType_Name(SeriesRequest_RequestType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    SeriesRequest_RequestType_descriptor(), value);
+}
+inline bool SeriesRequest_RequestType_Parse(
+    const ::std::string& name, SeriesRequest_RequestType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<SeriesRequest_RequestType>(
+    SeriesRequest_RequestType_descriptor(), name, value);
+}
 enum SeriesRequest_Priority {
   SeriesRequest_Priority_Selected = 0,
   SeriesRequest_Priority_Visible = 1,
@@ -57,64 +78,6 @@ inline bool SeriesRequest_Priority_Parse(
     const ::std::string& name, SeriesRequest_Priority* value) {
   return ::google::protobuf::internal::ParseNamedEnum<SeriesRequest_Priority>(
     SeriesRequest_Priority_descriptor(), name, value);
-}
-enum SeriesRequest_Request {
-  SeriesRequest_Request_Fetch = 0,
-  SeriesRequest_Request_PriorityChanged = 1,
-  SeriesRequest_Request_SetPrimaryFrame = 2,
-  SeriesRequest_Request_Cancel = 3
-};
-bool SeriesRequest_Request_IsValid(int value);
-const SeriesRequest_Request SeriesRequest_Request_Request_MIN = SeriesRequest_Request_Fetch;
-const SeriesRequest_Request SeriesRequest_Request_Request_MAX = SeriesRequest_Request_Cancel;
-const int SeriesRequest_Request_Request_ARRAYSIZE = SeriesRequest_Request_Request_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* SeriesRequest_Request_descriptor();
-inline const ::std::string& SeriesRequest_Request_Name(SeriesRequest_Request value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    SeriesRequest_Request_descriptor(), value);
-}
-inline bool SeriesRequest_Request_Parse(
-    const ::std::string& name, SeriesRequest_Request* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<SeriesRequest_Request>(
-    SeriesRequest_Request_descriptor(), name, value);
-}
-enum FrameResponse_Response {
-  FrameResponse_Response_FrameHeader = 0,
-  FrameResponse_Response_FrameFragment = 1
-};
-bool FrameResponse_Response_IsValid(int value);
-const FrameResponse_Response FrameResponse_Response_Response_MIN = FrameResponse_Response_FrameHeader;
-const FrameResponse_Response FrameResponse_Response_Response_MAX = FrameResponse_Response_FrameFragment;
-const int FrameResponse_Response_Response_ARRAYSIZE = FrameResponse_Response_Response_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* FrameResponse_Response_descriptor();
-inline const ::std::string& FrameResponse_Response_Name(FrameResponse_Response value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    FrameResponse_Response_descriptor(), value);
-}
-inline bool FrameResponse_Response_Parse(
-    const ::std::string& name, FrameResponse_Response* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<FrameResponse_Response>(
-    FrameResponse_Response_descriptor(), name, value);
-}
-enum FrameResponse_ResponseCode {
-  FrameResponse_ResponseCode_OK = 0
-};
-bool FrameResponse_ResponseCode_IsValid(int value);
-const FrameResponse_ResponseCode FrameResponse_ResponseCode_ResponseCode_MIN = FrameResponse_ResponseCode_OK;
-const FrameResponse_ResponseCode FrameResponse_ResponseCode_ResponseCode_MAX = FrameResponse_ResponseCode_OK;
-const int FrameResponse_ResponseCode_ResponseCode_ARRAYSIZE = FrameResponse_ResponseCode_ResponseCode_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* FrameResponse_ResponseCode_descriptor();
-inline const ::std::string& FrameResponse_ResponseCode_Name(FrameResponse_ResponseCode value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    FrameResponse_ResponseCode_descriptor(), value);
-}
-inline bool FrameResponse_ResponseCode_Parse(
-    const ::std::string& name, FrameResponse_ResponseCode* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<FrameResponse_ResponseCode>(
-    FrameResponse_ResponseCode_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -276,6 +239,32 @@ class SeriesRequest : public ::google::protobuf::Message {
   
   // nested types ----------------------------------------------------
   
+  typedef SeriesRequest_RequestType RequestType;
+  static const RequestType Fetch = SeriesRequest_RequestType_Fetch;
+  static const RequestType PriorityChanged = SeriesRequest_RequestType_PriorityChanged;
+  static const RequestType SetPrimaryFrame = SeriesRequest_RequestType_SetPrimaryFrame;
+  static const RequestType Cancel = SeriesRequest_RequestType_Cancel;
+  static inline bool RequestType_IsValid(int value) {
+    return SeriesRequest_RequestType_IsValid(value);
+  }
+  static const RequestType RequestType_MIN =
+    SeriesRequest_RequestType_RequestType_MIN;
+  static const RequestType RequestType_MAX =
+    SeriesRequest_RequestType_RequestType_MAX;
+  static const int RequestType_ARRAYSIZE =
+    SeriesRequest_RequestType_RequestType_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  RequestType_descriptor() {
+    return SeriesRequest_RequestType_descriptor();
+  }
+  static inline const ::std::string& RequestType_Name(RequestType value) {
+    return SeriesRequest_RequestType_Name(value);
+  }
+  static inline bool RequestType_Parse(const ::std::string& name,
+      RequestType* value) {
+    return SeriesRequest_RequestType_Parse(name, value);
+  }
+  
   typedef SeriesRequest_Priority Priority;
   static const Priority Selected = SeriesRequest_Priority_Selected;
   static const Priority Visible = SeriesRequest_Priority_Visible;
@@ -301,38 +290,19 @@ class SeriesRequest : public ::google::protobuf::Message {
     return SeriesRequest_Priority_Parse(name, value);
   }
   
-  typedef SeriesRequest_Request Request;
-  static const Request Fetch = SeriesRequest_Request_Fetch;
-  static const Request PriorityChanged = SeriesRequest_Request_PriorityChanged;
-  static const Request SetPrimaryFrame = SeriesRequest_Request_SetPrimaryFrame;
-  static const Request Cancel = SeriesRequest_Request_Cancel;
-  static inline bool Request_IsValid(int value) {
-    return SeriesRequest_Request_IsValid(value);
-  }
-  static const Request Request_MIN =
-    SeriesRequest_Request_Request_MIN;
-  static const Request Request_MAX =
-    SeriesRequest_Request_Request_MAX;
-  static const int Request_ARRAYSIZE =
-    SeriesRequest_Request_Request_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  Request_descriptor() {
-    return SeriesRequest_Request_descriptor();
-  }
-  static inline const ::std::string& Request_Name(Request value) {
-    return SeriesRequest_Request_Name(value);
-  }
-  static inline bool Request_Parse(const ::std::string& name,
-      Request* value) {
-    return SeriesRequest_Request_Parse(name, value);
-  }
-  
   // accessors -------------------------------------------------------
   
-  // required string studyUid = 1;
+  // required .Protocol.SeriesRequest.RequestType type = 1;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 1;
+  inline ::Protocol::SeriesRequest_RequestType type() const;
+  inline void set_type(::Protocol::SeriesRequest_RequestType value);
+  
+  // required string studyUid = 2;
   inline bool has_studyuid() const;
   inline void clear_studyuid();
-  static const int kStudyUidFieldNumber = 1;
+  static const int kStudyUidFieldNumber = 2;
   inline const ::std::string& studyuid() const;
   inline void set_studyuid(const ::std::string& value);
   inline void set_studyuid(const char* value);
@@ -340,17 +310,17 @@ class SeriesRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_studyuid();
   inline ::std::string* release_studyuid();
   
-  // required uint32 studyUidNumber = 2;
+  // required uint32 studyUidNumber = 3;
   inline bool has_studyuidnumber() const;
   inline void clear_studyuidnumber();
-  static const int kStudyUidNumberFieldNumber = 2;
+  static const int kStudyUidNumberFieldNumber = 3;
   inline ::google::protobuf::uint32 studyuidnumber() const;
   inline void set_studyuidnumber(::google::protobuf::uint32 value);
   
-  // required string seriesUid = 3;
+  // required string seriesUid = 4;
   inline bool has_seriesuid() const;
   inline void clear_seriesuid();
-  static const int kSeriesUidFieldNumber = 3;
+  static const int kSeriesUidFieldNumber = 4;
   inline const ::std::string& seriesuid() const;
   inline void set_seriesuid(const ::std::string& value);
   inline void set_seriesuid(const char* value);
@@ -358,24 +328,24 @@ class SeriesRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_seriesuid();
   inline ::std::string* release_seriesuid();
   
-  // required uint32 seriesUidNumber = 4;
+  // required uint32 seriesUidNumber = 5;
   inline bool has_seriesuidnumber() const;
   inline void clear_seriesuidnumber();
-  static const int kSeriesUidNumberFieldNumber = 4;
+  static const int kSeriesUidNumberFieldNumber = 5;
   inline ::google::protobuf::uint32 seriesuidnumber() const;
   inline void set_seriesuidnumber(::google::protobuf::uint32 value);
   
-  // required .Protocol.SeriesRequest.Priority priority = 5;
+  // required .Protocol.SeriesRequest.Priority priority = 6;
   inline bool has_priority() const;
   inline void clear_priority();
-  static const int kPriorityFieldNumber = 5;
+  static const int kPriorityFieldNumber = 6;
   inline ::Protocol::SeriesRequest_Priority priority() const;
   inline void set_priority(::Protocol::SeriesRequest_Priority value);
   
-  // required string instanceUidPrefix = 6;
+  // required string instanceUidPrefix = 7;
   inline bool has_instanceuidprefix() const;
   inline void clear_instanceuidprefix();
-  static const int kInstanceUidPrefixFieldNumber = 6;
+  static const int kInstanceUidPrefixFieldNumber = 7;
   inline const ::std::string& instanceuidprefix() const;
   inline void set_instanceuidprefix(const ::std::string& value);
   inline void set_instanceuidprefix(const char* value);
@@ -383,10 +353,10 @@ class SeriesRequest : public ::google::protobuf::Message {
   inline ::std::string* mutable_instanceuidprefix();
   inline ::std::string* release_instanceuidprefix();
   
-  // repeated .Protocol.FrameRequest frames = 7;
+  // repeated .Protocol.FrameRequest frames = 8;
   inline int frames_size() const;
   inline void clear_frames();
-  static const int kFramesFieldNumber = 7;
+  static const int kFramesFieldNumber = 8;
   inline const ::Protocol::FrameRequest& frames(int index) const;
   inline ::Protocol::FrameRequest* mutable_frames(int index);
   inline ::Protocol::FrameRequest* add_frames();
@@ -397,6 +367,8 @@ class SeriesRequest : public ::google::protobuf::Message {
   
   // @@protoc_insertion_point(class_scope:Protocol.SeriesRequest)
  private:
+  inline void set_has_type();
+  inline void clear_has_type();
   inline void set_has_studyuid();
   inline void clear_has_studyuid();
   inline void set_has_studyuidnumber();
@@ -413,15 +385,16 @@ class SeriesRequest : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
   ::std::string* studyuid_;
-  ::std::string* seriesuid_;
+  int type_;
   ::google::protobuf::uint32 studyuidnumber_;
+  ::std::string* seriesuid_;
   ::google::protobuf::uint32 seriesuidnumber_;
+  int priority_;
   ::std::string* instanceuidprefix_;
   ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest > frames_;
-  int priority_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -585,53 +558,6 @@ class FrameResponse : public ::google::protobuf::Message {
   ::google::protobuf::Metadata GetMetadata() const;
   
   // nested types ----------------------------------------------------
-  
-  typedef FrameResponse_Response Response;
-  static const Response FrameHeader = FrameResponse_Response_FrameHeader;
-  static const Response FrameFragment = FrameResponse_Response_FrameFragment;
-  static inline bool Response_IsValid(int value) {
-    return FrameResponse_Response_IsValid(value);
-  }
-  static const Response Response_MIN =
-    FrameResponse_Response_Response_MIN;
-  static const Response Response_MAX =
-    FrameResponse_Response_Response_MAX;
-  static const int Response_ARRAYSIZE =
-    FrameResponse_Response_Response_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  Response_descriptor() {
-    return FrameResponse_Response_descriptor();
-  }
-  static inline const ::std::string& Response_Name(Response value) {
-    return FrameResponse_Response_Name(value);
-  }
-  static inline bool Response_Parse(const ::std::string& name,
-      Response* value) {
-    return FrameResponse_Response_Parse(name, value);
-  }
-  
-  typedef FrameResponse_ResponseCode ResponseCode;
-  static const ResponseCode OK = FrameResponse_ResponseCode_OK;
-  static inline bool ResponseCode_IsValid(int value) {
-    return FrameResponse_ResponseCode_IsValid(value);
-  }
-  static const ResponseCode ResponseCode_MIN =
-    FrameResponse_ResponseCode_ResponseCode_MIN;
-  static const ResponseCode ResponseCode_MAX =
-    FrameResponse_ResponseCode_ResponseCode_MAX;
-  static const int ResponseCode_ARRAYSIZE =
-    FrameResponse_ResponseCode_ResponseCode_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  ResponseCode_descriptor() {
-    return FrameResponse_ResponseCode_descriptor();
-  }
-  static inline const ::std::string& ResponseCode_Name(ResponseCode value) {
-    return FrameResponse_ResponseCode_Name(value);
-  }
-  static inline bool ResponseCode_Parse(const ::std::string& name,
-      ResponseCode* value) {
-    return FrameResponse_ResponseCode_Parse(name, value);
-  }
   
   // accessors -------------------------------------------------------
   
@@ -878,15 +804,38 @@ inline void FrameRequest::set_framenumber(::google::protobuf::uint32 value) {
 
 // SeriesRequest
 
-// required string studyUid = 1;
-inline bool SeriesRequest::has_studyuid() const {
+// required .Protocol.SeriesRequest.RequestType type = 1;
+inline bool SeriesRequest::has_type() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void SeriesRequest::set_has_studyuid() {
+inline void SeriesRequest::set_has_type() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void SeriesRequest::clear_has_studyuid() {
+inline void SeriesRequest::clear_has_type() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void SeriesRequest::clear_type() {
+  type_ = 0;
+  clear_has_type();
+}
+inline ::Protocol::SeriesRequest_RequestType SeriesRequest::type() const {
+  return static_cast< ::Protocol::SeriesRequest_RequestType >(type_);
+}
+inline void SeriesRequest::set_type(::Protocol::SeriesRequest_RequestType value) {
+  GOOGLE_DCHECK(::Protocol::SeriesRequest_RequestType_IsValid(value));
+  set_has_type();
+  type_ = value;
+}
+
+// required string studyUid = 2;
+inline bool SeriesRequest::has_studyuid() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SeriesRequest::set_has_studyuid() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SeriesRequest::clear_has_studyuid() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void SeriesRequest::clear_studyuid() {
   if (studyuid_ != &::google::protobuf::internal::kEmptyString) {
@@ -936,15 +885,15 @@ inline ::std::string* SeriesRequest::release_studyuid() {
   }
 }
 
-// required uint32 studyUidNumber = 2;
+// required uint32 studyUidNumber = 3;
 inline bool SeriesRequest::has_studyuidnumber() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void SeriesRequest::set_has_studyuidnumber() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void SeriesRequest::clear_has_studyuidnumber() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void SeriesRequest::clear_studyuidnumber() {
   studyuidnumber_ = 0u;
@@ -958,15 +907,15 @@ inline void SeriesRequest::set_studyuidnumber(::google::protobuf::uint32 value) 
   studyuidnumber_ = value;
 }
 
-// required string seriesUid = 3;
+// required string seriesUid = 4;
 inline bool SeriesRequest::has_seriesuid() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void SeriesRequest::set_has_seriesuid() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void SeriesRequest::clear_has_seriesuid() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void SeriesRequest::clear_seriesuid() {
   if (seriesuid_ != &::google::protobuf::internal::kEmptyString) {
@@ -1016,15 +965,15 @@ inline ::std::string* SeriesRequest::release_seriesuid() {
   }
 }
 
-// required uint32 seriesUidNumber = 4;
+// required uint32 seriesUidNumber = 5;
 inline bool SeriesRequest::has_seriesuidnumber() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void SeriesRequest::set_has_seriesuidnumber() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void SeriesRequest::clear_has_seriesuidnumber() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void SeriesRequest::clear_seriesuidnumber() {
   seriesuidnumber_ = 0u;
@@ -1038,15 +987,15 @@ inline void SeriesRequest::set_seriesuidnumber(::google::protobuf::uint32 value)
   seriesuidnumber_ = value;
 }
 
-// required .Protocol.SeriesRequest.Priority priority = 5;
+// required .Protocol.SeriesRequest.Priority priority = 6;
 inline bool SeriesRequest::has_priority() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void SeriesRequest::set_has_priority() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void SeriesRequest::clear_has_priority() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void SeriesRequest::clear_priority() {
   priority_ = 0;
@@ -1061,15 +1010,15 @@ inline void SeriesRequest::set_priority(::Protocol::SeriesRequest_Priority value
   priority_ = value;
 }
 
-// required string instanceUidPrefix = 6;
+// required string instanceUidPrefix = 7;
 inline bool SeriesRequest::has_instanceuidprefix() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void SeriesRequest::set_has_instanceuidprefix() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void SeriesRequest::clear_has_instanceuidprefix() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void SeriesRequest::clear_instanceuidprefix() {
   if (instanceuidprefix_ != &::google::protobuf::internal::kEmptyString) {
@@ -1119,7 +1068,7 @@ inline ::std::string* SeriesRequest::release_instanceuidprefix() {
   }
 }
 
-// repeated .Protocol.FrameRequest frames = 7;
+// repeated .Protocol.FrameRequest frames = 8;
 inline int SeriesRequest::frames_size() const {
   return frames_.size();
 }
@@ -1334,20 +1283,12 @@ namespace google {
 namespace protobuf {
 
 template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::SeriesRequest_RequestType>() {
+  return ::Protocol::SeriesRequest_RequestType_descriptor();
+}
+template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::SeriesRequest_Priority>() {
   return ::Protocol::SeriesRequest_Priority_descriptor();
-}
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::SeriesRequest_Request>() {
-  return ::Protocol::SeriesRequest_Request_descriptor();
-}
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::FrameResponse_Response>() {
-  return ::Protocol::FrameResponse_Response_descriptor();
-}
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::FrameResponse_ResponseCode>() {
-  return ::Protocol::FrameResponse_ResponseCode_descriptor();
 }
 
 }  // namespace google

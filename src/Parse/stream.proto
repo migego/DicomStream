@@ -16,15 +16,7 @@ message FrameRequest
 message SeriesRequest 
 {
 
-	enum Priority
-	{
-		Selected = 0;
-		Visible = 1;
-		Hidden = 2;
-	}
-
-
-	enum Request
+	enum RequestType
 	{
 
 		Fetch = 0;
@@ -39,15 +31,22 @@ message SeriesRequest
 
 	}
 
+	enum Priority
+	{
+		Selected = 0;
+		Visible = 1;
+		Hidden = 2;
+	}
+	
+	required RequestType type = 1;
+    required string studyUid=2;
+    required uint32 studyUidNumber=3;  // used to avoid passing study uid every time
+	required string seriesUid=4;
+	required uint32 seriesUidNumber=5;  // used to avoid passing series uid every time
+	required Priority priority=6;
 
-    required string studyUid=1;
-    required uint32 studyUidNumber=2;  // used to avoid passing study uid every time
-	required string seriesUid=3;
-	required uint32 seriesUidNumber=4;  // used to avoid passing series uid every time
-	required Priority priority=5;
-
-	required string instanceUidPrefix=6;  //common part of sop instance uid string
-    repeated FrameRequest frames=7;
+	required string instanceUidPrefix=7;  //common part of sop instance uid string
+    repeated FrameRequest frames=8;
   
 }
 
@@ -70,23 +69,8 @@ message FrameHeader
 message FrameResponse 
 {
 
-	// Response Messages
-	enum Response
-	{
-
-		FrameHeader = 0;
-		FrameFragment = 1;
-
-	}
-
-   enum ResponseCode 
-   {
-	   OK = 0;
-   }
-
-
-     required FrameRequest frameRequest=1;
-     required FrameHeader frameHeader=2;
+    required FrameRequest frameRequest=1;
+    required FrameHeader frameHeader=2;
 
 };
 

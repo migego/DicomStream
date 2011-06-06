@@ -1,5 +1,11 @@
 A) FILE PREFETCH
 
+
+
+
+
+
+
 - blocking queue with list<Iterator<string>>
 - iterator can be an SimpleIterator, or a FragmentIterator
 
@@ -17,18 +23,12 @@ modify gdcmStreamImageReader to read from memory buffer
 D) PROTOCOL
 
 1 byte (message type)
-length of message (unsigned int)
-protocol buffer
+length of message (unsigned int, in network byte order)
+serialized protocol buffer
 
 
 E) CLIENT
 
-step 1 - unix client
-step 2 -  - c# client
-          - need to re-implement request protocol in c#
+implement request protocol in c# (protobuf.net)
 
-F) TEST
 
-- install testing framework
-- write tests
-      - 

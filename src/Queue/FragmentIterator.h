@@ -8,7 +8,6 @@
 #ifndef FRAGMENTITERATOR_H_
 #define FRAGMENTITERATOR_H_
 
-#include "../Parse/protocol.h"
 #include <math.h>
 
 

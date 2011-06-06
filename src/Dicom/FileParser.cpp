@@ -23,11 +23,11 @@ FileParser::~FileParser() {
 	// TODO Auto-generated destructor stub
 }
 
-void parse()
+void FileParser::parse(string fileName)
 {
 	// Open the file containing the dicom dataset
 	ptr<puntoexe::stream> inputStream(new puntoexe::stream);
-	inputStream->openFile("test.dcm", std::ios_base::in);
+	inputStream->openFile(fileName, std::ios_base::in);
 
 	// Connect a stream reader to the dicom stream. Several stream reader
 	//  can share the same stream
@@ -40,6 +40,5 @@ void parse()
 
 	// Get the patient name
 	wstring patientName(loadedDataSet->getUnicodeString(0x10, 0, 0x10, 0));
-
 
 }

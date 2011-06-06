@@ -16,6 +16,8 @@ using namespace std;
 #include <ev.h>
 #include <sys/mount.h>
 
+#include "client.h"
+
 #include <boost/thread.hpp>
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
@@ -25,6 +27,8 @@ using namespace std;
 #include "Queue/concurrent_queue.h"
 #include "Queue/UpDownIterator.h"
 #include "Queue/SimpleFragmentIterator.h"
+
+#include "Parse/MessageFramer.h"
 
 struct client {
         int fd;
@@ -48,7 +52,7 @@ int setnonblock(int fd)
 
 static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
-    client *cli= ((struct client*) (((char*)w) - offsetof(struct client,ev_write)));
+    client *cli= ((client*) (((char*)w) - offsetof(struct client,ev_write)));
 	char superjared[]="HTTP/1.1 200 OK\r\nContent-Length: 336\r\nConnection: close\r\nContent-Type: text/html\r\nDate: Sat, 26 Apr 2008 01:13:35 GMT\r\nServer: lighttz/0.1\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\" version=\"-//W3C//DTD XHTML 1.1//EN\" xml:lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Hello World</title></head><body><p>Hello World</p></body></html>";
 
  	if (revents & EV_WRITE){
@@ -59,14 +63,17 @@ static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 	delete cli;
 
 }
+
+MessageFramer framer;
+
 static void read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 
     client *cli= ((client*) (((char*)w) - offsetof(client,ev_read)));
-	int r=0;
-	char rbuff[1024];
+    ::google::protobuf::Message* msg = NULL;
 	if (revents & EV_READ){
-		r=read(cli->fd,&rbuff,1024);
+		msg  = framer.read(cli->fd);
+
 	}
 	ev_io_stop(EV_A_ w);
 	ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
@@ -100,6 +107,36 @@ void workerFunc()
 	if (precacheQueue.try_pop(file))
 	{
 		//posix_fadvise();
+	}
+
+
+}
+
+void clientTest()
+{
+	boost::property_tree::ptree pTree;
+	try {
+		read_info("src/DicomStream.cfg", pTree);
+	}
+	catch (boost::property_tree::info_parser_error &e) {
+		std::cout << "error" << std::endl;
+	}
+	unsigned short port;
+	try {
+		port = pTree.get<int>("server.port");
+	}
+
+	catch(boost::property_tree::ptree_bad_path &e) {
+		std::cout << "error" << std::endl;
+	}
+
+
+
+	for (int i = 0; i < 1000; ++i)
+	{
+		runClient("localhost", port);
+		sleep(1);
+
 	}
 
 
@@ -150,12 +187,17 @@ int main()
     if (setnonblock(listen_fd) < 0)
             err(1, "failed to set server socket to non-blocking");
 
+    boost::thread clientTestThread(clientTest);
+
+
     //listen to socket
 	ev_io_init(&ev_accept,accept_cb,listen_fd,EV_READ);
     struct ev_loop *loop = ev_default_loop (0);
 	ev_io_start(loop,&ev_accept);
 	ev_loop (loop, 0);
 
+
+	clientTestThread.join();
 	workerThread.join();
 	return 0;
 }

@@ -10,7 +10,6 @@ RM := rm -rf
 -include sources.mk
 -include subdir.mk
 -include src/subdir.mk
--include src/Response/subdir.mk
 -include src/Parse/subdir.mk
 -include src/Dicom/subdir.mk
 -include imebra/imebra/src/subdir.mk

@@ -29,6 +29,7 @@
 									<listOptionValue builtIn="false" value="boost_thread"/>
 									<listOptionValue builtIn="false" value="iconv"/>
 									<listOptionValue builtIn="false" value="protobuf"/>
+									<listOptionValue builtIn="false" value="eio"/>
 								</option>
 								<option id="macosx.cpp.link.option.paths.1667173279" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/Users/aboxer/src/boost_1_46_1/stage/lib"/>
