@@ -24,6 +24,14 @@ public:
 		FrameFragment
 	};
 
+	struct GenericMessage
+	{
+		MessageType type;
+		::google::protobuf::Message* message;
+
+
+	};
+
 	void write(int fd, Protocol::SeriesRequest* seriesRequest)
 	{
 		write(fd, SeriesRequest, seriesRequest);
@@ -37,7 +45,7 @@ public:
 		write(fd, FrameFragment, frameFragment);
 	}
 
-	::google::protobuf::Message* read(int fd)
+	GenericMessage read(int fd)
 	{
 		char type;
 		int n = ::read(fd, &type, 1);
@@ -68,7 +76,10 @@ public:
 			break;
 		}
 	    msg->ParseFromArray(data, size);
-		return msg;
+	    GenericMessage rc;
+	    rc.message = msg;
+	    rc.type = (MessageType)type;
+		return rc;
 	}
 
 private:
