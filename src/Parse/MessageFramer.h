@@ -12,6 +12,10 @@
 
 class MessageFramer {
 public:
+	MessageFramer() :  hasType(false), hasSize(false),data(NULL),offset(0)
+	{
+
+	}
 	virtual ~MessageFramer()
 	{
 
@@ -19,6 +23,7 @@ public:
 
 	enum MessageType
 	{
+		None,
 		SeriesRequest,
 		FrameRequest,
 		FrameFragment
@@ -26,6 +31,11 @@ public:
 
 	struct GenericMessage
 	{
+		GenericMessage()
+		{
+			type = None;
+			message = NULL;
+		}
 		MessageType type;
 		::google::protobuf::Message* message;
 
@@ -45,44 +55,81 @@ public:
 		write(fd, FrameFragment, frameFragment);
 	}
 
+	void initRead()
+	{
+		hasType = false;
+		hasSize = false;
+		if (data)
+			delete[] data;
+		data = NULL;
+		offset = 0;
+	}
+
 	GenericMessage read(int fd)
 	{
-		char type;
-		int n = ::read(fd, &type, 1);
-		if (n < 0)
-			error("Error reading from socket");
+		int n = 0;
+		GenericMessage rc;
 
-		int size;
-		n = ::read(fd, &size, 4);
-		if (n < 0)
-			error("Error reading from socket");
-		size = ntohl(size);
-		char* data = new char[size];
-		n = ::read(fd, data, size);
-		if (n < 0)
-			error("Error reading from socket");
-
-		::google::protobuf::Message* msg;
-		switch(type)
+		if (!hasType)
 		{
-		case SeriesRequest:
-            msg = new Protocol::SeriesRequest();
-			break;
-		case FrameRequest:
-			  msg = new Protocol::FrameRequest();
-			break;
-		case FrameFragment:
-			  msg = new Protocol::FrameFragment();
-			break;
+			n = ::read(fd, &type, 1);
+			if (n < 0)
+				error("Error reading from socket");
+			hasType = true;
 		}
-	    msg->ParseFromArray(data, size);
-	    GenericMessage rc;
-	    rc.message = msg;
-	    rc.type = (MessageType)type;
+		if (!hasSize)
+		{
+			n = ::read(fd, &size, 4);
+			if (n < 0)
+				error("Error reading from socket");
+			hasSize = true;
+			size = ntohl(size);
+		}
+		if (!data)
+		    data = new char[size];
+
+		if (offset != size)
+		{
+			n = ::read(fd, data+offset, size-offset);
+			if (n < 0)
+				error("Error reading from socket");
+			offset += n;
+		}
+
+
+		if (offset == size)
+		{
+			::google::protobuf::Message* msg;
+			switch(type)
+			{
+			case SeriesRequest:
+				msg = new Protocol::SeriesRequest();
+				break;
+			case FrameRequest:
+				  msg = new Protocol::FrameRequest();
+				break;
+			case FrameFragment:
+				  msg = new Protocol::FrameFragment();
+				break;
+			}
+			msg->ParseFromArray(data, size);
+
+			rc.message = msg;
+			rc.type = (MessageType)type;
+
+		}
 		return rc;
 	}
 
 private:
+	bool hasType;
+	char type;
+	bool hasSize;
+	int size;
+	char* data;
+	int offset;
+
+
 	void write(int fd, char type, ::google::protobuf::Message* msg)
 	{
 		int n = ::write(fd, &type,1);

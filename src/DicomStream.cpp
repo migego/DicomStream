@@ -49,6 +49,7 @@ DicomStream::~DicomStream() {
 	// TODO Auto-generated destructor stub
 }
 
+////// STATIC ////////////////////////////
 DicomStream* DicomStream::Instance()
 {
 	if (instance == NULL)
@@ -56,6 +57,33 @@ DicomStream* DicomStream::Instance()
 	return instance;
 
 }
+
+
+void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+	Instance()->write_cb_(loop,w,revents);
+}
+
+void DicomStream::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+   Instance()->read_cb_(loop,w,revents);
+}
+void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+	Instance()->accept_cb_(loop, w, revents);
+}
+
+void DicomStream::preFetch()
+{
+   Instance()->preFetch_();
+
+}
+void DicomStream::clientTest()
+{
+
+   Instance()->clientTest_();
+}
+//////////////////////////////////////////
 
 void DicomStream::start()
 {
@@ -66,16 +94,15 @@ void DicomStream::start()
 	catch (boost::property_tree::info_parser_error &e) {
 		std::cout << "error" << std::endl;
 	}
-	unsigned short port;
 	try {
 		port = pTree.get<int>("server.port");
+		path = pTree.get<string>("storage.path");
 	}
-
 	catch(boost::property_tree::ptree_bad_path &e) {
 		std::cout << "error" << std::endl;
 	}
 
-    boost::thread workerThread(workerFunc);
+    boost::thread workerThread(preFetch);
 
 
 	//create listen socket
@@ -120,19 +147,6 @@ int DicomStream::setnonblock(int fd)
     return 0;
 }
 
-void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-	Instance()->write_cb_(loop,w,revents);
-}
-
-void DicomStream::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-   Instance()->read_cb_(loop,w,revents);
-}
-void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-	Instance()->accept_cb_(loop, w, revents);
-}
 
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
@@ -181,12 +195,8 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	ev_io_start(loop,&myClient->ev_read);
 }
 
-void DicomStream::workerFunc()
-{
-   Instance()->workerFunc_();
 
-}
-void DicomStream::workerFunc_()
+void DicomStream::preFetch_()
 {
 
 	string file;
@@ -198,33 +208,11 @@ void DicomStream::workerFunc_()
 
 }
 
-void DicomStream::clientTest()
-{
 
-   Instance()->clientTest_();
-}
 
 void DicomStream::clientTest_()
 {
-	boost::property_tree::ptree pTree;
-	try {
-		read_info("src/DicomStream.cfg", pTree);
-	}
-	catch (boost::property_tree::info_parser_error &e) {
-		std::cout << "error" << std::endl;
-	}
-	unsigned short port;
-	try {
-		port = pTree.get<int>("server.port");
-	}
-
-	catch(boost::property_tree::ptree_bad_path &e) {
-		std::cout << "error" << std::endl;
-	}
-
-
-
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		string host = "localhost";
 	    int sockfd, n;
@@ -249,16 +237,16 @@ void DicomStream::clientTest_()
 	    	perror("ERROR connecting");
 
 	    Protocol::SeriesRequest* req = new Protocol::SeriesRequest();
-	    req->set_studyuid("studyuid");
+	    req->set_studyuid("study1");
 	    req->set_studyuidnumber(0);
-	    req->set_seriesuid("seriesuid");
+	    req->set_seriesuid("series1");
 	    req->set_seriesuidnumber(0);
 	    req->set_type(Protocol::SeriesRequest_RequestType_Fetch);
 	    req->set_priority(Protocol::SeriesRequest_Priority_Selected);
 	    req->set_instanceuidprefix("");
 
 	    Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
-	    frameReq->set_instanceuid("instanceuid");
+	    frameReq->set_instanceuid("US1_J2KR");
 	    frameReq->set_instanceuidnumber(0);
 	    frameReq->set_framenumber(1);
 
@@ -267,13 +255,14 @@ void DicomStream::clientTest_()
 	    framer->write(sockfd, req);
 	    delete framer;
 
-	    if (n < 0)
-	    	perror("ERROR writing to socket");
 	    bzero(buffer,256);
-	    n = read(sockfd,buffer,255);
+	    while ( (n = read(sockfd,buffer,255)) > 0 )
+	    {
+	        printf("%s\n",buffer);
+	    }
 	    if (n < 0)
 	    	perror("ERROR reading from socket");
-	    printf("%s\n",buffer);
+
 	    close(sockfd);
 		sleep(1);
 

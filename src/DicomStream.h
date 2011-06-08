@@ -17,16 +17,17 @@
 
 class DicomStream {
 public:
-	DicomStream();
-	virtual ~DicomStream();
 
 	static DicomStream* Instance();
-
 	void start();
-
 
 private:
 
+	DicomStream();
+	virtual ~DicomStream();
+
+	unsigned short port;
+	string path;
 
 	struct client {
 	        int fd;
@@ -51,10 +52,10 @@ private:
 	void read_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 	void accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 
-	static void workerFunc();
+	static void preFetch();
 	static void clientTest();
 
-	void workerFunc_();
+	void preFetch_();
 	void clientTest_();
 
 
