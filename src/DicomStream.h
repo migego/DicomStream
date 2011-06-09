@@ -15,6 +15,9 @@
 
 #include "Parse/MessageFramer.h"
 
+#include <map>
+using namespace std;
+
 class DicomStream {
 public:
 
@@ -38,7 +41,10 @@ private:
 	static DicomStream* instance;
 
 	ev_io ev_accept;
-	MessageFramer framer;
+
+	void createMessageFramer(int fd);
+	void deleteMessageFramer(int fd);
+	map<int, MessageFramer*> messageFramers;
 	concurrent_queue< string, UpDownIterator< string, SimplFragmentIterator<string> > > precacheQueue;
 	bool stopPrecache;
 

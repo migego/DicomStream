@@ -12,7 +12,7 @@
 
 class MessageFramer {
 public:
-	MessageFramer() :  hasType(false), hasSize(false),data(NULL),offset(0)
+	MessageFramer(int fd) : fd(fd), hasType(false), hasSize(false),data(NULL),offset(0)
 	{
 
 	}
@@ -42,17 +42,17 @@ public:
 
 	};
 
-	void write(int fd, Protocol::SeriesRequest* seriesRequest)
+	void write(Protocol::SeriesRequest* seriesRequest)
 	{
-		write(fd, SeriesRequest, seriesRequest);
+		write(SeriesRequest, seriesRequest);
 	}
-	void write(int fd, Protocol::FrameResponse* frameResponse)
+	void write(Protocol::FrameResponse* frameResponse)
 	{
-		write(fd, FrameRequest, frameResponse);
+		write(FrameRequest, frameResponse);
 	}
-	void write(int fd, Protocol::FrameFragment* frameFragment)
+	void write(Protocol::FrameFragment* frameFragment)
 	{
-		write(fd, FrameFragment, frameFragment);
+		write(FrameFragment, frameFragment);
 	}
 
 	void initRead()
@@ -65,7 +65,7 @@ public:
 		offset = 0;
 	}
 
-	GenericMessage read(int fd)
+	GenericMessage read()
 	{
 		int n = 0;
 		GenericMessage rc;
@@ -74,14 +74,14 @@ public:
 		{
 			n = ::read(fd, &type, 1);
 			if (n < 0)
-				error("Error reading from socket");
+				perror("Error reading from socket");
 			hasType = true;
 		}
 		if (!hasSize)
 		{
-			n = ::read(fd, &size, 4);
+			n = ::read(fd, &size, sizeof(int));
 			if (n < 0)
-				error("Error reading from socket");
+				perror("Error reading from socket");
 			hasSize = true;
 			size = ntohl(size);
 		}
@@ -92,14 +92,14 @@ public:
 		{
 			n = ::read(fd, data+offset, size-offset);
 			if (n < 0)
-				error("Error reading from socket");
+				perror("Error reading from socket");
 			offset += n;
 		}
 
 
 		if (offset == size)
 		{
-			::google::protobuf::Message* msg;
+			::google::protobuf::Message* msg = NULL;
 			switch(type)
 			{
 			case SeriesRequest:
@@ -111,17 +111,28 @@ public:
 			case FrameFragment:
 				  msg = new Protocol::FrameFragment();
 				break;
+			default:
+				break;
 			}
-			msg->ParseFromArray(data, size);
+			if (msg != NULL)
+			{
+				msg->ParseFromArray(data, size);
 
-			rc.message = msg;
-			rc.type = (MessageType)type;
+				rc.message = msg;
+				rc.type = (MessageType)type;
+
+				//prepare for next message
+				initRead();
+			}
 
 		}
 		return rc;
 	}
 
 private:
+
+	int fd;
+
 	bool hasType;
 	char type;
 	bool hasSize;
@@ -130,27 +141,24 @@ private:
 	int offset;
 
 
-	void write(int fd, char type, ::google::protobuf::Message* msg)
+	void write(char type, ::google::protobuf::Message* msg)
 	{
 		int n = ::write(fd, &type,1);
 		if (n < 0)
-			error("Error writing to socket");
+			perror("Error writing to socket");
 		int size = msg->ByteSize();
 		int sizeBE = htonl(size);
 		n = ::write(fd, &sizeBE, sizeof(size));
 		if (n < 0)
-			error("Error writing to socket");
+			perror("Error writing to socket");
 		char* data = new char[size];
 		msg->SerializeToArray(data, size);
 		n = ::write(fd, data, size );
 		if (n < 0)
-			error("Error writing to socket");
+			perror("Error writing to socket");
 	    delete[] data;
 	}
-	void error(const char *msg)
-	{
-	    perror(msg);
-	}
+
 
 };
 

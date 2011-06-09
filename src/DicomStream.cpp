@@ -151,12 +151,13 @@ int DicomStream::setnonblock(int fd)
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
     client *cli= ((client*) (((char*)w) - offsetof(struct client,ev_write)));
-	char superjared[]="HTTP/1.1 200 OK\r\nContent-Length: 336\r\nConnection: close\r\nContent-Type: text/html\r\nDate: Sat, 26 Apr 2008 01:13:35 GMT\r\nServer: lighttz/0.1\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\" version=\"-//W3C//DTD XHTML 1.1//EN\" xml:lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Hello World</title></head><body><p>Hello World</p></body></html>";
+	char hello[]="Hello World";
 
  	if (revents & EV_WRITE){
-		write(cli->fd,superjared,strlen(superjared));
+		write(cli->fd,hello,strlen(hello));
 		ev_io_stop(EV_A_ w);
 	}
+	deleteMessageFramer(cli->fd);
  	close(cli->fd);
 	delete cli;
 
@@ -169,7 +170,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
     client *cli= ((client*) (((char*)w) - offsetof(client,ev_read)));
     MessageFramer::GenericMessage msg;
 	if (revents & EV_READ){
-		msg  = framer.read(cli->fd);
+		msg  = messageFramers[cli->fd]->read();
 
 	}
 	ev_io_stop(EV_A_ w);
@@ -186,13 +187,28 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	if (client_fd == -1) {
 			return;
 	}
-
     client* myClient = new client;
 	myClient->fd=client_fd;
 	if (setnonblock(myClient->fd) < 0)
          err(1, "failed to set client socket to non-blocking");
+
+	createMessageFramer(client_fd);
 	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
 	ev_io_start(loop,&myClient->ev_read);
+}
+
+void DicomStream::createMessageFramer(int fd)
+{
+	deleteMessageFramer(fd);
+	messageFramers[fd] = new MessageFramer(fd);
+}
+void DicomStream::deleteMessageFramer(int fd)
+{
+	if ( messageFramers.find(fd) != messageFramers.end() )
+	{
+		delete messageFramers[fd];
+		messageFramers.erase(fd);
+	}
 }
 
 
@@ -251,8 +267,8 @@ void DicomStream::clientTest_()
 	    frameReq->set_framenumber(1);
 
 
-	    MessageFramer* framer = new MessageFramer();
-	    framer->write(sockfd, req);
+	    MessageFramer* framer = new MessageFramer(sockfd);
+	    framer->write(req);
 	    delete framer;
 
 	    bzero(buffer,256);
