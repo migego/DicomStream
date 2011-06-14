@@ -2,10 +2,7 @@
 
 int main()
 {
-
-
    DicomStream::Instance()->start();
-
 	return 0;
 }
 

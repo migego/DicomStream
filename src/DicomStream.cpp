@@ -111,15 +111,13 @@ void DicomStream::start()
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0)
             err(1, "listen failed");
-    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on,
-            sizeof(reuseaddr_on)) == -1)
+    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on, sizeof(reuseaddr_on)) == -1)
             err(1, "setsockopt failed");
     memset(&listen_addr, 0, sizeof(listen_addr));
     listen_addr.sin_family = AF_INET;
     listen_addr.sin_addr.s_addr = INADDR_ANY;
     listen_addr.sin_port = htons(port);
-    if (bind(listen_fd, (struct sockaddr *)&listen_addr,
-            sizeof(listen_addr)) < 0)
+    if (bind(listen_fd, (struct sockaddr *)&listen_addr, sizeof(listen_addr)) < 0)
             err(1, "bind failed");
     if (listen(listen_fd,5) < 0)
             err(1, "listen failed");
@@ -170,7 +168,17 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
     client *cli= ((client*) (((char*)w) - offsetof(client,ev_read)));
     MessageFramer::GenericMessage msg;
 	if (revents & EV_READ){
+		// parse message
+		printf("Reading message \n");
 		msg  = messageFramers[cli->fd]->read();
+		if (msg.message != NULL)
+		{
+
+			//process message
+			processIncomingMessage(msg);
+
+
+		}
 
 	}
 	ev_io_stop(EV_A_ w);
@@ -190,7 +198,11 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
     client* myClient = new client;
 	myClient->fd=client_fd;
 	if (setnonblock(myClient->fd) < 0)
+	{
          err(1, "failed to set client socket to non-blocking");
+         close(client_fd);
+         return;
+	}
 
 	createMessageFramer(client_fd);
 	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
@@ -211,6 +223,45 @@ void DicomStream::deleteMessageFramer(int fd)
 	}
 }
 
+void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
+{
+	if (msg.message == NULL)
+		return;
+	switch(msg.type)
+	{
+	case MessageFramer::SeriesRequest:
+	    {
+	    Protocol::SeriesRequest* seriesMessage = static_cast<Protocol::SeriesRequest*>(msg.message);
+	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
+	    while (frames != seriesMessage->frames().end())
+	    {
+		    string fileName = path
+		    		          + "/" + seriesMessage->studyuid()
+		    		          + "/" + seriesMessage->seriesuid()
+		    		          + "/" + seriesMessage->instanceuidprefix() + frames->instanceuid() + ".dcm";
+		    printf("Requesting file: %s\n",fileName.c_str());
+
+		    // start pre-fetch on this file
+		   // precacheQueue.push(new UpDownIterator<string, >(fileName));
+
+
+
+		    frames++;
+	    }
+
+	    }
+		break;
+	case MessageFramer::FrameRequest:
+
+
+		 // msg = new Protocol::FrameRequest();
+		break;
+	default:
+		break;
+	}
+	delete msg.message;
+
+}
 
 void DicomStream::preFetch_()
 {
@@ -262,9 +313,10 @@ void DicomStream::clientTest_()
 	    req->set_instanceuidprefix("");
 
 	    Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
-	    frameReq->set_instanceuid("US1_J2KR");
+	    frameReq->set_instanceuid("instance1");
 	    frameReq->set_instanceuidnumber(0);
 	    frameReq->set_framenumber(1);
+	    req->mutable_frames()->AddAllocated(frameReq);
 
 
 	    MessageFramer* framer = new MessageFramer(sockfd);

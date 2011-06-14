@@ -45,6 +45,10 @@ private:
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
 	map<int, MessageFramer*> messageFramers;
+	void processIncomingMessage(MessageFramer::GenericMessage msg);
+
+
+
 	concurrent_queue< string, UpDownIterator< string, SimplFragmentIterator<string> > > precacheQueue;
 	bool stopPrecache;
 

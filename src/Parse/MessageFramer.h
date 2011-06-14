@@ -12,7 +12,7 @@
 
 class MessageFramer {
 public:
-	MessageFramer(int fd) : fd(fd), hasType(false), hasSize(false),data(NULL),offset(0)
+	MessageFramer(int fd) : fd(fd), hasType(false), sizeOffset(0),data(NULL),offset(0)
 	{
 
 	}
@@ -58,11 +58,23 @@ public:
 	void initRead()
 	{
 		hasType = false;
-		hasSize = false;
+		sizeOffset = 0;
 		if (data)
 			delete[] data;
 		data = NULL;
 		offset = 0;
+	}
+
+	bool validateRead(int n)
+	{
+		if (n < 0)
+		{
+			perror("Error reading from socket");
+		   close (fd);
+		   return false;
+		}
+		return true;
+
 	}
 
 	GenericMessage read()
@@ -73,17 +85,27 @@ public:
 		if (!hasType)
 		{
 			n = ::read(fd, &type, 1);
-			if (n < 0)
-				perror("Error reading from socket");
+			if (!validateRead(n) || n == 0)
+				return rc;
+
 			hasType = true;
 		}
-		if (!hasSize)
+		if (sizeOffset != 4)
 		{
-			n = ::read(fd, &size, sizeof(int));
-			if (n < 0)
-				perror("Error reading from socket");
-			hasSize = true;
-			size = ntohl(size);
+			n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
+			if (!validateRead(n) || n == 0)
+				return rc;
+			sizeOffset += n;
+			while (n > 0)
+			{
+				n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
+				if (!validateRead(n))
+					return rc;
+				sizeOffset += n;
+			}
+			if (sizeOffset != 4)
+				return rc;
+			size = ntohl( *((int*)rawSize));
 		}
 		if (!data)
 		    data = new char[size];
@@ -91,9 +113,19 @@ public:
 		if (offset != size)
 		{
 			n = ::read(fd, data+offset, size-offset);
-			if (n < 0)
-				perror("Error reading from socket");
+			if (!validateRead(n) )
+				return rc;
+
 			offset += n;
+			while ( n > 0)
+			{
+				n = ::read(fd, data+offset, size-offset);
+				if (!validateRead(n) )
+					return rc;
+
+				offset += n;
+			}
+
 		}
 
 
@@ -116,6 +148,7 @@ public:
 			}
 			if (msg != NULL)
 			{
+				printf("parsed message\n");
 				msg->ParseFromArray(data, size);
 
 				rc.message = msg;
@@ -135,8 +168,9 @@ private:
 
 	bool hasType;
 	char type;
-	bool hasSize;
+	char rawSize[4];
 	int size;
+	int sizeOffset;
 	char* data;
 	int offset;
 
