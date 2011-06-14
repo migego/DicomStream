@@ -68,6 +68,8 @@ private:
 	void preFetch_();
 	void clientTest_();
 
+	void unitTest();
+
 
 
 };

@@ -59,15 +59,21 @@ private:
     bool doPop(Data& popped_value)
     {
         if(the_queue.empty())
-        {
             return false;
-        }
+
 
         Iterator* iter = the_queue.front();
+        if (iter == NULL)
+        	return false;
         while (!iter->nextFragment(popped_value))
         {
         	delete iter;
             the_queue.pop_front();
+            if(the_queue.empty())
+                return false;
+            iter = the_queue.front();
+            if (iter == NULL)
+            	return false;
 
         }
 

@@ -13,41 +13,51 @@ using namespace std;
 
 template <typename Data, typename FragmentIterator> class UpDownIterator {
 protected:
-	vector<FragmentIterator*> items;
+	vector<FragmentIterator*>* items;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
 	bool done;
 public:
-	UpDownIterator(vector<FragmentIterator*> items, size_t primaryIndex) : items(items),
-																primaryIndex(primaryIndex),
-																currentIndex(primaryIndex)
+	virtual ~UpDownIterator()
 	{
+		if (items != NULL)
+			delete items;
+	}
+	UpDownIterator(vector<FragmentIterator*>* itms, size_t primaryInd)
+	{
+		items = itms;
+		primaryIndex = primaryInd;
+		currentIndex = primaryInd;
 		count=0;
-		done = false;
-		if (items.empty() || currentIndex < 0 || currentIndex >= items.size())
+		done=false;
+	    if ( currentIndex >= items->size()  )
+	    	done = true;
+		if (items == NULL || items->empty())
 			done = true;
 
 	}
-	bool next(Data& item)
+
+
+	bool nextFragment(Data& item)
 	{
 		if (done)
 			return false;
 
+		//is there another fragment ?
+		if (getNextFragment(item))
+			return true;
+
 		//first time
 		if (count == 0)
 		{
-			  if (nextFragment(item))
-			     return true;
-			  //after first item is done, then increment count to 2
-			  count = 2;
+			  //after first item is done, then increment count, so that it will be equal to 2 at next increment
+			  count++;
 		}
 
-		//is there another fragment ?
-		if (nextFragment(item))
-			return true;
 
-		int maxIncr = max(primaryIndex, items.count - primaryIndex)-1;
+
+		int maxIncr = max(primaryIndex,  items->size() - primaryIndex)-1;
 		int incr = 0;
 		while (incr <= maxIncr)
 		{
@@ -56,14 +66,15 @@ public:
 			{
 				count++;
 			    incr = count >> 1;
+			    //if count is odd..
 				if ( count&1 == 1)
 					incr *= -1;
 
 				int nextIndex = primaryIndex + incr;
-				if (nextIndex >= 0 && nextIndex < items.size())
+				if (nextIndex >= 0 && nextIndex < items->size())
 				{
 					currentIndex = nextIndex;
-					if (!nextFragment(item))
+					if (!getNextFragment(item))
 						continue;
 					return true;
 				}
@@ -73,14 +84,16 @@ public:
 		return false;
 
 	}
-    bool nextFragment(Data& fragment)
+    bool getNextFragment(Data& fragment)
 	{
-    	FragmentIterator* iter  = items[currentIndex];
+    	FragmentIterator* iter  = items->operator[](currentIndex);
+    	if (!iter)
+    		return false;
 		bool rc =  iter->nextFragment(fragment);
 		if (!rc)
 		{
 			delete iter;
-			items[currentIndex] = NULL;
+			items->operator[](currentIndex) = NULL;
 		}
 		return rc;
 	}

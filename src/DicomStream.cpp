@@ -86,8 +86,36 @@ void DicomStream::clientTest()
 }
 //////////////////////////////////////////
 
+void DicomStream::unitTest()
+{
+    //start prefetch thread
+    boost::thread workerThread(preFetch);
+
+    vector< SimpleFragmentIterator<string>*  >* fragIterators = new vector< SimpleFragmentIterator<string>*  >();
+
+	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa1"));
+	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa2"));
+	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa3"));
+
+
+    UpDownIterator< string, SimpleFragmentIterator<string> >* upDown = new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 1);
+
+    // start pre-fetch on these files
+    if ( !fragIterators->empty())
+        precacheQueue.push(upDown);
+
+    sleep(5000);
+
+}
+
 void DicomStream::start()
 {
+
+	//unitTest();
+
+
+
+	// read config file
 	boost::property_tree::ptree pTree;
 	try {
 		read_info("src/DicomStream.cfg", pTree);
@@ -103,7 +131,11 @@ void DicomStream::start()
 		std::cout << "error" << std::endl;
 	}
 
+    //start prefetch thread
     boost::thread workerThread(preFetch);
+
+    //start client test thread
+    boost::thread clientTestThread(clientTest);
 
 
 	//create listen socket
@@ -129,8 +161,6 @@ void DicomStream::start()
 	ev_io_init(&ev_accept,accept_cb,listen_fd,EV_READ);
     struct ev_loop *loop = ev_default_loop (0);
 	ev_io_start(loop,&ev_accept);
-    boost::thread clientTestThread(clientTest);
-
 	ev_loop (loop, 0);
 }
 
@@ -234,7 +264,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	    {
 	    Protocol::SeriesRequest* seriesMessage = static_cast<Protocol::SeriesRequest*>(msg.message);
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
-	    vector< SimpleFragmentIterator<string>*  > fragIterators;
+	    vector< SimpleFragmentIterator<string>*  >* fragIterators = new vector< SimpleFragmentIterator<string>*  >();
 	    while (frames != seriesMessage->frames().end())
 	    {
 		    string fileName = path
@@ -243,16 +273,15 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    		          + "/" + seriesMessage->instanceuidprefix() + frames->instanceuid() + ".dcm";
 		    printf("Requesting file: %s\n",fileName.c_str());
 
-		    fragIterators.push_back(new SimpleFragmentIterator<string>(fileName));
+		    fragIterators->push_back(new SimpleFragmentIterator<string>(fileName));
 
 
 		    frames++;
 	    }
 
-	    // start pre-fetch on this file
-	    precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
-
-
+	    // start pre-fetch on these files
+	   // if ( !fragIterators->empty())
+	     //   precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
 
 	    }
 		break;
