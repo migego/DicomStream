@@ -13,19 +13,19 @@ using namespace std;
 
 template <typename Data, typename FragmentIterator> class UpDownIterator {
 protected:
-	vector<FragmentIterator> items;
+	vector<FragmentIterator*> items;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
 	bool done;
 public:
-	UpDownIterator(vector<FragmentIterator> items, size_t primaryIndex) : items(items),
+	UpDownIterator(vector<FragmentIterator*> items, size_t primaryIndex) : items(items),
 																primaryIndex(primaryIndex),
 																currentIndex(primaryIndex)
 	{
 		count=0;
 		done = false;
-		if (items.empty() || currentIndex < 0 || currentIndex >= items.count())
+		if (items.empty() || currentIndex < 0 || currentIndex >= items.size())
 			done = true;
 
 	}
@@ -75,8 +75,14 @@ public:
 	}
     bool nextFragment(Data& fragment)
 	{
-    	FragmentIterator iter  = items[currentIndex];
-		return  iter.nextFragment(fragment);
+    	FragmentIterator* iter  = items[currentIndex];
+		bool rc =  iter->nextFragment(fragment);
+		if (!rc)
+		{
+			delete iter;
+			items[currentIndex] = NULL;
+		}
+		return rc;
 	}
 
 };

@@ -30,6 +30,7 @@ using namespace std;
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/info_parser.hpp>
 #include <string>
+#include <vector>
 
 
 
@@ -233,6 +234,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	    {
 	    Protocol::SeriesRequest* seriesMessage = static_cast<Protocol::SeriesRequest*>(msg.message);
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
+	    vector< SimpleFragmentIterator<string>*  > fragIterators;
 	    while (frames != seriesMessage->frames().end())
 	    {
 		    string fileName = path
@@ -241,13 +243,16 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    		          + "/" + seriesMessage->instanceuidprefix() + frames->instanceuid() + ".dcm";
 		    printf("Requesting file: %s\n",fileName.c_str());
 
-		    // start pre-fetch on this file
-		   // precacheQueue.push(new UpDownIterator<string, >(fileName));
-
+		    fragIterators.push_back(new SimpleFragmentIterator<string>(fileName));
 
 
 		    frames++;
 	    }
+
+	    // start pre-fetch on this file
+	    precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
+
+
 
 	    }
 		break;
@@ -267,8 +272,9 @@ void DicomStream::preFetch_()
 {
 
 	string file;
-	if (precacheQueue.try_pop(file))
+	while (precacheQueue.wait_and_pop(file) )
 	{
+		printf("prefetching file %s\n",file.c_str());
 		//posix_fadvise();
 	}
 

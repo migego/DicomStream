@@ -10,7 +10,7 @@
 
 
 
-template <typename Data> class SimplFragmentIterator {
+template <typename Data> class SimpleFragmentIterator {
 
 private:
 	Data item;
@@ -18,7 +18,7 @@ private:
 
 public:
 
-	SimplFragmentIterator(Data item): item(item), done(false)
+	SimpleFragmentIterator(Data item): item(item), done(false)
 	{
 
 	}

@@ -16,12 +16,14 @@
 template < typename Data, typename Iterator > class concurrent_queue
 {
 protected:
-    std::list<Iterator> the_queue;
+    std::list<Iterator*> the_queue;
     mutable boost::mutex the_mutex;
     boost::condition_variable the_condition_variable;
 public:
-    void push(Iterator const& iterator)
+    void push(Iterator* iterator)
     {
+    	if (iterator == NULL)
+    		return;
         boost::mutex::scoped_lock lock(the_mutex);
         the_queue.push_back(iterator);
         lock.unlock();
@@ -61,9 +63,13 @@ private:
             return false;
         }
 
-        Iterator iter = the_queue.front();
-        while (!iter.nextFragment(popped_value))
+        Iterator* iter = the_queue.front();
+        while (!iter->nextFragment(popped_value))
+        {
+        	delete iter;
             the_queue.pop_front();
+
+        }
 
         return true;
     }

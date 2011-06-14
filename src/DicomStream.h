@@ -49,7 +49,7 @@ private:
 
 
 
-	concurrent_queue< string, UpDownIterator< string, SimplFragmentIterator<string> > > precacheQueue;
+	concurrent_queue< string, UpDownIterator< string, SimpleFragmentIterator<string> > > precacheQueue;
 	bool stopPrecache;
 
 	int setnonblock(int fd);
