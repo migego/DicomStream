@@ -21,11 +21,10 @@ private:
 
 public:
 
-	FragmentIterator(size_t size, size_t chunk) : done(false), size(size), chunk(chunk)
+	FragmentIterator(size_t size, size_t chunk) : done(false), size(size), offset(0), chunk(chunk)
 	{
-       offset = 0;
 	}
-    bool nextFragment( FrameFragment& fragment)
+    bool next( FrameFragment& fragment)
 	{
 		if (done)
 			return false;

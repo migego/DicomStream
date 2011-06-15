@@ -61,22 +61,17 @@ private:
         if(the_queue.empty())
             return false;
 
-
         Iterator* iter = the_queue.front();
-        if (iter == NULL)
-        	return false;
-        while (!iter->nextFragment(popped_value))
+
+        //remove iterators that are done
+        while (!iter->next(popped_value))
         {
         	delete iter;
             the_queue.pop_front();
             if(the_queue.empty())
                 return false;
             iter = the_queue.front();
-            if (iter == NULL)
-            	return false;
-
         }
-
         return true;
     }
 

@@ -15,15 +15,14 @@ template <typename Data> class SimpleFragmentIterator {
 private:
 	Data item;
 	bool done;
-
 public:
 
 	SimpleFragmentIterator(Data item): item(item), done(false)
 	{
 
 	}
-
-    bool nextFragment( Data& fragment)
+    // return false if iterator is done ( in which case the iterator will be freed and removed from parent)
+    bool next( Data& fragment)
 	{
     	if (done)
     		return false;

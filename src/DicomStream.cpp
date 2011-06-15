@@ -280,8 +280,8 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	    }
 
 	    // start pre-fetch on these files
-	   // if ( !fragIterators->empty())
-	     //   precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
+	   if ( !fragIterators->empty())
+	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
 
 	    }
 		break;
@@ -300,13 +300,17 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 void DicomStream::preFetch_()
 {
 
+	printf("starting prefetch thread\n");
 	string file;
-	while (precacheQueue.wait_and_pop(file) )
+	while(true)
 	{
-		printf("prefetching file %s\n",file.c_str());
+		if (precacheQueue.wait_and_pop(file))
+		    printf("prefetching file %s\n",file.c_str());
 		//posix_fadvise();
+
 	}
 
+	printf("exiting prefetch thread\n");
 
 }
 
@@ -353,6 +357,17 @@ void DicomStream::clientTest_()
 	    frameReq->set_framenumber(1);
 	    req->mutable_frames()->AddAllocated(frameReq);
 
+	    frameReq = new Protocol::FrameRequest();
+		frameReq->set_instanceuid("instance2");
+		frameReq->set_instanceuidnumber(1);
+		frameReq->set_framenumber(1);
+		req->mutable_frames()->AddAllocated(frameReq);
+
+		frameReq = new Protocol::FrameRequest();
+		frameReq->set_instanceuid("instance3");
+		frameReq->set_instanceuidnumber(2);
+		frameReq->set_framenumber(1);
+		req->mutable_frames()->AddAllocated(frameReq);
 
 	    MessageFramer* framer = new MessageFramer(sockfd);
 	    framer->write(req);
