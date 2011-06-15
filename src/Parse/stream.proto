@@ -9,7 +9,7 @@ message FrameRequest
 {
 	required string instanceUid=1;
 	required uint32 instanceUidNumber=2;  // used to avoid passing instance uid every time
-    optional uint32 frameNumber=3;        // for multiframe
+    required uint32 frameNumber=3;        // for multiframe
 }
 
 

@@ -14,6 +14,7 @@
 #include "Queue/SimpleFragmentIterator.h"
 
 #include "Parse/MessageFramer.h"
+#include "Dicom/FileParser.h"
 
 #include <map>
 using namespace std;
@@ -30,27 +31,34 @@ private:
 	virtual ~DicomStream();
 
 	unsigned short port;
-	string path;
 
 	struct client {
 	        int fd;
 	        ev_io ev_write;
 			ev_io ev_read;
 	};
-
-	static DicomStream* instance;
-
 	ev_io ev_accept;
 
+	//singleton
+	static DicomStream* instance;
+
+
+	// message processing
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
 	map<int, MessageFramer*> messageFramers;
 	void processIncomingMessage(MessageFramer::GenericMessage msg);
 
+	map<string, FileParser*> fileParsers;
 
-
+	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleFragmentIterator<string> > > precacheQueue;
 	bool stopPrecache;
+	string path;
+	static void preFetch();
+	void preFetch_();
+	void clientTest_();
+	static void clientTest();
 
 	int setnonblock(int fd);
 
@@ -62,15 +70,7 @@ private:
 	void read_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 	void accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 
-	static void preFetch();
-	static void clientTest();
-
-	void preFetch_();
-	void clientTest_();
-
 	void unitTest();
-
-
 
 };
 

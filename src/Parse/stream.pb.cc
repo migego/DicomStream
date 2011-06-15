@@ -182,7 +182,7 @@ void protobuf_AddDesc_stream_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014stream.proto\022\010Protocol\"S\n\014FrameRequest"
     "\022\023\n\013instanceUid\030\001 \002(\t\022\031\n\021instanceUidNumb"
-    "er\030\002 \002(\r\022\023\n\013frameNumber\030\003 \001(\r\"\222\003\n\rSeries"
+    "er\030\002 \002(\r\022\023\n\013frameNumber\030\003 \002(\r\"\222\003\n\rSeries"
     "Request\0221\n\004type\030\001 \002(\0162#.Protocol.SeriesR"
     "equest.RequestType\022\020\n\010studyUid\030\002 \002(\t\022\026\n\016"
     "studyUidNumber\030\003 \002(\r\022\021\n\tseriesUid\030\004 \002(\t\022"
@@ -336,7 +336,7 @@ bool FrameRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // optional uint32 frameNumber = 3;
+      // required uint32 frameNumber = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -384,7 +384,7 @@ void FrameRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->instanceuidnumber(), output);
   }
   
-  // optional uint32 frameNumber = 3;
+  // required uint32 frameNumber = 3;
   if (has_framenumber()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->framenumber(), output);
   }
@@ -412,7 +412,7 @@ void FrameRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->instanceuidnumber(), target);
   }
   
-  // optional uint32 frameNumber = 3;
+  // required uint32 frameNumber = 3;
   if (has_framenumber()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->framenumber(), target);
   }
@@ -442,7 +442,7 @@ int FrameRequest::ByteSize() const {
           this->instanceuidnumber());
     }
     
-    // optional uint32 frameNumber = 3;
+    // required uint32 frameNumber = 3;
     if (has_framenumber()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -502,7 +502,7 @@ void FrameRequest::CopyFrom(const FrameRequest& from) {
 }
 
 bool FrameRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   return true;
 }

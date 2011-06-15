@@ -153,7 +153,7 @@ class FrameRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 instanceuidnumber() const;
   inline void set_instanceuidnumber(::google::protobuf::uint32 value);
   
-  // optional uint32 frameNumber = 3;
+  // required uint32 frameNumber = 3;
   inline bool has_framenumber() const;
   inline void clear_framenumber();
   static const int kFrameNumberFieldNumber = 3;
@@ -778,7 +778,7 @@ inline void FrameRequest::set_instanceuidnumber(::google::protobuf::uint32 value
   instanceuidnumber_ = value;
 }
 
-// optional uint32 frameNumber = 3;
+// required uint32 frameNumber = 3;
 inline bool FrameRequest::has_framenumber() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }

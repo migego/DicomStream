@@ -39,10 +39,7 @@ public:
     bool try_pop(Data& popped_value)
     {
         boost::mutex::scoped_lock lock(the_mutex);
-
         return doPop(popped_value);
-
-
     }
 
     bool wait_and_pop(Data& popped_value)
@@ -52,7 +49,6 @@ public:
         {
             the_condition_variable.wait(lock);
         }
-
         return doPop(popped_value);
     }
 private:

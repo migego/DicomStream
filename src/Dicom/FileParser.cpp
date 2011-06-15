@@ -38,7 +38,16 @@ void FileParser::parse(string fileName)
 	ptr<codecs::codecFactory> codecsFactory(codecs::codecFactory::getCodecFactory());
 	ptr<dataSet> loadedDataSet = codecsFactory->load(reader, 2048);
 
-	// Get the patient name
-	wstring patientName(loadedDataSet->getUnicodeString(0x10, 0, 0x10, 0));
+	imbxUint32 frameCount = 0;
+	imbxUint32 offset = 0;
+	imbxUint32 length=0;
+	printf("==== %s =====\n",fileName.c_str());
+	while( loadedDataSet->getImageOffset(frameCount,offset,length) )
+	{
+		printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
+		frameCount++;
+
+	}
+
 
 }

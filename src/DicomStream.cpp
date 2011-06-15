@@ -23,27 +23,20 @@ using namespace std;
 #include <err.h>
 #include <stddef.h>
 
-#include <sys/mount.h>
-
 #include <boost/thread.hpp>
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/info_parser.hpp>
 #include <string>
 #include <vector>
-
-
-
-
-
 #include "DicomStream.h"
 
+#define CLIENT_TEST
 
 DicomStream* DicomStream::instance=NULL;
 
-DicomStream::DicomStream() {
-
-
+DicomStream::DicomStream() : stopPrecache(false)
+{
 }
 
 DicomStream::~DicomStream() {
@@ -110,10 +103,7 @@ void DicomStream::unitTest()
 
 void DicomStream::start()
 {
-
 	//unitTest();
-
-
 
 	// read config file
 	boost::property_tree::ptree pTree;
@@ -135,8 +125,9 @@ void DicomStream::start()
     boost::thread workerThread(preFetch);
 
     //start client test thread
+#ifdef CLIENT_TEST
     boost::thread clientTestThread(clientTest);
-
+#endif
 
 	//create listen socket
     sockaddr_in listen_addr;
@@ -204,18 +195,17 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		msg  = messageFramers[cli->fd]->read();
 		if (msg.message != NULL)
 		{
-
 			//process message
 			processIncomingMessage(msg);
-
-
 		}
 
 	}
 	ev_io_stop(EV_A_ w);
-	ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-	ev_io_start(loop,&cli->ev_write);
-
+	if (msg.message != NULL)
+	{
+		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+		ev_io_start(loop,&cli->ev_write);
+	}
 }
 
 void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
@@ -271,10 +261,24 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    		          + "/" + seriesMessage->studyuid()
 		    		          + "/" + seriesMessage->seriesuid()
 		    		          + "/" + seriesMessage->instanceuidprefix() + frames->instanceuid() + ".dcm";
-		    printf("Requesting file: %s\n",fileName.c_str());
+		    printf("Incoming request for file: %s\n",fileName.c_str());
 
+		    //start prefetch
 		    fragIterators->push_back(new SimpleFragmentIterator<string>(fileName));
 
+		    //parse dicom file
+		    FileParser* parser;
+		    if (fileParsers.find(fileName) == fileParsers.end())
+		    {
+		    	parser = new FileParser();
+		    	fileParsers[fileName] = parser;
+		    }
+		    else
+		    {
+		    	parser = fileParsers[fileName];
+		    }
+
+		    parser->parse(fileName);
 
 		    frames++;
 	    }
@@ -302,7 +306,7 @@ void DicomStream::preFetch_()
 
 	printf("starting prefetch thread\n");
 	string file;
-	while(true)
+	while(!stopPrecache)
 	{
 		if (precacheQueue.wait_and_pop(file))
 		    printf("prefetching file %s\n",file.c_str());
