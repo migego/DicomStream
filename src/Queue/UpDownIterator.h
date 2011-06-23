@@ -22,7 +22,16 @@ public:
 	virtual ~UpDownIterator()
 	{
 		if (items != NULL)
+		{
+			typename vector<FragmentIterator*>::iterator  iter;
+			for (iter = items->begin(); iter != items->end(); iter++)
+			{
+				delete *iter;
+			}
+
 			delete items;
+		}
+
 	}
 	UpDownIterator(vector<FragmentIterator*>* itms, size_t primaryInd) : items(itms),
 			                                                             primaryIndex(primaryInd),

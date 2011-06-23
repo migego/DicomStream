@@ -13,17 +13,24 @@ using namespace std;
 #include "../Parse/stream.pb.h"
 #include <list>
 
+typedef list<Protocol::FrameFragment*> FragmentList;
+typedef map<int, FragmentList*> FrameFragments;
+
 class FileParser {
 public:
 	FileParser();
 	virtual ~FileParser();
 
-	void parse(string fileName);
+	void parse(string fileName, int frameNumber);
+
+	FragmentList* getFragments(int frameNumber);
 
 private:
 	int width;
 	int height;
-	std::list<Protocol::FrameFragment*> fragments;
+	FrameFragments frameFragments;
+
+	string fileName;
 
 
 };

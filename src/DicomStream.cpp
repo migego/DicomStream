@@ -278,7 +278,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    	parser = fileParsers[fileName];
 		    }
 
-		    parser->parse(fileName);
+		    parser->parse(fileName, frames->framenumber());
 
 		    frames++;
 	    }
