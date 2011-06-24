@@ -12,8 +12,8 @@ RM := rm -rf
 -include src/subdir.mk
 -include src/Parse/subdir.mk
 -include src/Dicom/subdir.mk
--include imebra/imebra/src/subdir.mk
--include imebra/base/src/subdir.mk
+-include lib/imebra/project_files/library/imebra/src/subdir.mk
+-include lib/imebra/project_files/library/base/src/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)

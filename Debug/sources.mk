@@ -26,6 +26,6 @@ SUBDIRS := \
 src \
 src/Parse \
 src/Dicom \
-imebra/imebra/src \
-imebra/base/src \
+lib/imebra/project_files/library/imebra/src \
+lib/imebra/project_files/library/base/src \
 

@@ -80,11 +80,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>imebra</name>
-			<type>2</type>
-			<location>/Users/aboxer/src/imebra/project_files/library</location>
-		</link>
-	</linkedResources>
 </projectDescription>
