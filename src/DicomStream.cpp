@@ -174,6 +174,8 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	char hello[]="Hello World";
 
  	if (revents & EV_WRITE){
+ 		//get file parse for this fd
+ 		//if (fileParsers.find(cli->fd))
 		write(cli->fd,hello,strlen(hello));
 		ev_io_stop(EV_A_ w);
 	}
@@ -197,6 +199,8 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		{
 			//process message
 			processIncomingMessage(msg);
+
+			// send bytes back to client
 		}
 
 	}
@@ -253,18 +257,32 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	case MessageFramer::SeriesRequest:
 	    {
 	    Protocol::SeriesRequest* seriesMessage = static_cast<Protocol::SeriesRequest*>(msg.message);
-	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
+		string fileRoot = path
+								  + "/" + seriesMessage->studyuid()
+								  + "/" + seriesMessage->seriesuid()
+								  + "/" + seriesMessage->instanceuidprefix();
 	    vector< SimpleFragmentIterator<string>*  >* fragIterators = new vector< SimpleFragmentIterator<string>*  >();
+	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
+
+	    //prefetch
+	    while (frames != seriesMessage->frames().end())
+		{
+			string fileName = fileRoot + frames->instanceuid() + ".dcm";
+			printf("Incoming request for file: %s\n",fileName.c_str());
+
+			fragIterators->push_back(new SimpleFragmentIterator<string>(fileName));
+
+			frames++;
+		}
+	    if ( !fragIterators->empty())
+	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
+
+	    //parse
+	    frames = seriesMessage->frames().begin();
 	    while (frames != seriesMessage->frames().end())
 	    {
-		    string fileName = path
-		    		          + "/" + seriesMessage->studyuid()
-		    		          + "/" + seriesMessage->seriesuid()
-		    		          + "/" + seriesMessage->instanceuidprefix() + frames->instanceuid() + ".dcm";
+		    string fileName = fileRoot + frames->instanceuid() + ".dcm";
 		    printf("Incoming request for file: %s\n",fileName.c_str());
-
-		    //start prefetch
-		    fragIterators->push_back(new SimpleFragmentIterator<string>(fileName));
 
 		    //parse dicom file
 		    FileParser* parser;
@@ -277,20 +295,15 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    {
 		    	parser = fileParsers[fileName];
 		    }
-
 		    parser->parse(fileName, frames->framenumber());
 
 		    frames++;
 	    }
 
-	    // start pre-fetch on these files
-	   if ( !fragIterators->empty())
-	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
-
 	    }
+
 		break;
 	case MessageFramer::FrameRequest:
-
 
 		 // msg = new Protocol::FrameRequest();
 		break;

@@ -6,13 +6,8 @@
  */
 
 #include "FileParser.h"
-
-#include "imebra.h"
 #include <string>
 
-using namespace std;
-using namespace puntoexe;
-using namespace puntoexe::imebra;
 
 FileParser::FileParser() {
 }
@@ -23,18 +18,14 @@ FileParser::~FileParser() {
 	{
 		if (mapIter->second != NULL)
 		{
-
 			FragmentList::iterator listIter;
 			for (listIter = mapIter->second->begin(); listIter != mapIter->second->end(); listIter++)
 			{
-
                 delete *listIter;
 
 			}
-
 			delete mapIter->second;
 		}
-
 	}
 }
 
@@ -81,9 +72,96 @@ void FileParser::parse(string fileName, int frameNumber)
 	// Get a codec factory and let it use the right codec to create a dataset
 	//  from the input stream
 	ptr<codecs::codecFactory> codecsFactory(codecs::codecFactory::getCodecFactory());
-	ptr<dataSet> loadedDataSet = codecsFactory->load(reader, 2048);
+	ptr<dataSet> pData = codecsFactory->load(reader, 2048);
 
-	//read width, height, etc......
+    transferSyntax = pData->getUnicodeString(0x0002, 0x0, 0x0010, 0x0);
+
+	// Check for color space and sub-sampled channels
+	///////////////////////////////////////////////////////////
+	colorSpace=pData->getUnicodeString(0x0028, 0x0, 0x0004, 0x0);
+
+	// Retrieve the number of planes
+	///////////////////////////////////////////////////////////
+	channelsNumber=(imbxUint8)pData->getUnsignedLong(0x0028, 0x0, 0x0002, 0x0);
+
+	// Adjust the colorspace and the channels number for old
+	//  NEMA files that don't specify those data
+	///////////////////////////////////////////////////////////
+	if(colorSpace.empty() && (channelsNumber == 0 || channelsNumber == 1))
+	{
+		colorSpace = L"MONOCHROME2";
+		channelsNumber = 1;
+	}
+
+	if(colorSpace.empty() && channelsNumber == 3)
+	{
+		colorSpace = L"RGB";
+	}
+
+	// Retrieve the image's size
+	///////////////////////////////////////////////////////////
+    imageSizeX=pData->getUnsignedLong(0x0028, 0x0, 0x0011, 0x0);
+    imageSizeY=pData->getUnsignedLong(0x0028, 0x0, 0x0010, 0x0);
+	if((imageSizeX == 0) || (imageSizeY == 0))
+	{
+		//PUNTOEXE_THROW(codecExceptionCorruptedFile, "The size tags are not available");
+	}
+
+	// Check for interleaved planes.
+	///////////////////////////////////////////////////////////
+    bInterleaved = (pData->getUnsignedLong(0x0028, 0x0, 0x0006, 0x0)==0x0);
+
+	// Check for 2's complement
+	///////////////////////////////////////////////////////////
+     b2Complement=pData->getUnsignedLong(0x0028, 0x0, 0x0103, 0x0)!=0x0;
+
+	// Retrieve the allocated/stored/high bits
+	///////////////////////////////////////////////////////////
+    allocatedBits=(imbxUint8)pData->getUnsignedLong(0x0028, 0x0, 0x0100, 0x0);
+    storedBits=(imbxUint8)pData->getUnsignedLong(0x0028, 0x0, 0x0101, 0x0);
+    highBit=(imbxUint8)pData->getUnsignedLong(0x0028, 0x0, 0x0102, 0x0);
+	if(highBit<storedBits-1)
+		highBit=storedBits-1;
+
+
+	// If the chrominance channels are sub-sampled, then find
+	//  the right image's size
+	///////////////////////////////////////////////////////////
+    bSubSampledY=channelsNumber>0x1 && transforms::colorTransforms::colorTransformsFactory::isSubsampledY(colorSpace);
+    bSubSampledX=channelsNumber>0x1 && transforms::colorTransforms::colorTransformsFactory::isSubsampledX(colorSpace);
+
+	// get depth
+	///////////////////////////////////////////////////////////
+	if(b2Complement)
+	{
+		if(highBit >= 16)
+		{
+			depth = image::depthS32;
+		}
+		else if(highBit >= 8)
+		{
+			depth = image::depthS16;
+		}
+		else
+		{
+			depth = image::depthS8;
+		}
+	}
+	else
+	{
+		if(highBit >= 16)
+		{
+			depth = image::depthU32;
+		}
+		else if(highBit >= 8)
+		{
+			depth = image::depthU16;
+		}
+		else
+		{
+			depth = image::depthU8;
+		}
+	}
 
 	// parse frame fragments
 	imbxUint32 frameCount = 0;
@@ -91,7 +169,7 @@ void FileParser::parse(string fileName, int frameNumber)
 	imbxUint32 length=0;
 
 	printf("==== %s =====\n",fileName.c_str());
-	while( loadedDataSet->getImageOffset(frameCount,offset,length) )
+	while( pData->getImageOffset(frameCount,offset,length) )
 	{
 		Protocol::FrameFragment* fragment = new Protocol::FrameFragment();
 		fragment->set_offset(offset);

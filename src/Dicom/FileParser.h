@@ -8,7 +8,13 @@
 #ifndef FILEPARSER_H_
 #define FILEPARSER_H_
 
+
+#include "imebra.h"
+
 using namespace std;
+using namespace puntoexe;
+using namespace puntoexe::imebra;
+
 #include <string>
 #include "../Parse/stream.pb.h"
 #include <list>
@@ -25,13 +31,26 @@ public:
 
 	FragmentList* getFragments(int frameNumber);
 
+	string getFileName(){ return fileName;}
+
 private:
-	int width;
-	int height;
+	imbxUint32 imageSizeX;
+	imbxUint32 imageSizeY;
+	image::bitDepth depth;
+	std::wstring colorSpace;
+	std::wstring transferSyntax;
+	imbxUint8 channelsNumber;
+	bool bInterleaved;
+	bool b2Complement;
+	imbxUint8 allocatedBits;
+	imbxUint8 storedBits;
+	imbxUint8 highBit;
+	bool bSubSampledY;
+	bool bSubSampledX;
+
 	FrameFragments frameFragments;
 
 	string fileName;
-
 
 };
 
