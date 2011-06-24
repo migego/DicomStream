@@ -15,24 +15,25 @@ class FragmentIterator  {
 
 private:
 	bool done;
-	size_t size;
 	size_t offset;
+	size_t size;
 	size_t chunk;
+	size_t offsetIncrement;
 
 public:
 
-	FragmentIterator(size_t size, size_t chunk) : done(false), size(size), offset(0), chunk(chunk)
+	FragmentIterator(size_t offset, size_t size, size_t chunk) : done(false), offset(offset), size(size), chunk(chunk), offsetIncrement(0)
 	{
 	}
     bool next( FrameFragment& fragment)
 	{
 		if (done)
 			return false;
-		size_t size = min(chunk, size-offset);
-		fragment.offset = offset;
-		fragment.size = size;
-		offset += size;
-		if (offset == size)
+		size_t block = min(chunk, size-offsetIncrement);
+		fragment.offset = offset + offsetIncrement;
+		fragment.size = block;
+		offsetIncrement += block;
+		if (offsetIncrement == size)
 		{
 			done = true;
 		}

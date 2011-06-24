@@ -261,7 +261,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 								  + "/" + seriesMessage->studyuid()
 								  + "/" + seriesMessage->seriesuid()
 								  + "/" + seriesMessage->instanceuidprefix();
-	    vector< SimpleFragmentIterator<string>*  >* fragIterators = new vector< SimpleFragmentIterator<string>*  >();
+	    vector< SimpleFragmentIterator<string>*  >* prefetchIterators = new vector< SimpleFragmentIterator<string>*  >();
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
 
 	    //prefetch
@@ -270,14 +270,14 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
 			printf("Incoming request for file: %s\n",fileName.c_str());
 
-			fragIterators->push_back(new SimpleFragmentIterator<string>(fileName));
+			prefetchIterators->push_back(new SimpleFragmentIterator<string>(fileName));
 
 			frames++;
 		}
-	    if ( !fragIterators->empty())
-	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 0));
+	    if ( !prefetchIterators->empty())
+	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(prefetchIterators, 0));
 
-	    //parse
+	    //parse file into fragments
 	    frames = seriesMessage->frames().begin();
 	    while (frames != seriesMessage->frames().end())
 	    {
@@ -296,7 +296,6 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    	parser = fileParsers[fileName];
 		    }
 		    parser->parse(fileName, frames->framenumber());
-
 		    frames++;
 	    }
 

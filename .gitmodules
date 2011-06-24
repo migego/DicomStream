@@ -1,0 +1,3 @@
+[submodule "lib/imebra"]
+	path = lib/imebra
+	url = git://github.com/boxerab/imebra.git

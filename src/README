@@ -1,20 +1,9 @@
 A) FILE PREFETCH
 
-
-- blocking queue with list<Iterator<string>>
-- iterator can be an SimpleIterator, or a FragmentIterator
-
 - ability to re-prioritize the list:
-      - push one iterator to top of list and/or reset primary frame
-      
+      - push one iterator to top of list and/or reset primary frame      
       
 B) LIBEIO - FILE READS
-
-C) DICOM 
-
-modify gdcmStreamImageReader to read from memory buffer
-    - handle multi-frame - ask about this on news group
-    
 
 E) CLIENT
 

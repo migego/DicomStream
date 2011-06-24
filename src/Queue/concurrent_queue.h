@@ -11,7 +11,6 @@
 #include <list>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
-#include "UpDownIterator.h"
 
 template < typename Data, typename Iterator > class concurrent_queue
 {
