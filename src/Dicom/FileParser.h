@@ -16,11 +16,13 @@ using namespace puntoexe;
 using namespace puntoexe::imebra;
 
 #include <string>
-#include "../Parse/stream.pb.h"
-#include <list>
+#include "../Queue/FragmentIterator.h"
+#include "../Queue/SequentialIterator.h"
 
-typedef list<Protocol::FrameFragment*> FragmentList;
-typedef map<int, FragmentList*> FrameFragments;
+typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
+typedef SequentialIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
+
+typedef map<int, FragIterVec*> FrameFragments;
 
 class FileParser {
 public:
@@ -29,7 +31,7 @@ public:
 
 	void parse(string fileName, int frameNumber);
 
-	FragmentList* getFragments(int frameNumber);
+	FragIterVec* getFragments(int frameNumber);
 
 	string getFileName(){ return fileName;}
 

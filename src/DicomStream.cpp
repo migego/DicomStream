@@ -84,14 +84,14 @@ void DicomStream::unitTest()
     //start prefetch thread
     boost::thread workerThread(preFetch);
 
-    vector< SimpleFragmentIterator<string>*  >* fragIterators = new vector< SimpleFragmentIterator<string>*  >();
+    vector< SimpleIterator<string>*  >* fragIterators = new vector< SimpleIterator<string>*  >();
 
-	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa1"));
-	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa2"));
-	fragIterators->push_back(new SimpleFragmentIterator<string>("helloa3"));
+	fragIterators->push_back(new SimpleIterator<string>("helloa1"));
+	fragIterators->push_back(new SimpleIterator<string>("helloa2"));
+	fragIterators->push_back(new SimpleIterator<string>("helloa3"));
 
 
-    UpDownIterator< string, SimpleFragmentIterator<string> >* upDown = new UpDownIterator< string, SimpleFragmentIterator<string> >(fragIterators, 1);
+    UpDownIterator< string, SimpleIterator<string> >* upDown = new UpDownIterator< string, SimpleIterator<string> >(fragIterators, 1);
 
     // start pre-fetch on these files
     if ( !fragIterators->empty())
@@ -261,7 +261,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 								  + "/" + seriesMessage->studyuid()
 								  + "/" + seriesMessage->seriesuid()
 								  + "/" + seriesMessage->instanceuidprefix();
-	    vector< SimpleFragmentIterator<string>*  >* prefetchIterators = new vector< SimpleFragmentIterator<string>*  >();
+	    vector< SimpleIterator<string>*  >* prefetchIterators = new vector< SimpleIterator<string>*  >();
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
 
 	    //prefetch
@@ -270,12 +270,12 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
 			printf("Incoming request for file: %s\n",fileName.c_str());
 
-			prefetchIterators->push_back(new SimpleFragmentIterator<string>(fileName));
+			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
 
 			frames++;
 		}
 	    if ( !prefetchIterators->empty())
-	        precacheQueue.push(new UpDownIterator< string, SimpleFragmentIterator<string> >(prefetchIterators, 0));
+	        precacheQueue.push(new UpDownIterator< string, SimpleIterator<string> >(prefetchIterators, 0));
 
 	    //parse file into fragments
 	    frames = seriesMessage->frames().begin();
@@ -296,8 +296,14 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    	parser = fileParsers[fileName];
 		    }
 		    parser->parse(fileName, frames->framenumber());
+
+		    //push list of fragments into queue
+		    //parser-
+
 		    frames++;
 	    }
+
+
 
 	    }
 

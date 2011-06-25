@@ -5,19 +5,19 @@
  *      Author: aboxer
  */
 
-#ifndef SIMPLEFRAGMENTITERATOR_H_
-#define SIMPLEFRAGMENTITERATOR_H_
+#ifndef SIMPLEITERATOR_H_
+#define SIMPLEITERATOR_H_
 
 
 
-template <typename Data> class SimpleFragmentIterator {
+template <typename Data> class SimpleIterator {
 
 private:
 	Data item;
 	bool done;
 public:
 
-	SimpleFragmentIterator(Data item): item(item), done(false)
+	SimpleIterator(Data item): item(item), done(false)
 	{
 
 	}

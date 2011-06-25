@@ -11,13 +11,16 @@
 
 #include "Queue/concurrent_queue.h"
 #include "Queue/UpDownIterator.h"
-#include "Queue/SimpleFragmentIterator.h"
+#include "Queue/SimpleIterator.h"
+#include "Queue/FragmentIterator.h"
 
 #include "Parse/MessageFramer.h"
 #include "Dicom/FileParser.h"
 
 #include <map>
 using namespace std;
+
+typedef UpDownIterator<Protocol::FrameFragment, FragmentIterator> FileFragIterator;
 
 class DicomStream {
 public:
@@ -50,9 +53,10 @@ private:
 	void processIncomingMessage(MessageFramer::GenericMessage msg);
 
 	map<string, FileParser*> fileParsers;
+	map<int, FileFragIterator* > fileFragQueue;
 
 	//precache
-	concurrent_queue< string, UpDownIterator< string, SimpleFragmentIterator<string> > > precacheQueue;
+	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
 	bool stopPrecache;
 	string path;
 	static void preFetch();

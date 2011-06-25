@@ -13,12 +13,12 @@ FileParser::FileParser() {
 }
 
 FileParser::~FileParser() {
-    map<int, FragmentList*>::iterator  mapIter;
+    map<int, FragIterVec*>::iterator  mapIter;
 	for (mapIter = frameFragments.begin(); mapIter != frameFragments.end(); mapIter++)
 	{
 		if (mapIter->second != NULL)
 		{
-			FragmentList::iterator listIter;
+			FragIterVec::iterator listIter;
 			for (listIter = mapIter->second->begin(); listIter != mapIter->second->end(); listIter++)
 			{
                 delete *listIter;
@@ -29,7 +29,7 @@ FileParser::~FileParser() {
 	}
 }
 
-FragmentList* FileParser::getFragments(int frameNumber)
+FragIterVec* FileParser::getFragments(int frameNumber)
 {
 	if (frameFragments.find(frameNumber) != frameFragments.end())
 	{
@@ -48,7 +48,7 @@ void FileParser::parse(string fileName, int frameNumber)
 	}
 	this->fileName = fileName;
 
-	FragmentList* frags;
+	FragIterVec* frags;
 
 	//get fragment list
 	if (frameFragments.find(frameNumber) != frameFragments.end())
@@ -57,7 +57,7 @@ void FileParser::parse(string fileName, int frameNumber)
 	}
 	else
 	{
-        frags = new FragmentList();
+        frags = new FragIterVec();
         frameFragments[frameNumber] = frags;
 	}
 
@@ -171,10 +171,8 @@ void FileParser::parse(string fileName, int frameNumber)
 	printf("==== %s =====\n",fileName.c_str());
 	while( pData->getImageOffset(frameCount,offset,length) )
 	{
-		Protocol::FrameFragment* fragment = new Protocol::FrameFragment();
-		fragment->set_offset(offset);
-		fragment->set_size(length);
-		frags->push_front(fragment);
+		FragmentIterator* iter = new FragmentIterator(offset, length, 2048);
+		frags->insert(frags->end(),iter);
 
 		printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
 		frameCount++;

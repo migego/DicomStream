@@ -11,9 +11,9 @@
 using namespace std;
 #include <vector>
 
-template <typename Data, typename FragmentIterator> class UpDownIterator {
+template <typename Data, typename Iterator> class UpDownIterator {
 protected:
-	vector<FragmentIterator*>* items;
+	vector<Iterator*>* items;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
@@ -23,24 +23,22 @@ public:
 	{
 		if (items != NULL)
 		{
-			typename vector<FragmentIterator*>::iterator  iter;
+			typename vector<Iterator*>::iterator  iter;
 			for (iter = items->begin(); iter != items->end(); iter++)
 			{
 				delete *iter;
 			}
-
 			delete items;
 		}
-
 	}
-	UpDownIterator(vector<FragmentIterator*>* itms, size_t primaryInd) : items(itms),
+
+	UpDownIterator(vector<Iterator*>* itms, size_t primaryInd) : items(itms),
 			                                                             primaryIndex(primaryInd),
 			                                                             currentIndex(primaryInd),
 			                                                             count(0),
 			                                                             done(false)
 	{
 	}
-
 
 	bool next(Data& item)
 	{
@@ -88,7 +86,7 @@ public:
 private:
     bool getNextFragment(Data& fragment)
 	{
-    	FragmentIterator* iter  = items->operator[](currentIndex);
+    	Iterator* iter  = items->operator[](currentIndex);
     	if (!iter)
     		return false;
 		bool rc =  iter->next(fragment);
