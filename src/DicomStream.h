@@ -8,6 +8,7 @@
 #ifndef DICOMSTREAM_H_
 #define DICOMSTREAM_H_
 #include <ev.h>
+#include "eio.h"
 
 #include "Queue/concurrent_queue.h"
 #include "Queue/UpDownIterator.h"
@@ -17,10 +18,16 @@
 #include "Parse/MessageFramer.h"
 #include "Dicom/FileParser.h"
 
+#include "Queue/SequentialIterator.h"
 #include <map>
 using namespace std;
 
-typedef UpDownIterator<Protocol::FrameFragment, FragmentIterator> FileFragIterator;
+// iterator for image frame
+typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
+
+//iterator for series of single frame images, or single multi frame image
+typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
+
 
 class DicomStream {
 public:
@@ -53,7 +60,6 @@ private:
 	void processIncomingMessage(MessageFramer::GenericMessage msg);
 
 	map<string, FileParser*> fileParsers;
-	map<int, FileFragIterator* > fileFragQueue;
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
@@ -73,6 +79,12 @@ private:
 	void write_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 	void read_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 	void accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
+
+	static void want_poll();
+	static void done_poll();
+
+    void want_poll_();
+	void done_poll_();
 
 	void unitTest();
 

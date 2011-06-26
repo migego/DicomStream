@@ -17,10 +17,6 @@ using namespace puntoexe::imebra;
 
 #include <string>
 #include "../Queue/FragmentIterator.h"
-#include "../Queue/SequentialIterator.h"
-
-typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
-typedef SequentialIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
 
 typedef map<int, FragIterVec*> FrameFragments;
 

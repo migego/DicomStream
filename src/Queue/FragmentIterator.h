@@ -32,7 +32,11 @@ public:
 	{
 		if (done)
 			return false;
-		size_t block = min(chunk, size-offsetIncrement);
+		size_t block;
+		if (chunk <=0)
+			block = size;
+		else
+		   block = min(chunk, size-offsetIncrement);
 		fragment.set_offset( offset + offsetIncrement);
 		fragment.set_size(block);
 		offsetIncrement += block;

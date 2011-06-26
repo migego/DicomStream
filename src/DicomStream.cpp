@@ -33,6 +33,38 @@ using namespace std;
 
 #define CLIENT_TEST
 
+
+ev_async my_eio_sig;
+
+void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
+{
+    if  (eio_poll())
+        ev_async_send (EV_DEFAULT_ &my_eio_sig);
+}
+
+int read_cb (eio_req *req)
+{
+  unsigned char *buf = (unsigned char *)EIO_BUF (req);
+
+  printf ("read_cb = %d (%02x%02x%02x%02x %02x%02x%02x%02x)\n",
+          EIO_RESULT (req),
+          buf [0], buf [1], buf [2], buf [3],
+          buf [4], buf [5], buf [6], buf [7]);
+
+  return 0;
+}
+
+
+int open_cb (eio_req *req)
+{
+  printf ("open_cb = %d\n", (int)EIO_RESULT (req));
+
+
+  //last_fd = EIO_RESULT (req);
+
+  return 0;
+}
+
 DicomStream* DicomStream::instance=NULL;
 
 DicomStream::DicomStream() : stopPrecache(false)
@@ -40,7 +72,7 @@ DicomStream::DicomStream() : stopPrecache(false)
 }
 
 DicomStream::~DicomStream() {
-	// TODO Auto-generated destructor stub
+
 }
 
 ////// STATIC ////////////////////////////
@@ -50,6 +82,15 @@ DicomStream* DicomStream::Instance()
 		instance = new DicomStream();
 	return instance;
 
+}
+
+void DicomStream::want_poll()
+{
+	Instance()->want_poll_();
+}
+void DicomStream::done_poll()
+{
+	Instance()->done_poll_();
 }
 
 
@@ -124,6 +165,11 @@ void DicomStream::start()
     //start prefetch thread
     boost::thread workerThread(preFetch);
 
+    // initialize EIO
+    if (eio_init (want_poll, done_poll)) abort ();
+
+
+
     //start client test thread
 #ifdef CLIENT_TEST
     boost::thread clientTestThread(clientTest);
@@ -152,8 +198,25 @@ void DicomStream::start()
 	ev_io_init(&ev_accept,accept_cb,listen_fd,EV_READ);
     struct ev_loop *loop = ev_default_loop (0);
 	ev_io_start(loop,&ev_accept);
+
+    //listen for eio events
+    ev_async_init (&my_eio_sig, my_eio_sig_cb);
+    ev_async_start(loop, &my_eio_sig);
+
 	ev_loop (loop, 0);
 }
+
+void DicomStream::want_poll_ ()
+{
+     //fire asynch event
+    ev_async_send (EV_DEFAULT_ &my_eio_sig);
+}
+
+void DicomStream::done_poll_ ()
+{
+
+}
+
 
 int DicomStream::setnonblock(int fd)
 {
@@ -174,11 +237,12 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	char hello[]="Hello World";
 
  	if (revents & EV_WRITE){
+
  		//get file parse for this fd
  		//if (fileParsers.find(cli->fd))
 		write(cli->fd,hello,strlen(hello));
-		ev_io_stop(EV_A_ w);
 	}
+	ev_io_stop(EV_A_ w);
 	deleteMessageFramer(cli->fd);
  	close(cli->fd);
 	delete cli;
@@ -268,6 +332,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	    while (frames != seriesMessage->frames().end())
 		{
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
+			eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)"open");
 			printf("Incoming request for file: %s\n",fileName.c_str());
 
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));

@@ -171,7 +171,7 @@ void FileParser::parse(string fileName, int frameNumber)
 	printf("==== %s =====\n",fileName.c_str());
 	while( pData->getImageOffset(frameCount,offset,length) )
 	{
-		FragmentIterator* iter = new FragmentIterator(offset, length, 2048);
+		FragmentIterator* iter = new FragmentIterator(offset, length, -1);
 		frags->insert(frags->end(),iter);
 
 		printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
