@@ -1,0 +1,18 @@
+This project provides a Linux streaming server for full-resolution Dicom
+image data. 
+
+The code has been designed for speed and scalability.
+
+Dependencies:
+0) Boost threads
+1) libev
+2) libeio
+3) iconv (this is needed by the Imbera  Dicom library, but will eventually be
+  removed once a stripped-down version of Imebra is integrated)
+4) Imebra Dicom toolkit: I have forked a version of this excellent toolkit
+and put it on Github. It is included as a submodule of DicomStream. So, after
+cloning this project, you must call:
+$ git submodule init
+$ git submodule update
+
+

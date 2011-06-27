@@ -10,23 +10,18 @@
 #include <ev.h>
 #include "eio.h"
 
-#include "Queue/concurrent_queue.h"
-#include "Queue/UpDownIterator.h"
-#include "Queue/SimpleIterator.h"
-#include "Queue/FragmentIterator.h"
+#include "Iterators/concurrent_queue.h"
+#include "Iterators/UpDownIterator.h"
+#include "Iterators/SimpleIterator.h"
+#include "Iterators/FragmentIterator.h"
 
-#include "Parse/MessageFramer.h"
-#include "Dicom/FileParser.h"
+#include "Protocol/MessageFramer.h"
+#include "Dicom/DicomPixels.h"
 
-#include "Queue/SequentialIterator.h"
+#include "Iterators/SequentialIterator.h"
 #include <map>
 using namespace std;
 
-// iterator for image frame
-typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
-
-//iterator for series of single frame images, or single multi frame image
-typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
 
 
 class DicomStream {
@@ -59,7 +54,7 @@ private:
 	map<int, MessageFramer*> messageFramers;
 	void processIncomingMessage(MessageFramer::GenericMessage msg);
 
-	map<string, FileParser*> fileParsers;
+	map<string, DicomPixels*> fileParsers;
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;

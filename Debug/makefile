@@ -10,7 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include subdir.mk
 -include src/subdir.mk
--include src/Parse/subdir.mk
+-include src/Protocol/subdir.mk
 -include src/Dicom/subdir.mk
 -include lib/imebra/project_files/library/imebra/src/subdir.mk
 -include lib/imebra/project_files/library/base/src/subdir.mk
@@ -61,7 +61,7 @@ clean:
 	-@echo ' '
 
 pre-build:
-	-/usr/local/bin/protoc  --cpp_out=../src/Parse   --proto_path=/Users/aboxer/src/DicomStream/src/Parse/  /Users/aboxer/src/DicomStream/src/Parse/stream.proto
+	-/usr/local/bin/protoc  --cpp_out=../src/Protocol   --proto_path=/Users/aboxer/src/DicomStream/src/Protocol/  /Users/aboxer/src/DicomStream/src/Protocol/stream.proto
 	-@echo ' '
 
 .PHONY: all clean dependents

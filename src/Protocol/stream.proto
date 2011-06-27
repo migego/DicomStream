@@ -1,0 +1,82 @@
+package Protocol;
+
+
+//////////////
+// Request
+//////////////
+
+message FrameRequest 
+{
+	required string instanceUid=1;
+	required uint32 instanceUidNumber=2;  // used to avoid passing instance uid every time
+    required uint32 frameNumber=3;        // for multiframe
+}
+
+
+message SeriesRequest 
+{
+
+	enum RequestType
+	{
+
+		Fetch = 0;
+
+		PriorityChanged = 1;
+
+		//set series primary frame (default is 0)
+		SetPrimaryFrame = 2; // instance and frame number
+
+		// cancel (cancel series or study)
+		Cancel = 3;
+
+	}
+
+	enum Priority
+	{
+		Selected = 0;
+		Visible = 1;
+		Hidden = 2;
+	}
+	
+	required RequestType type = 1;
+    required string studyUid=2;
+    required uint32 studyUidNumber=3;  // used to avoid passing study uid every time
+	required string seriesUid=4;
+	required uint32 seriesUidNumber=5;  // used to avoid passing series uid every time
+	required Priority priority=6;
+
+	required string instanceUidPrefix=7;  //common part of sop instance uid string
+    repeated FrameRequest frames=8;
+  
+}
+
+//////////////
+// Response
+//////////////
+
+
+message FrameHeader
+{
+	required uint32 pixelDataSize=1;
+	required uint32 width=2;
+	required uint32 height=3;
+	//.... various basic dicom tags
+
+
+};
+
+// one FrameResponse is sent, followed by many FrameFragments
+message FrameResponse 
+{
+
+    required FrameRequest frameRequest=1;
+    required FrameHeader frameHeader=2;
+
+};
+
+// raw pixels are streamed after FrameFragment
+message FrameFragment
+{
+    required uint32 offset=1;
+    required uint32 size=2;
+};

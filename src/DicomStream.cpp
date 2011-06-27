@@ -42,18 +42,15 @@ void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
         ev_async_send (EV_DEFAULT_ &my_eio_sig);
 }
 
-int read_cb (eio_req *req)
+int res_cb (eio_req *req)
 {
-  unsigned char *buf = (unsigned char *)EIO_BUF (req);
+  printf ("res_cb(%d|%s) = %d\n", req->type, req->data ? req->data : "?", EIO_RESULT (req));
 
-  printf ("read_cb = %d (%02x%02x%02x%02x %02x%02x%02x%02x)\n",
-          EIO_RESULT (req),
-          buf [0], buf [1], buf [2], buf [3],
-          buf [4], buf [5], buf [6], buf [7]);
+  if (req->result < 0)
+    abort ();
 
   return 0;
 }
-
 
 int open_cb (eio_req *req)
 {
@@ -350,17 +347,16 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    printf("Incoming request for file: %s\n",fileName.c_str());
 
 		    //parse dicom file
-		    FileParser* parser;
+		    DicomPixels* parser;
 		    if (fileParsers.find(fileName) == fileParsers.end())
 		    {
-		    	parser = new FileParser();
+		    	parser = new DicomPixels(fileName);
 		    	fileParsers[fileName] = parser;
 		    }
 		    else
 		    {
 		    	parser = fileParsers[fileName];
 		    }
-		    parser->parse(fileName, frames->framenumber());
 
 		    //push list of fragments into queue
 		    //parser-
