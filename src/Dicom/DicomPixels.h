@@ -50,7 +50,7 @@ public:
 
 	ImageIterator* getIterator(){ return iterator;}
 
-	string getFileName(){ return fileName;}
+	int getFileDescriptor(){ return fd;}
 
 private:
 	imbxUint32 numberOfFrames;
@@ -69,7 +69,7 @@ private:
 	bool bSubSampledX;
 
 
-	string fileName;
+	int fd;;
 
 	ImageIterator* iterator;
 

@@ -7,15 +7,18 @@
 
 #include "DicomPixels.h"
 #include <string>
+#include "unixStream.h"
 
 
 DicomPixels::DicomPixels(string fileName) {
 
-	this->fileName = fileName;
+	fd = ::open (fileName.c_str(), O_RDONLY, 0777);
+	if (fd == -1)
+		return;
 
 	// Open the file containing the dicom dataset
-	ptr<puntoexe::stream> inputStream(new puntoexe::stream);
-	inputStream->openFile(fileName, std::ios_base::in);
+	ptr<puntoexe::unixStream> inputStream(new puntoexe::unixStream);
+	inputStream->attach(fd);
 
 	// Connect a stream reader to the dicom stream. Several stream reader
 	//  can share the same stream

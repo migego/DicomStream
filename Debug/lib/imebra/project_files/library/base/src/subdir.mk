@@ -16,7 +16,8 @@ CPP_SRCS += \
 ../lib/imebra/project_files/library/base/src/streamController.cpp \
 ../lib/imebra/project_files/library/base/src/streamReader.cpp \
 ../lib/imebra/project_files/library/base/src/streamWriter.cpp \
-../lib/imebra/project_files/library/base/src/thread.cpp 
+../lib/imebra/project_files/library/base/src/thread.cpp \
+../lib/imebra/project_files/library/base/src/unixStream.cpp 
 
 OBJS += \
 ./lib/imebra/project_files/library/base/src/baseObject.o \
@@ -31,7 +32,8 @@ OBJS += \
 ./lib/imebra/project_files/library/base/src/streamController.o \
 ./lib/imebra/project_files/library/base/src/streamReader.o \
 ./lib/imebra/project_files/library/base/src/streamWriter.o \
-./lib/imebra/project_files/library/base/src/thread.o 
+./lib/imebra/project_files/library/base/src/thread.o \
+./lib/imebra/project_files/library/base/src/unixStream.o 
 
 CPP_DEPS += \
 ./lib/imebra/project_files/library/base/src/baseObject.d \
@@ -46,7 +48,8 @@ CPP_DEPS += \
 ./lib/imebra/project_files/library/base/src/streamController.d \
 ./lib/imebra/project_files/library/base/src/streamReader.d \
 ./lib/imebra/project_files/library/base/src/streamWriter.d \
-./lib/imebra/project_files/library/base/src/thread.d 
+./lib/imebra/project_files/library/base/src/thread.d \
+./lib/imebra/project_files/library/base/src/unixStream.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
