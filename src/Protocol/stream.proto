@@ -57,10 +57,32 @@ message SeriesRequest
 
 message FrameHeader
 {
-	required uint32 pixelDataSize=1;
-	required uint32 width=2;
-	required uint32 height=3;
-	//.... various basic dicom tags
+	///////////////////////////////////////////////////////////
+	enum bitDepth
+	{
+			depthU8 = 0;    ///< unsigned integer, 1 byte
+			depthS8 = 1;    ///< signed integer, 1 byte
+			depthU16 = 2;   ///< unsigned integer, 2 bytes
+			depthS16 = 3;   ///< signed integer, 2 bytes
+			depthU32 = 4;   ///< unsigned integer, 4 bytes
+			depthS32 = 5;   ///< signed integer, 4 bytes
+	};
+
+		
+	required uint32 numberOfFrames=1;
+	required uint32 imageSizeX=2;
+	required uint32 imageSizeY=3;
+	required bitDepth depth=4;
+	required string colorSpace=5;
+	required string transferSyntax=6;
+	required uint32 channelsNumber=7;
+	required bool bInterleaved=8;
+	required bool b2Complement=9;
+	required uint32 allocatedBits=10;
+	required uint32 storedBits=11;
+	required uint32 highBit=12;
+	required bool bSubSampledY=13;
+	required bool bSubSampledX=14;
 
 
 };

@@ -52,7 +52,7 @@ private:
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
 	map<int, MessageFramer*> messageFramers;
-	void processIncomingMessage(MessageFramer::GenericMessage msg);
+	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
 	map<string, DicomPixels*> fileParsers;
 

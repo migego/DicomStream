@@ -28,6 +28,7 @@ const ::google::protobuf::EnumDescriptor* SeriesRequest_Priority_descriptor_ = N
 const ::google::protobuf::Descriptor* FrameHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameHeader_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* FrameHeader_bitDepth_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* FrameResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameResponse_reflection_ = NULL;
@@ -86,10 +87,21 @@ void protobuf_AssignDesc_stream_2eproto() {
   SeriesRequest_RequestType_descriptor_ = SeriesRequest_descriptor_->enum_type(0);
   SeriesRequest_Priority_descriptor_ = SeriesRequest_descriptor_->enum_type(1);
   FrameHeader_descriptor_ = file->message_type(2);
-  static const int FrameHeader_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, pixeldatasize_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, width_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, height_),
+  static const int FrameHeader_offsets_[14] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, numberofframes_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizex_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizey_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, depth_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, colorspace_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, transfersyntax_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, channelsnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, binterleaved_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, b2complement_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, allocatedbits_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, storedbits_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, highbit_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, bsubsampledy_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, bsubsampledx_),
   };
   FrameHeader_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -102,6 +114,7 @@ void protobuf_AssignDesc_stream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FrameHeader));
+  FrameHeader_bitDepth_descriptor_ = FrameHeader_descriptor_->enum_type(0);
   FrameResponse_descriptor_ = file->message_type(3);
   static const int FrameResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, framerequest_),
@@ -192,13 +205,22 @@ void protobuf_AddDesc_stream_2eproto() {
     "\026.Protocol.FrameRequest\"N\n\013RequestType\022\t"
     "\n\005Fetch\020\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPri"
     "maryFrame\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010S"
-    "elected\020\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"C\n\013Fr"
-    "ameHeader\022\025\n\rpixelDataSize\030\001 \002(\r\022\r\n\005widt"
-    "h\030\002 \002(\r\022\016\n\006height\030\003 \002(\r\"i\n\rFrameResponse"
-    "\022,\n\014frameRequest\030\001 \002(\0132\026.Protocol.FrameR"
-    "equest\022*\n\013frameHeader\030\002 \002(\0132\025.Protocol.F"
-    "rameHeader\"-\n\rFrameFragment\022\016\n\006offset\030\001 "
-    "\002(\r\022\014\n\004size\030\002 \002(\r", 737);
+    "elected\020\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\262\003\n\013F"
+    "rameHeader\022\026\n\016numberOfFrames\030\001 \002(\r\022\022\n\nim"
+    "ageSizeX\030\002 \002(\r\022\022\n\nimageSizeY\030\003 \002(\r\022-\n\005de"
+    "pth\030\004 \002(\0162\036.Protocol.FrameHeader.bitDept"
+    "h\022\022\n\ncolorSpace\030\005 \002(\t\022\026\n\016transferSyntax\030"
+    "\006 \002(\t\022\026\n\016channelsNumber\030\007 \002(\r\022\024\n\014bInterl"
+    "eaved\030\010 \002(\010\022\024\n\014b2Complement\030\t \002(\010\022\025\n\rall"
+    "ocatedBits\030\n \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007"
+    "highBit\030\014 \002(\r\022\024\n\014bSubSampledY\030\r \002(\010\022\024\n\014b"
+    "SubSampledX\030\016 \002(\010\"\\\n\010bitDepth\022\013\n\007depthU8"
+    "\020\000\022\013\n\007depthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010depthS1"
+    "6\020\003\022\014\n\010depthU32\020\004\022\014\n\010depthS32\020\005\"i\n\rFrame"
+    "Response\022,\n\014frameRequest\030\001 \002(\0132\026.Protoco"
+    "l.FrameRequest\022*\n\013frameHeader\030\002 \002(\0132\025.Pr"
+    "otocol.FrameHeader\"-\n\rFrameFragment\022\016\n\006o"
+    "ffset\030\001 \002(\r\022\014\n\004size\030\002 \002(\r", 1105);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
@@ -1131,10 +1153,50 @@ void SeriesRequest::Swap(SeriesRequest* other) {
 
 // ===================================================================
 
+const ::google::protobuf::EnumDescriptor* FrameHeader_bitDepth_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return FrameHeader_bitDepth_descriptor_;
+}
+bool FrameHeader_bitDepth_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      return true;
+    default:
+      return false;
+  }
+}
+
 #ifndef _MSC_VER
-const int FrameHeader::kPixelDataSizeFieldNumber;
-const int FrameHeader::kWidthFieldNumber;
-const int FrameHeader::kHeightFieldNumber;
+const FrameHeader_bitDepth FrameHeader::depthU8;
+const FrameHeader_bitDepth FrameHeader::depthS8;
+const FrameHeader_bitDepth FrameHeader::depthU16;
+const FrameHeader_bitDepth FrameHeader::depthS16;
+const FrameHeader_bitDepth FrameHeader::depthU32;
+const FrameHeader_bitDepth FrameHeader::depthS32;
+const FrameHeader_bitDepth FrameHeader::bitDepth_MIN;
+const FrameHeader_bitDepth FrameHeader::bitDepth_MAX;
+const int FrameHeader::bitDepth_ARRAYSIZE;
+#endif  // _MSC_VER
+#ifndef _MSC_VER
+const int FrameHeader::kNumberOfFramesFieldNumber;
+const int FrameHeader::kImageSizeXFieldNumber;
+const int FrameHeader::kImageSizeYFieldNumber;
+const int FrameHeader::kDepthFieldNumber;
+const int FrameHeader::kColorSpaceFieldNumber;
+const int FrameHeader::kTransferSyntaxFieldNumber;
+const int FrameHeader::kChannelsNumberFieldNumber;
+const int FrameHeader::kBInterleavedFieldNumber;
+const int FrameHeader::kB2ComplementFieldNumber;
+const int FrameHeader::kAllocatedBitsFieldNumber;
+const int FrameHeader::kStoredBitsFieldNumber;
+const int FrameHeader::kHighBitFieldNumber;
+const int FrameHeader::kBSubSampledYFieldNumber;
+const int FrameHeader::kBSubSampledXFieldNumber;
 #endif  // !_MSC_VER
 
 FrameHeader::FrameHeader()
@@ -1153,9 +1215,20 @@ FrameHeader::FrameHeader(const FrameHeader& from)
 
 void FrameHeader::SharedCtor() {
   _cached_size_ = 0;
-  pixeldatasize_ = 0u;
-  width_ = 0u;
-  height_ = 0u;
+  numberofframes_ = 0u;
+  imagesizex_ = 0u;
+  imagesizey_ = 0u;
+  depth_ = 0;
+  colorspace_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  transfersyntax_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  channelsnumber_ = 0u;
+  binterleaved_ = false;
+  b2complement_ = false;
+  allocatedbits_ = 0u;
+  storedbits_ = 0u;
+  highbit_ = 0u;
+  bsubsampledy_ = false;
+  bsubsampledx_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1164,6 +1237,12 @@ FrameHeader::~FrameHeader() {
 }
 
 void FrameHeader::SharedDtor() {
+  if (colorspace_ != &::google::protobuf::internal::kEmptyString) {
+    delete colorspace_;
+  }
+  if (transfersyntax_ != &::google::protobuf::internal::kEmptyString) {
+    delete transfersyntax_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -1190,9 +1269,30 @@ FrameHeader* FrameHeader::New() const {
 
 void FrameHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    pixeldatasize_ = 0u;
-    width_ = 0u;
-    height_ = 0u;
+    numberofframes_ = 0u;
+    imagesizex_ = 0u;
+    imagesizey_ = 0u;
+    depth_ = 0;
+    if (has_colorspace()) {
+      if (colorspace_ != &::google::protobuf::internal::kEmptyString) {
+        colorspace_->clear();
+      }
+    }
+    if (has_transfersyntax()) {
+      if (transfersyntax_ != &::google::protobuf::internal::kEmptyString) {
+        transfersyntax_->clear();
+      }
+    }
+    channelsnumber_ = 0u;
+    binterleaved_ = false;
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    b2complement_ = false;
+    allocatedbits_ = 0u;
+    storedbits_ = 0u;
+    highbit_ = 0u;
+    bsubsampledy_ = false;
+    bsubsampledx_ = false;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1204,46 +1304,229 @@ bool FrameHeader::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required uint32 pixelDataSize = 1;
+      // required uint32 numberOfFrames = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &pixeldatasize_)));
-          set_has_pixeldatasize();
+                 input, &numberofframes_)));
+          set_has_numberofframes();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_width;
+        if (input->ExpectTag(16)) goto parse_imageSizeX;
         break;
       }
       
-      // required uint32 width = 2;
+      // required uint32 imageSizeX = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_width:
+         parse_imageSizeX:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &width_)));
-          set_has_width();
+                 input, &imagesizex_)));
+          set_has_imagesizex();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(24)) goto parse_height;
+        if (input->ExpectTag(24)) goto parse_imageSizeY;
         break;
       }
       
-      // required uint32 height = 3;
+      // required uint32 imageSizeY = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_height:
+         parse_imageSizeY:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &height_)));
-          set_has_height();
+                 input, &imagesizey_)));
+          set_has_imagesizey();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(32)) goto parse_depth;
+        break;
+      }
+      
+      // required .Protocol.FrameHeader.bitDepth depth = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_depth:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::Protocol::FrameHeader_bitDepth_IsValid(value)) {
+            set_depth(static_cast< ::Protocol::FrameHeader_bitDepth >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(4, value);
+          }
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(42)) goto parse_colorSpace;
+        break;
+      }
+      
+      // required string colorSpace = 5;
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_colorSpace:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_colorspace()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->colorspace().data(), this->colorspace().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(50)) goto parse_transferSyntax;
+        break;
+      }
+      
+      // required string transferSyntax = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_transferSyntax:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_transfersyntax()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->transfersyntax().data(), this->transfersyntax().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(56)) goto parse_channelsNumber;
+        break;
+      }
+      
+      // required uint32 channelsNumber = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_channelsNumber:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &channelsnumber_)));
+          set_has_channelsnumber();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(64)) goto parse_bInterleaved;
+        break;
+      }
+      
+      // required bool bInterleaved = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_bInterleaved:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &binterleaved_)));
+          set_has_binterleaved();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(72)) goto parse_b2Complement;
+        break;
+      }
+      
+      // required bool b2Complement = 9;
+      case 9: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_b2Complement:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &b2complement_)));
+          set_has_b2complement();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(80)) goto parse_allocatedBits;
+        break;
+      }
+      
+      // required uint32 allocatedBits = 10;
+      case 10: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_allocatedBits:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &allocatedbits_)));
+          set_has_allocatedbits();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(88)) goto parse_storedBits;
+        break;
+      }
+      
+      // required uint32 storedBits = 11;
+      case 11: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_storedBits:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &storedbits_)));
+          set_has_storedbits();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(96)) goto parse_highBit;
+        break;
+      }
+      
+      // required uint32 highBit = 12;
+      case 12: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_highBit:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &highbit_)));
+          set_has_highbit();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(104)) goto parse_bSubSampledY;
+        break;
+      }
+      
+      // required bool bSubSampledY = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_bSubSampledY:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &bsubsampledy_)));
+          set_has_bsubsampledy();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(112)) goto parse_bSubSampledX;
+        break;
+      }
+      
+      // required bool bSubSampledX = 14;
+      case 14: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_bSubSampledX:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &bsubsampledx_)));
+          set_has_bsubsampledx();
         } else {
           goto handle_uninterpreted;
         }
@@ -1269,19 +1552,83 @@ bool FrameHeader::MergePartialFromCodedStream(
 
 void FrameHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required uint32 pixelDataSize = 1;
-  if (has_pixeldatasize()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->pixeldatasize(), output);
+  // required uint32 numberOfFrames = 1;
+  if (has_numberofframes()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->numberofframes(), output);
   }
   
-  // required uint32 width = 2;
-  if (has_width()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->width(), output);
+  // required uint32 imageSizeX = 2;
+  if (has_imagesizex()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->imagesizex(), output);
   }
   
-  // required uint32 height = 3;
-  if (has_height()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->height(), output);
+  // required uint32 imageSizeY = 3;
+  if (has_imagesizey()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->imagesizey(), output);
+  }
+  
+  // required .Protocol.FrameHeader.bitDepth depth = 4;
+  if (has_depth()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      4, this->depth(), output);
+  }
+  
+  // required string colorSpace = 5;
+  if (has_colorspace()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->colorspace().data(), this->colorspace().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      5, this->colorspace(), output);
+  }
+  
+  // required string transferSyntax = 6;
+  if (has_transfersyntax()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->transfersyntax().data(), this->transfersyntax().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      6, this->transfersyntax(), output);
+  }
+  
+  // required uint32 channelsNumber = 7;
+  if (has_channelsnumber()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(7, this->channelsnumber(), output);
+  }
+  
+  // required bool bInterleaved = 8;
+  if (has_binterleaved()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(8, this->binterleaved(), output);
+  }
+  
+  // required bool b2Complement = 9;
+  if (has_b2complement()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(9, this->b2complement(), output);
+  }
+  
+  // required uint32 allocatedBits = 10;
+  if (has_allocatedbits()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(10, this->allocatedbits(), output);
+  }
+  
+  // required uint32 storedBits = 11;
+  if (has_storedbits()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(11, this->storedbits(), output);
+  }
+  
+  // required uint32 highBit = 12;
+  if (has_highbit()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(12, this->highbit(), output);
+  }
+  
+  // required bool bSubSampledY = 13;
+  if (has_bsubsampledy()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(13, this->bsubsampledy(), output);
+  }
+  
+  // required bool bSubSampledX = 14;
+  if (has_bsubsampledx()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(14, this->bsubsampledx(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -1292,19 +1639,85 @@ void FrameHeader::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* FrameHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required uint32 pixelDataSize = 1;
-  if (has_pixeldatasize()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->pixeldatasize(), target);
+  // required uint32 numberOfFrames = 1;
+  if (has_numberofframes()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->numberofframes(), target);
   }
   
-  // required uint32 width = 2;
-  if (has_width()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->width(), target);
+  // required uint32 imageSizeX = 2;
+  if (has_imagesizex()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->imagesizex(), target);
   }
   
-  // required uint32 height = 3;
-  if (has_height()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->height(), target);
+  // required uint32 imageSizeY = 3;
+  if (has_imagesizey()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->imagesizey(), target);
+  }
+  
+  // required .Protocol.FrameHeader.bitDepth depth = 4;
+  if (has_depth()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      4, this->depth(), target);
+  }
+  
+  // required string colorSpace = 5;
+  if (has_colorspace()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->colorspace().data(), this->colorspace().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->colorspace(), target);
+  }
+  
+  // required string transferSyntax = 6;
+  if (has_transfersyntax()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->transfersyntax().data(), this->transfersyntax().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        6, this->transfersyntax(), target);
+  }
+  
+  // required uint32 channelsNumber = 7;
+  if (has_channelsnumber()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(7, this->channelsnumber(), target);
+  }
+  
+  // required bool bInterleaved = 8;
+  if (has_binterleaved()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(8, this->binterleaved(), target);
+  }
+  
+  // required bool b2Complement = 9;
+  if (has_b2complement()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(9, this->b2complement(), target);
+  }
+  
+  // required uint32 allocatedBits = 10;
+  if (has_allocatedbits()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(10, this->allocatedbits(), target);
+  }
+  
+  // required uint32 storedBits = 11;
+  if (has_storedbits()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(11, this->storedbits(), target);
+  }
+  
+  // required uint32 highBit = 12;
+  if (has_highbit()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(12, this->highbit(), target);
+  }
+  
+  // required bool bSubSampledY = 13;
+  if (has_bsubsampledy()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(13, this->bsubsampledy(), target);
+  }
+  
+  // required bool bSubSampledX = 14;
+  if (has_bsubsampledx()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(14, this->bsubsampledx(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1318,25 +1731,95 @@ int FrameHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required uint32 pixelDataSize = 1;
-    if (has_pixeldatasize()) {
+    // required uint32 numberOfFrames = 1;
+    if (has_numberofframes()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->pixeldatasize());
+          this->numberofframes());
     }
     
-    // required uint32 width = 2;
-    if (has_width()) {
+    // required uint32 imageSizeX = 2;
+    if (has_imagesizex()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->width());
+          this->imagesizex());
     }
     
-    // required uint32 height = 3;
-    if (has_height()) {
+    // required uint32 imageSizeY = 3;
+    if (has_imagesizey()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->height());
+          this->imagesizey());
+    }
+    
+    // required .Protocol.FrameHeader.bitDepth depth = 4;
+    if (has_depth()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->depth());
+    }
+    
+    // required string colorSpace = 5;
+    if (has_colorspace()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->colorspace());
+    }
+    
+    // required string transferSyntax = 6;
+    if (has_transfersyntax()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->transfersyntax());
+    }
+    
+    // required uint32 channelsNumber = 7;
+    if (has_channelsnumber()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->channelsnumber());
+    }
+    
+    // required bool bInterleaved = 8;
+    if (has_binterleaved()) {
+      total_size += 1 + 1;
+    }
+    
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // required bool b2Complement = 9;
+    if (has_b2complement()) {
+      total_size += 1 + 1;
+    }
+    
+    // required uint32 allocatedBits = 10;
+    if (has_allocatedbits()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->allocatedbits());
+    }
+    
+    // required uint32 storedBits = 11;
+    if (has_storedbits()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->storedbits());
+    }
+    
+    // required uint32 highBit = 12;
+    if (has_highbit()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->highbit());
+    }
+    
+    // required bool bSubSampledY = 13;
+    if (has_bsubsampledy()) {
+      total_size += 1 + 1;
+    }
+    
+    // required bool bSubSampledX = 14;
+    if (has_bsubsampledx()) {
+      total_size += 1 + 1;
     }
     
   }
@@ -1366,14 +1849,49 @@ void FrameHeader::MergeFrom(const ::google::protobuf::Message& from) {
 void FrameHeader::MergeFrom(const FrameHeader& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_pixeldatasize()) {
-      set_pixeldatasize(from.pixeldatasize());
+    if (from.has_numberofframes()) {
+      set_numberofframes(from.numberofframes());
     }
-    if (from.has_width()) {
-      set_width(from.width());
+    if (from.has_imagesizex()) {
+      set_imagesizex(from.imagesizex());
     }
-    if (from.has_height()) {
-      set_height(from.height());
+    if (from.has_imagesizey()) {
+      set_imagesizey(from.imagesizey());
+    }
+    if (from.has_depth()) {
+      set_depth(from.depth());
+    }
+    if (from.has_colorspace()) {
+      set_colorspace(from.colorspace());
+    }
+    if (from.has_transfersyntax()) {
+      set_transfersyntax(from.transfersyntax());
+    }
+    if (from.has_channelsnumber()) {
+      set_channelsnumber(from.channelsnumber());
+    }
+    if (from.has_binterleaved()) {
+      set_binterleaved(from.binterleaved());
+    }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_b2complement()) {
+      set_b2complement(from.b2complement());
+    }
+    if (from.has_allocatedbits()) {
+      set_allocatedbits(from.allocatedbits());
+    }
+    if (from.has_storedbits()) {
+      set_storedbits(from.storedbits());
+    }
+    if (from.has_highbit()) {
+      set_highbit(from.highbit());
+    }
+    if (from.has_bsubsampledy()) {
+      set_bsubsampledy(from.bsubsampledy());
+    }
+    if (from.has_bsubsampledx()) {
+      set_bsubsampledx(from.bsubsampledx());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1392,16 +1910,27 @@ void FrameHeader::CopyFrom(const FrameHeader& from) {
 }
 
 bool FrameHeader::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00003fff) != 0x00003fff) return false;
   
   return true;
 }
 
 void FrameHeader::Swap(FrameHeader* other) {
   if (other != this) {
-    std::swap(pixeldatasize_, other->pixeldatasize_);
-    std::swap(width_, other->width_);
-    std::swap(height_, other->height_);
+    std::swap(numberofframes_, other->numberofframes_);
+    std::swap(imagesizex_, other->imagesizex_);
+    std::swap(imagesizey_, other->imagesizey_);
+    std::swap(depth_, other->depth_);
+    std::swap(colorspace_, other->colorspace_);
+    std::swap(transfersyntax_, other->transfersyntax_);
+    std::swap(channelsnumber_, other->channelsnumber_);
+    std::swap(binterleaved_, other->binterleaved_);
+    std::swap(b2complement_, other->b2complement_);
+    std::swap(allocatedbits_, other->allocatedbits_);
+    std::swap(storedbits_, other->storedbits_);
+    std::swap(highbit_, other->highbit_);
+    std::swap(bsubsampledy_, other->bsubsampledy_);
+    std::swap(bsubsampledx_, other->bsubsampledx_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -16,3 +16,17 @@ $ git submodule init
 $ git submodule update
 
 
+Data Flow:
+
+1) accept callback: trigger read
+2) read callback:  
+   a) parse message
+   b) queue file prefetch
+   c) create file queue
+   c) trigger eio file open on first file
+3) open callback: trigger readahead (5 K)
+4) readahead callback: 
+   a) parse Dicom header on file 
+   b) calculate pixel fragment offsets for file
+   c) if no more files to read, or this is a multi frame, then create proper iterator
+

@@ -24,7 +24,7 @@ using namespace puntoexe::imebra;
 // iterator for image frame
 typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
 
-//iterator for series of single frame images, or single multi frame image
+//iterator for either a series of single frame images, or a single multi-frame image
 typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
 
 
@@ -48,8 +48,8 @@ public:
 	bool getbSubSampledY(){return bSubSampledY;}
 	bool getbSubSampledX(){return bSubSampledX;}
 
+	//image iterator and file descriptor allow us to sendfile chunks of pixel data
 	ImageIterator* getIterator(){ return iterator;}
-
 	int getFileDescriptor(){ return fd;}
 
 private:

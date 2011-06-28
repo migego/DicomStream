@@ -44,7 +44,7 @@ void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
 
 int res_cb (eio_req *req)
 {
-  printf ("res_cb(%d|%s) = %d\n", req->type, req->data ? req->data : "?", EIO_RESULT (req));
+  //printf ("res_cb(%d|%s) = %d\n", req->type, req->data ? req->data : "?", EIO_RESULT (req));
 
   if (req->result < 0)
     abort ();
@@ -54,7 +54,7 @@ int res_cb (eio_req *req)
 
 int open_cb (eio_req *req)
 {
-  printf ("open_cb = %d\n", (int)EIO_RESULT (req));
+ // printf ("open_cb = %d\n", (int)EIO_RESULT (req));
 
 
   //last_fd = EIO_RESULT (req);
@@ -231,13 +231,14 @@ int DicomStream::setnonblock(int fd)
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
     client *cli= ((client*) (((char*)w) - offsetof(struct client,ev_write)));
-	char hello[]="Hello World";
+ 	if (revents & EV_WRITE)
+ 	{
 
- 	if (revents & EV_WRITE){
+ 		//write message header
 
- 		//get file parse for this fd
- 		//if (fileParsers.find(cli->fd))
-		write(cli->fd,hello,strlen(hello));
+ 		//trigger eio sendfile
+
+
 	}
 	ev_io_stop(EV_A_ w);
 	deleteMessageFramer(cli->fd);
@@ -259,7 +260,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		if (msg.message != NULL)
 		{
 			//process message
-			processIncomingMessage(msg);
+			processIncomingMessage(cli->fd, msg);
 
 			// send bytes back to client
 		}
@@ -309,7 +310,7 @@ void DicomStream::deleteMessageFramer(int fd)
 	}
 }
 
-void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
+void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg)
 {
 	if (msg.message == NULL)
 		return;
@@ -329,7 +330,6 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 	    while (frames != seriesMessage->frames().end())
 		{
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
-			eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)"open");
 			printf("Incoming request for file: %s\n",fileName.c_str());
 
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
@@ -359,7 +359,7 @@ void  DicomStream::processIncomingMessage(MessageFramer::GenericMessage msg)
 		    }
 
 		    //push list of fragments into queue
-		    //parser-
+		    parser->getIterator();
 
 		    frames++;
 	    }
