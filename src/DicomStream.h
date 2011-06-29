@@ -36,6 +36,24 @@ private:
 	DicomStream();
 	virtual ~DicomStream();
 
+	struct TFileInfo
+	{
+		TFileInfo()
+		{
+			fd = -1;
+
+		}
+		~TFileInfo()
+		{
+			if (parser)
+				delete parser;
+		}
+		int fd;
+		int refCount;
+		DicomPixels* parser;
+
+	};
+
 	unsigned short port;
 
 	struct TClient {
@@ -55,8 +73,7 @@ private:
 	map<int, MessageFramer*> messageFramers;
 	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
-	map<string, int> fileDescriptors; //key is file name
-	map<string, DicomPixels*> fileParsers;
+	map<string, TFileInfo*> fileInfo;
 	map<int, vector<FrameGroupIterator> > imageIterators; //key is client fd
 
 

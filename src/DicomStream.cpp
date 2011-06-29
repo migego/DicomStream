@@ -9,6 +9,7 @@ using namespace std;
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
@@ -226,6 +227,13 @@ int DicomStream::open_cb_(eio_req *req)
 	{
 		TOpenFile* data = (TOpenFile*)req->data;
 		data->fd = fd;
+
+		//store file descriptor
+		TFileInfo* info = new TFileInfo();
+		info->fd = data->fd;
+		fileInfo[data->fileName] = info;
+
+		//trigger readahead
 		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
 	}
 
@@ -240,8 +248,7 @@ int DicomStream::readahead_cb_(eio_req *req)
 
 	TOpenFile* data = (TOpenFile*)req->data;
 	printf("==== %s =====\n",data->fileName.c_str());
-	DicomPixels* parser = new DicomPixels(data->fd);
-	fileParsers[data->fileName] = parser;
+	fileInfo[data->fileName]->parser = new DicomPixels(data->fd);
 
 	return 0;
 
@@ -310,6 +317,14 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
          return;
 	}
 
+	//TCP_CORK for low=latency sending of large amounts of data
+	/*
+int state = 0;
+setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+
+state ~= state;
+setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+*/
 	createMessageFramer(client_fd);
 	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
 	ev_io_start(loop,&myClient->ev_read);
@@ -367,7 +382,7 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 
 		    //parse dicom file
 		    DicomPixels* parser;
-		    if (fileParsers.find(fileName) == fileParsers.end())
+		    if (fileInfo.find(fileName) == fileInfo.end())
 		    {
 		    	 struct TOpenFile* data = new TOpenFile();
 		    	 data->fileName = fileName;
@@ -376,7 +391,7 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 		    }
 		    else
 		    {
-		    	parser = fileParsers[fileName];
+		    	parser = fileInfo[fileName]->parser;
 		    }
 
 		    frames++;
@@ -427,6 +442,15 @@ void DicomStream::clientTest_()
 	    sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	    if (sockfd < 0)
 	        perror("ERROR opening socket");
+
+	    /* Disable the Nagle (TCP No Delay) algorithm */
+	    int flag = 1;
+	    int ret = setsockopt( sockfd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
+	    if (ret == -1) {
+	      printf("Couldn't setsockopt(TCP_NODELAY)\n");
+	      exit( EXIT_FAILURE );
+	    }
+
 	    struct hostent* server = gethostbyname(host.c_str());
 	    if (server == NULL) {
 	        fprintf(stderr,"ERROR, no such host\n");

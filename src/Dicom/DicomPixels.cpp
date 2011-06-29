@@ -144,7 +144,7 @@ DicomPixels::DicomPixels(int fd)
 			printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
 			frameCount++;
 		}
-		frameVec->push_back(new FrameIterator(fragVec));
+		frameVec->push_back(new FrameIterator(fragVec, i));
 
 	}
 

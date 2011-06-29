@@ -18,7 +18,7 @@ typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIter
 
 class FrameIterator : public tFrameIterator{
 public:
-	FrameIterator(vector<FragmentIterator*>* itms) : tFrameIterator(itms){
+	FrameIterator(vector<FragmentIterator*>* itms, unsigned int fNumber) : tFrameIterator(itms), frameNumber(fNumber){
 
 	}
 	FrameIterator(string fName) : fileName(fName)
@@ -30,6 +30,7 @@ public:
 	}
 private:
 	string fileName;
+	unsigned int frameNumber;
 };
 
 #endif /* FRAMEITERATOR_H_ */

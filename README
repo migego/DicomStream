@@ -16,7 +16,14 @@ $ git submodule init
 $ git submodule update
 
 
-Data Flow:
+Design:
+
+a) map file name ==> file descriptor
+b) map file name ==> ref count of FragmentIterators accessing this file.
+   when ref count drops to zero, we can close the file
+c) 
+
+
 
 1) socket accept callback: trigger socket read
 2) socket read callback:  
@@ -26,7 +33,10 @@ Data Flow:
    d) start iterating
    e) if iterator->needsFileOpen is true, trigger eio file open on returned file name
    f) open callback: trigger readahead (5 K)
-   g) readahead callback: parse header, calculate pixel offsets
+   g) readahead callback: parse header, calculate pixel offsets, and set appropriate iterator (???)
+      
+   
+
    h) really start iterating   
 	   i) trigger socket write for file fragment
 	   ii) socket write callback: write message, trigger eio sendfile on fragment
