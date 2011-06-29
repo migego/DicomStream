@@ -20,6 +20,7 @@
 
 #include "Iterators/SequentialIterator.h"
 #include <map>
+#include <vector>
 using namespace std;
 
 
@@ -37,7 +38,7 @@ private:
 
 	unsigned short port;
 
-	struct client {
+	struct TClient {
 	        int fd;
 	        ev_io ev_write;
 			ev_io ev_read;
@@ -54,7 +55,10 @@ private:
 	map<int, MessageFramer*> messageFramers;
 	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
+	map<string, int> fileDescriptors; //key is file name
 	map<string, DicomPixels*> fileParsers;
+	map<int, vector<FrameGroupIterator> > imageIterators; //key is client fd
+
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
@@ -77,9 +81,26 @@ private:
 
 	static void want_poll();
 	static void done_poll();
+	static int open_cb (eio_req *req);
+	static int readahead_cb (eio_req *req);
 
     void want_poll_();
 	void done_poll_();
+    int open_cb_ (eio_req *req);
+    int readahead_cb_ (eio_req *req);
+
+
+	struct TOpenFile
+	{
+    	TOpenFile()
+    	{
+    		fd = -1;
+    		fileName="";
+    	}
+		string fileName;
+		int fd;
+
+	};
 
 	void unitTest();
 

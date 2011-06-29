@@ -28,8 +28,19 @@ public:
 		}
 	}
 
-	SequentialIterator(vector<Iterator*>* itms) : items(itms)
+	SequentialIterator(vector<Iterator*>* itms)
 	{
+		setItems(itms);
+	}
+
+	SequentialIterator(void)
+	{
+		setItems(NULL);
+	}
+
+	void setItems(vector<Iterator*>* itms)
+	{
+		items = itms;
 	}
 
 	bool next(Data& item)

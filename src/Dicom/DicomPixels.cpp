@@ -10,11 +10,12 @@
 #include "unixStream.h"
 
 
-DicomPixels::DicomPixels(string fileName) {
+DicomPixels::DicomPixels(int fd)
+{
 
-	fd = ::open (fileName.c_str(), O_RDONLY, 0777);
 	if (fd == -1)
 		return;
+
 
 	// Open the file containing the dicom dataset
 	ptr<puntoexe::unixStream> inputStream(new puntoexe::unixStream);
@@ -124,7 +125,7 @@ DicomPixels::DicomPixels(string fileName) {
 		numberOfFrames = pData->getUnsignedLong(0x0028, 0, 0x0008, 0);
 	}
 
-	vector<FrameIterator*>* frameVec = new vector<FrameIterator*>();
+	frameVec = new vector<FrameIterator*>();
 
 	// for each frame, create a FrameIterator
 	for (unsigned int i = 0; i < numberOfFrames; ++i)
@@ -136,7 +137,7 @@ DicomPixels::DicomPixels(string fileName) {
 
 		vector<FragmentIterator*>* fragVec = new vector<FragmentIterator*>();
 
-		printf("==== %s =====\n",fileName.c_str());
+
 		while( pData->getImageOffset(frameCount,offset,length) )
 		{
 			fragVec->push_back(new FragmentIterator(offset, length, -1));
@@ -145,18 +146,12 @@ DicomPixels::DicomPixels(string fileName) {
 		}
 		frameVec->push_back(new FrameIterator(fragVec));
 
-
 	}
-	//create ImageIterator from set of FrameIterators
-	iterator = new ImageIterator(frameVec,0);
 
 }
 
 DicomPixels::~DicomPixels()
 {
-   if (iterator)
-	   delete iterator;
-   iterator = NULL;
 
 }
 

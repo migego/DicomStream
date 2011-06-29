@@ -16,21 +16,14 @@ using namespace puntoexe;
 using namespace puntoexe::imebra;
 
 #include <string>
-#include "../Iterators/FragmentIterator.h"
-#include "../Iterators/SequentialIterator.h"
-#include "../Iterators/UpDownIterator.h"
-#include "../Protocol/stream.pb.h"
 
-// iterator for image frame
-typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> FrameIterator;
+#include "../Iterators/FrameGroupIterator.h"
 
-//iterator for either a series of single frame images, or a single multi-frame image
-typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> ImageIterator;
 
 
 class DicomPixels {
 public:
-	DicomPixels(string fileName);
+	DicomPixels(int fd);
 	virtual ~DicomPixels();
 
 	imbxUint32 getnumberOfFrames(){return numberOfFrames;}
@@ -49,7 +42,7 @@ public:
 	bool getbSubSampledX(){return bSubSampledX;}
 
 	//image iterator and file descriptor allow us to sendfile chunks of pixel data
-	ImageIterator* getIterator(){ return iterator;}
+	vector<FrameIterator*>* getFrameVec(){ return frameVec;}
 	int getFileDescriptor(){ return fd;}
 
 private:
@@ -69,9 +62,9 @@ private:
 	bool bSubSampledX;
 
 
-	int fd;;
+	int fd;
 
-	ImageIterator* iterator;
+	vector<FrameIterator*>* frameVec;
 
 };
 

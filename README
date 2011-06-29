@@ -18,15 +18,19 @@ $ git submodule update
 
 Data Flow:
 
-1) accept callback: trigger read
-2) read callback:  
-   a) parse message
-   b) queue file prefetch
-   c) create file queue
-   c) trigger eio file open on first file
-3) open callback: trigger readahead (5 K)
-4) readahead callback: 
-   a) parse Dicom header on file 
-   b) calculate pixel fragment offsets for file
-   c) if no more files to read, or this is a multi frame, then create proper iterator
+1) socket accept callback: trigger socket read
+2) socket read callback:  
+   a) read and parse request message
+   b) queue file prefetch on all files in request
+   c) create ImageIterator with list of files (or single file)
+   d) start iterating
+   e) if iterator->needsFileOpen is true, trigger eio file open on returned file name
+   f) open callback: trigger readahead (5 K)
+   g) readahead callback: parse header, calculate pixel offsets
+   h) really start iterating   
+	   i) trigger socket write for file fragment
+	   ii) socket write callback: write message, trigger eio sendfile on fragment
+   i) process next fragment 
+      
+
 

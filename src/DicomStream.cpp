@@ -42,25 +42,7 @@ void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
         ev_async_send (EV_DEFAULT_ &my_eio_sig);
 }
 
-int res_cb (eio_req *req)
-{
-  //printf ("res_cb(%d|%s) = %d\n", req->type, req->data ? req->data : "?", EIO_RESULT (req));
 
-  if (req->result < 0)
-    abort ();
-
-  return 0;
-}
-
-int open_cb (eio_req *req)
-{
- // printf ("open_cb = %d\n", (int)EIO_RESULT (req));
-
-
-  //last_fd = EIO_RESULT (req);
-
-  return 0;
-}
 
 DicomStream* DicomStream::instance=NULL;
 
@@ -90,6 +72,15 @@ void DicomStream::done_poll()
 	Instance()->done_poll_();
 }
 
+int DicomStream::open_cb (eio_req *req)
+{
+	return Instance()->open_cb_(req);
+}
+
+int DicomStream::readahead_cb (eio_req *req)
+{
+	return Instance()->readahead_cb_(req);
+}
 
 void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
@@ -228,9 +219,39 @@ int DicomStream::setnonblock(int fd)
 }
 
 
+int DicomStream::open_cb_(eio_req *req)
+{
+	int fd = EIO_RESULT (req);
+	if (fd != -1)
+	{
+		TOpenFile* data = (TOpenFile*)req->data;
+		data->fd = fd;
+		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
+	}
+
+   return 0;
+}
+
+int DicomStream::readahead_cb_(eio_req *req)
+{
+
+	if (req->result < 0)
+	  abort ();
+
+	TOpenFile* data = (TOpenFile*)req->data;
+	printf("==== %s =====\n",data->fileName.c_str());
+	DicomPixels* parser = new DicomPixels(data->fd);
+	fileParsers[data->fileName] = parser;
+
+	return 0;
+
+}
+
+
+
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
-    client *cli= ((client*) (((char*)w) - offsetof(struct client,ev_write)));
+    TClient *cli= ((TClient*) (((char*)w) - offsetof(struct TClient,ev_write)));
  	if (revents & EV_WRITE)
  	{
 
@@ -251,7 +272,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
  void DicomStream::read_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 
-    client *cli= ((client*) (((char*)w) - offsetof(client,ev_read)));
+    TClient *cli= ((TClient*) (((char*)w) - offsetof(TClient,ev_read)));
     MessageFramer::GenericMessage msg;
 	if (revents & EV_READ){
 		// parse message
@@ -261,8 +282,6 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		{
 			//process message
 			processIncomingMessage(cli->fd, msg);
-
-			// send bytes back to client
 		}
 
 	}
@@ -282,7 +301,7 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	if (client_fd == -1) {
 			return;
 	}
-    client* myClient = new client;
+    TClient* myClient = new TClient;
 	myClient->fd=client_fd;
 	if (setnonblock(myClient->fd) < 0)
 	{
@@ -350,21 +369,18 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 		    DicomPixels* parser;
 		    if (fileParsers.find(fileName) == fileParsers.end())
 		    {
-		    	parser = new DicomPixels(fileName);
-		    	fileParsers[fileName] = parser;
+		    	 struct TOpenFile* data = new TOpenFile();
+		    	 data->fileName = fileName;
+		    	 eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
+
 		    }
 		    else
 		    {
 		    	parser = fileParsers[fileName];
 		    }
 
-		    //push list of fragments into queue
-		    parser->getIterator();
-
 		    frames++;
 	    }
-
-
 
 	    }
 

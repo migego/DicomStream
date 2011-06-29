@@ -32,12 +32,23 @@ public:
 		}
 	}
 
-	UpDownIterator(vector<Iterator*>* itms, size_t primaryInd) : items(itms),
-			                                                             primaryIndex(primaryInd),
-			                                                             currentIndex(primaryInd),
-			                                                             count(0),
-			                                                             done(false)
+	UpDownIterator(vector<Iterator*>* itms, size_t primaryInd)
 	{
+		setItems(itms, primaryInd);
+	}
+
+	UpDownIterator(void)
+	{
+		setItems(NULL,0);
+	}
+
+	void setItems(vector<Iterator*>* itms, size_t primaryInd)
+	{
+		items = itms;
+		primaryIndex = primaryInd;
+		currentIndex = primaryInd;
+		count = 0;
+		done = false;
 	}
 
 	bool next(Data& item)
