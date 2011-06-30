@@ -24,6 +24,7 @@
 using namespace std;
 
 #include "IFileRefCounter.h"
+#include "Dicom/ParseListenManager.h"
 
 
 
@@ -79,8 +80,8 @@ private:
 	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
 	map<string, TFileInfo*> fileInfo;
-	map<int, vector<FrameGroupIterator> > imageIterators; //key is client socket fd
 
+	ParseListenManager listenManager;
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
