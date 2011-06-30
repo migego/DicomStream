@@ -55,7 +55,7 @@ DicomStream::~DicomStream() {
 
 }
 
-////// STATIC ////////////////////////////
+
 DicomStream* DicomStream::Instance()
 {
 	if (instance == NULL)
@@ -64,50 +64,6 @@ DicomStream* DicomStream::Instance()
 
 }
 
-void DicomStream::want_poll()
-{
-	Instance()->want_poll_();
-}
-void DicomStream::done_poll()
-{
-	Instance()->done_poll_();
-}
-
-int DicomStream::open_cb (eio_req *req)
-{
-	return Instance()->open_cb_(req);
-}
-
-int DicomStream::readahead_cb (eio_req *req)
-{
-	return Instance()->readahead_cb_(req);
-}
-
-void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-	Instance()->write_cb_(loop,w,revents);
-}
-
-void DicomStream::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-   Instance()->read_cb_(loop,w,revents);
-}
-void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
-{
-	Instance()->accept_cb_(loop, w, revents);
-}
-
-void DicomStream::preFetch()
-{
-   Instance()->preFetch_();
-
-}
-void DicomStream::clientTest()
-{
-
-   Instance()->clientTest_();
-}
-//////////////////////////////////////////
 
 void DicomStream::unitTest()
 {
@@ -180,7 +136,7 @@ void DicomStream::start()
             err(1, "bind failed");
     if (listen(listen_fd,5) < 0)
             err(1, "listen failed");
-    if (setnonblock(listen_fd) < 0)
+    if (setNonBlock(listen_fd) < 0)
             err(1, "failed to set server socket to non-blocking");
 
     //listen to socket
@@ -207,7 +163,7 @@ void DicomStream::done_poll_ ()
 }
 
 
-int DicomStream::setnonblock(int fd)
+int DicomStream::setNonBlock(int fd)
 {
     int flags = fcntl(fd, F_GETFL);
     if (flags < 0)
@@ -219,19 +175,27 @@ int DicomStream::setnonblock(int fd)
     return 0;
 }
 
+//TCP_CORK for low=latency sending of large amounts of data
+int DicomStream::setCork(int fd, bool cork)
+{
+    int rc = 0;
+#ifdef LINUX
+    int state = 0;
+    rc = setsockopt(imageFileDescriptor, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+
+    state ~= state;
+    setsockopt(imageFileDescriptor, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+#endif
+    return rc;
+}
 
 int DicomStream::open_cb_(eio_req *req)
 {
 	int fd = EIO_RESULT (req);
 	if (fd != -1)
 	{
-		TOpenFile* data = (TOpenFile*)req->data;
+		TFileInfo* data = (TFileInfo*)req->data;
 		data->fd = fd;
-
-		//store file descriptor
-		TFileInfo* info = new TFileInfo();
-		info->fd = data->fd;
-		fileInfo[data->fileName] = info;
 
 		//trigger readahead
 		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
@@ -246,9 +210,10 @@ int DicomStream::readahead_cb_(eio_req *req)
 	if (req->result < 0)
 	  abort ();
 
-	TOpenFile* data = (TOpenFile*)req->data;
-	printf("==== %s =====\n",data->fileName.c_str());
-	fileInfo[data->fileName]->parser = new DicomPixels(data->fd);
+	TFileInfo* data = (TFileInfo*)req->data;
+	//parse file
+	data->parser = new DicomPixels();
+	data->parser->parse(data->fd);
 
 	return 0;
 
@@ -310,21 +275,14 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	}
     TClient* myClient = new TClient;
 	myClient->fd=client_fd;
-	if (setnonblock(myClient->fd) < 0)
+	if (setNonBlock(myClient->fd) < 0)
 	{
          err(1, "failed to set client socket to non-blocking");
          close(client_fd);
          return;
 	}
 
-	//TCP_CORK for low=latency sending of large amounts of data
-	/*
-int state = 0;
-setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
 
-state ~= state;
-setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
-*/
 	createMessageFramer(client_fd);
 	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
 	ev_io_start(loop,&myClient->ev_read);
@@ -350,18 +308,18 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 		return;
 	switch(msg.type)
 	{
-	case MessageFramer::SeriesRequest:
+	case MessageFramer::FrameGroupRequest:
 	    {
-	    Protocol::SeriesRequest* seriesMessage = static_cast<Protocol::SeriesRequest*>(msg.message);
+	    Protocol::FrameGroupRequest* frameGroupRequest = static_cast<Protocol::FrameGroupRequest*>(msg.message);
 		string fileRoot = path
-								  + "/" + seriesMessage->studyuid()
-								  + "/" + seriesMessage->seriesuid()
-								  + "/" + seriesMessage->instanceuidprefix();
+								  + "/" + frameGroupRequest->studyuid()
+								  + "/" + frameGroupRequest->seriesuid()
+								  + "/" + frameGroupRequest->instanceuidprefix();
 	    vector< SimpleIterator<string>*  >* prefetchIterators = new vector< SimpleIterator<string>*  >();
-	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = seriesMessage->frames().begin();
+	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = frameGroupRequest->frames().begin();
 
 	    //prefetch
-	    while (frames != seriesMessage->frames().end())
+	    while (frames != frameGroupRequest->frames().end())
 		{
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
 			printf("Incoming request for file: %s\n",fileName.c_str());
@@ -373,28 +331,27 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 	    if ( !prefetchIterators->empty())
 	        precacheQueue.push(new UpDownIterator< string, SimpleIterator<string> >(prefetchIterators, 0));
 
-	    //parse file into fragments
-	    frames = seriesMessage->frames().begin();
-	    while (frames != seriesMessage->frames().end())
+	    if (frameGroupRequest->multiframe())
 	    {
-		    string fileName = fileRoot + frames->instanceuid() + ".dcm";
-		    printf("Incoming request for file: %s\n",fileName.c_str());
 
-		    //parse dicom file
-		    DicomPixels* parser;
-		    if (fileInfo.find(fileName) == fileInfo.end())
+	    }
+	    else
+	    {
+	    	//trigger file open
+		    frames = frameGroupRequest->frames().begin();
+		    while (frames != frameGroupRequest->frames().end())
 		    {
-		    	 struct TOpenFile* data = new TOpenFile();
-		    	 data->fileName = fileName;
-		    	 eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
+			    string fileName = fileRoot + frames->instanceuid() + ".dcm";
+			    printf("Incoming request for file: %s\n",fileName.c_str());
 
+			    if (fileInfo.find(fileName) == fileInfo.end())
+			    {
+					TFileInfo* data = new TFileInfo();
+					fileInfo[fileName] = data;
+			    	eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
+			    }
+			    frames++;
 		    }
-		    else
-		    {
-		    	parser = fileInfo[fileName]->parser;
-		    }
-
-		    frames++;
 	    }
 
 	    }
@@ -465,13 +422,13 @@ void DicomStream::clientTest_()
 	    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
 	    	perror("ERROR connecting");
 
-	    Protocol::SeriesRequest* req = new Protocol::SeriesRequest();
+	    Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
 	    req->set_studyuid("study1");
 	    req->set_studyuidnumber(0);
 	    req->set_seriesuid("series1");
 	    req->set_seriesuidnumber(0);
-	    req->set_type(Protocol::SeriesRequest_RequestType_Fetch);
-	    req->set_priority(Protocol::SeriesRequest_Priority_Selected);
+	    req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
+	    req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
 	    req->set_instanceuidprefix("");
 
 	    Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
@@ -491,6 +448,7 @@ void DicomStream::clientTest_()
 		frameReq->set_instanceuidnumber(2);
 		frameReq->set_framenumber(1);
 		req->mutable_frames()->AddAllocated(frameReq);
+		req->set_multiframe(false);
 
 	    MessageFramer* framer = new MessageFramer(sockfd);
 	    framer->write(req);
@@ -511,6 +469,84 @@ void DicomStream::clientTest_()
 
 
 }
+
+int DicomStream::acquire(string fileName)
+{
+	TFileInfo* info = NULL;
+	if (fileInfo.find(fileName) != fileInfo.end())
+	{
+		info = new TFileInfo();
+	}
+	else
+	{
+		info = fileInfo[fileName];
+	}
+	info->refCount++;
+	return info->refCount;
+}
+int DicomStream::release(string fileName)
+{
+	if (fileInfo.find(fileName) == fileInfo.end())
+	{
+		return -1;
+	}
+	TFileInfo* info = fileInfo[fileName];
+	info->refCount--;
+	return info->refCount;
+
+}
+
+
+//// STATIC WRAPPER METHODS/////////////////
+
+void DicomStream::want_poll()
+{
+	Instance()->want_poll_();
+}
+void DicomStream::done_poll()
+{
+	Instance()->done_poll_();
+}
+
+int DicomStream::open_cb (eio_req *req)
+{
+	return Instance()->open_cb_(req);
+}
+
+int DicomStream::readahead_cb (eio_req *req)
+{
+	return Instance()->readahead_cb_(req);
+}
+
+void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+	Instance()->write_cb_(loop,w,revents);
+}
+
+void DicomStream::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+   Instance()->read_cb_(loop,w,revents);
+}
+void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
+{
+	Instance()->accept_cb_(loop, w, revents);
+}
+
+void DicomStream::preFetch()
+{
+   Instance()->preFetch_();
+
+}
+void DicomStream::clientTest()
+{
+
+   Instance()->clientTest_();
+}
+
+
+/////////////////////////////////////////////
+
+
 
 
 

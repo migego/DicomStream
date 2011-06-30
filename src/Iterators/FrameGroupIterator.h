@@ -19,7 +19,7 @@ typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> tFrameGroupIterat
 
 class FrameGroupIterator : public tFrameGroupIterator{
 public:
-	FrameGroupIterator(vector<FrameIterator*>* itms, size_t primaryInd) : tFrameGroupIterator(itms, primaryInd)
+	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd) : tFrameGroupIterator(childIters, primaryInd)
 	{
 
 	}
@@ -39,7 +39,7 @@ public:
 		{
 			itms->push_back(new FrameIterator(*iter));
 		}
-		setItems(itms,0);
+		setChildIterators(itms,0);
 
 	}
 	virtual ~FrameGroupIterator(){}

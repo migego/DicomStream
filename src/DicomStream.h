@@ -23,9 +23,11 @@
 #include <vector>
 using namespace std;
 
+#include "IFileRefCounter.h"
 
 
-class DicomStream {
+
+class DicomStream : public IFileRefCounter {
 public:
 
 	static DicomStream* Instance();
@@ -66,6 +68,9 @@ private:
 	//singleton
 	static DicomStream* instance;
 
+	int acquire(string fileName);
+	int release(string fileName);
+
 
 	// message processing
 	void createMessageFramer(int fd);
@@ -74,7 +79,7 @@ private:
 	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
 	map<string, TFileInfo*> fileInfo;
-	map<int, vector<FrameGroupIterator> > imageIterators; //key is client fd
+	map<int, vector<FrameGroupIterator> > imageIterators; //key is client socket fd
 
 
 	//precache
@@ -86,7 +91,8 @@ private:
 	void clientTest_();
 	static void clientTest();
 
-	int setnonblock(int fd);
+	int setNonBlock(int fd);
+	int setCork(int fd, bool cork);
 
 	static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void read_cb(struct ev_loop *loop, struct ev_io *w, int revents);
@@ -105,19 +111,6 @@ private:
 	void done_poll_();
     int open_cb_ (eio_req *req);
     int readahead_cb_ (eio_req *req);
-
-
-	struct TOpenFile
-	{
-    	TOpenFile()
-    	{
-    		fd = -1;
-    		fileName="";
-    	}
-		string fileName;
-		int fd;
-
-	};
 
 	void unitTest();
 

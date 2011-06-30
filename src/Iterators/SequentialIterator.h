@@ -13,44 +13,44 @@ using namespace std;
 
 template <typename Data, typename Iterator> class SequentialIterator {
 private:
-	vector<Iterator*>* items;
+	vector<Iterator*>* childIterators;
 public:
 	virtual ~SequentialIterator()
 	{
-		if (items != NULL)
+		if (childIterators != NULL)
 		{
 			typename vector<Iterator*>::iterator  iter;
-			for (iter = items->begin(); iter != items->end(); iter++)
+			for (iter = childIterators->begin(); iter != childIterators->end(); iter++)
 			{
 				delete *iter;
 			}
-			delete items;
+			delete childIterators;
 		}
 	}
 
-	SequentialIterator(vector<Iterator*>* itms)
+	SequentialIterator(vector<Iterator*>* childIters)
 	{
-		setItems(itms);
+		setChildIterators(childIters);
 	}
 
 	SequentialIterator(void)
 	{
-		setItems(NULL);
+		setChildIterators(NULL);
 	}
 
-	void setItems(vector<Iterator*>* itms)
+	void setChildIterators(vector<Iterator*>* childIters)
 	{
-		items = itms;
+		childIterators = childIters;
 	}
 
 	bool next(Data& item)
 	{
-		if ( items == NULL || items->empty() )
+		if ( childIterators == NULL || childIterators->empty() )
 			return false;
-        while (!items->back()->next(item))
+        while (!childIterators->back()->next(item))
         {
-        	items->pop_back();
-            if (items->empty())
+        	childIterators->pop_back();
+            if (childIterators->empty())
             	return false;
         }
         return true;

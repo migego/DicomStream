@@ -17,14 +17,16 @@ using namespace puntoexe::imebra;
 
 #include <string>
 
-#include "../Iterators/FrameGroupIterator.h"
+#include "IParseListener.h"
 
 
 
 class DicomPixels {
 public:
-	DicomPixels(int fd);
+	DicomPixels(){}
 	virtual ~DicomPixels();
+
+	void parse(int imageFileDescriptor);
 
 	imbxUint32 getnumberOfFrames(){return numberOfFrames;}
 	imbxUint32 getimageSizeX(){return imageSizeX;}
@@ -41,9 +43,6 @@ public:
 	bool getbSubSampledY(){return bSubSampledY;}
 	bool getbSubSampledX(){return bSubSampledX;}
 
-	//image iterator and file descriptor allow us to sendfile chunks of pixel data
-	vector<FrameIterator*>* getFrameVec(){ return frameVec;}
-	int getFileDescriptor(){ return fd;}
 
 private:
 	imbxUint32 numberOfFrames;
@@ -62,9 +61,7 @@ private:
 	bool bSubSampledX;
 
 
-	int fd;
-
-	vector<FrameIterator*>* frameVec;
+	vector< tFragVec* > frameFragments;
 
 };
 

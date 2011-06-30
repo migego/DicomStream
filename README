@@ -18,18 +18,16 @@ $ git submodule update
 
 Design:
 
-a) map file name ==> file descriptor
-b) map file name ==> ref count of FragmentIterators accessing this file.
-   when ref count drops to zero, we can close the file
-c) 
-
-
-
+0) map file name ==> {file descriptor, parser, ref count}
+   when ref count drops back to zero, we can close the file
 1) socket accept callback: trigger socket read
 2) socket read callback:  
    a) read and parse request message
    b) queue file prefetch on all files in request
-   c) create ImageIterator with list of files (or single file)
+   c) create FrameGroupIterator with list of files (or single file)
+   d) iterators can register as listeners for parse results for a given file
+   dd) frame iterator can register interest in a file; frame group iterator can register interest, in the case
+   of a multiframe image
    d) start iterating
    e) if iterator->needsFileOpen is true, trigger eio file open on returned file name
    f) open callback: trigger readahead (5 K)

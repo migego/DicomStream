@@ -20,11 +20,11 @@ namespace {
 const ::google::protobuf::Descriptor* FrameRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* SeriesRequest_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* FrameGroupRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  SeriesRequest_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* SeriesRequest_RequestType_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* SeriesRequest_Priority_descriptor_ = NULL;
+  FrameGroupRequest_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* FrameGroupRequest_RequestType_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* FrameGroupRequest_Priority_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* FrameHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameHeader_reflection_ = NULL;
@@ -62,30 +62,31 @@ void protobuf_AssignDesc_stream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FrameRequest));
-  SeriesRequest_descriptor_ = file->message_type(1);
-  static const int SeriesRequest_offsets_[8] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, type_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, studyuid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, studyuidnumber_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, seriesuid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, seriesuidnumber_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, priority_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, instanceuidprefix_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, frames_),
+  FrameGroupRequest_descriptor_ = file->message_type(1);
+  static const int FrameGroupRequest_offsets_[9] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, studyuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, studyuidnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, seriesuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, seriesuidnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, priority_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, instanceuidprefix_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, frames_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, multiframe_),
   };
-  SeriesRequest_reflection_ =
+  FrameGroupRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      SeriesRequest_descriptor_,
-      SeriesRequest::default_instance_,
-      SeriesRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SeriesRequest, _unknown_fields_),
+      FrameGroupRequest_descriptor_,
+      FrameGroupRequest::default_instance_,
+      FrameGroupRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(SeriesRequest));
-  SeriesRequest_RequestType_descriptor_ = SeriesRequest_descriptor_->enum_type(0);
-  SeriesRequest_Priority_descriptor_ = SeriesRequest_descriptor_->enum_type(1);
+      sizeof(FrameGroupRequest));
+  FrameGroupRequest_RequestType_descriptor_ = FrameGroupRequest_descriptor_->enum_type(0);
+  FrameGroupRequest_Priority_descriptor_ = FrameGroupRequest_descriptor_->enum_type(1);
   FrameHeader_descriptor_ = file->message_type(2);
   static const int FrameHeader_offsets_[14] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, numberofframes_),
@@ -162,7 +163,7 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameRequest_descriptor_, &FrameRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    SeriesRequest_descriptor_, &SeriesRequest::default_instance());
+    FrameGroupRequest_descriptor_, &FrameGroupRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameHeader_descriptor_, &FrameHeader::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -176,8 +177,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_stream_2eproto() {
   delete FrameRequest::default_instance_;
   delete FrameRequest_reflection_;
-  delete SeriesRequest::default_instance_;
-  delete SeriesRequest_reflection_;
+  delete FrameGroupRequest::default_instance_;
+  delete FrameGroupRequest_reflection_;
   delete FrameHeader::default_instance_;
   delete FrameHeader_reflection_;
   delete FrameResponse::default_instance_;
@@ -195,41 +196,42 @@ void protobuf_AddDesc_stream_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014stream.proto\022\010Protocol\"S\n\014FrameRequest"
     "\022\023\n\013instanceUid\030\001 \002(\t\022\031\n\021instanceUidNumb"
-    "er\030\002 \002(\r\022\023\n\013frameNumber\030\003 \002(\r\"\222\003\n\rSeries"
-    "Request\0221\n\004type\030\001 \002(\0162#.Protocol.SeriesR"
-    "equest.RequestType\022\020\n\010studyUid\030\002 \002(\t\022\026\n\016"
-    "studyUidNumber\030\003 \002(\r\022\021\n\tseriesUid\030\004 \002(\t\022"
-    "\027\n\017seriesUidNumber\030\005 \002(\r\0222\n\010priority\030\006 \002"
-    "(\0162 .Protocol.SeriesRequest.Priority\022\031\n\021"
-    "instanceUidPrefix\030\007 \002(\t\022&\n\006frames\030\010 \003(\0132"
-    "\026.Protocol.FrameRequest\"N\n\013RequestType\022\t"
-    "\n\005Fetch\020\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPri"
-    "maryFrame\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010S"
-    "elected\020\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\262\003\n\013F"
-    "rameHeader\022\026\n\016numberOfFrames\030\001 \002(\r\022\022\n\nim"
-    "ageSizeX\030\002 \002(\r\022\022\n\nimageSizeY\030\003 \002(\r\022-\n\005de"
-    "pth\030\004 \002(\0162\036.Protocol.FrameHeader.bitDept"
-    "h\022\022\n\ncolorSpace\030\005 \002(\t\022\026\n\016transferSyntax\030"
-    "\006 \002(\t\022\026\n\016channelsNumber\030\007 \002(\r\022\024\n\014bInterl"
-    "eaved\030\010 \002(\010\022\024\n\014b2Complement\030\t \002(\010\022\025\n\rall"
-    "ocatedBits\030\n \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007"
-    "highBit\030\014 \002(\r\022\024\n\014bSubSampledY\030\r \002(\010\022\024\n\014b"
-    "SubSampledX\030\016 \002(\010\"\\\n\010bitDepth\022\013\n\007depthU8"
-    "\020\000\022\013\n\007depthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010depthS1"
-    "6\020\003\022\014\n\010depthU32\020\004\022\014\n\010depthS32\020\005\"i\n\rFrame"
-    "Response\022,\n\014frameRequest\030\001 \002(\0132\026.Protoco"
-    "l.FrameRequest\022*\n\013frameHeader\030\002 \002(\0132\025.Pr"
-    "otocol.FrameHeader\"-\n\rFrameFragment\022\016\n\006o"
-    "ffset\030\001 \002(\r\022\014\n\004size\030\002 \002(\r", 1105);
+    "er\030\002 \002(\r\022\023\n\013frameNumber\030\003 \002(\r\"\262\003\n\021FrameG"
+    "roupRequest\0225\n\004type\030\001 \002(\0162\'.Protocol.Fra"
+    "meGroupRequest.RequestType\022\020\n\010studyUid\030\002"
+    " \002(\t\022\026\n\016studyUidNumber\030\003 \002(\r\022\021\n\tseriesUi"
+    "d\030\004 \002(\t\022\027\n\017seriesUidNumber\030\005 \002(\r\0226\n\010prio"
+    "rity\030\006 \002(\0162$.Protocol.FrameGroupRequest."
+    "Priority\022\031\n\021instanceUidPrefix\030\007 \002(\t\022&\n\006f"
+    "rames\030\010 \003(\0132\026.Protocol.FrameRequest\022\022\n\nm"
+    "ultiFrame\030\t \002(\010\"N\n\013RequestType\022\t\n\005Fetch\020"
+    "\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPrimaryFram"
+    "e\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010Selected\020"
+    "\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\262\003\n\013FrameHead"
+    "er\022\026\n\016numberOfFrames\030\001 \002(\r\022\022\n\nimageSizeX"
+    "\030\002 \002(\r\022\022\n\nimageSizeY\030\003 \002(\r\022-\n\005depth\030\004 \002("
+    "\0162\036.Protocol.FrameHeader.bitDepth\022\022\n\ncol"
+    "orSpace\030\005 \002(\t\022\026\n\016transferSyntax\030\006 \002(\t\022\026\n"
+    "\016channelsNumber\030\007 \002(\r\022\024\n\014bInterleaved\030\010 "
+    "\002(\010\022\024\n\014b2Complement\030\t \002(\010\022\025\n\rallocatedBi"
+    "ts\030\n \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007highBit\030"
+    "\014 \002(\r\022\024\n\014bSubSampledY\030\r \002(\010\022\024\n\014bSubSampl"
+    "edX\030\016 \002(\010\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007de"
+    "pthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n\010d"
+    "epthU32\020\004\022\014\n\010depthS32\020\005\"i\n\rFrameResponse"
+    "\022,\n\014frameRequest\030\001 \002(\0132\026.Protocol.FrameR"
+    "equest\022*\n\013frameHeader\030\002 \002(\0132\025.Protocol.F"
+    "rameHeader\"-\n\rFrameFragment\022\016\n\006offset\030\001 "
+    "\002(\r\022\014\n\004size\030\002 \002(\r", 1137);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
-  SeriesRequest::default_instance_ = new SeriesRequest();
+  FrameGroupRequest::default_instance_ = new FrameGroupRequest();
   FrameHeader::default_instance_ = new FrameHeader();
   FrameResponse::default_instance_ = new FrameResponse();
   FrameFragment::default_instance_ = new FrameFragment();
   FrameRequest::default_instance_->InitAsDefaultInstance();
-  SeriesRequest::default_instance_->InitAsDefaultInstance();
+  FrameGroupRequest::default_instance_->InitAsDefaultInstance();
   FrameHeader::default_instance_->InitAsDefaultInstance();
   FrameResponse::default_instance_->InitAsDefaultInstance();
   FrameFragment::default_instance_->InitAsDefaultInstance();
@@ -551,11 +553,11 @@ void FrameRequest::Swap(FrameRequest* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* SeriesRequest_RequestType_descriptor() {
+const ::google::protobuf::EnumDescriptor* FrameGroupRequest_RequestType_descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return SeriesRequest_RequestType_descriptor_;
+  return FrameGroupRequest_RequestType_descriptor_;
 }
-bool SeriesRequest_RequestType_IsValid(int value) {
+bool FrameGroupRequest_RequestType_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
@@ -568,19 +570,19 @@ bool SeriesRequest_RequestType_IsValid(int value) {
 }
 
 #ifndef _MSC_VER
-const SeriesRequest_RequestType SeriesRequest::Fetch;
-const SeriesRequest_RequestType SeriesRequest::PriorityChanged;
-const SeriesRequest_RequestType SeriesRequest::SetPrimaryFrame;
-const SeriesRequest_RequestType SeriesRequest::Cancel;
-const SeriesRequest_RequestType SeriesRequest::RequestType_MIN;
-const SeriesRequest_RequestType SeriesRequest::RequestType_MAX;
-const int SeriesRequest::RequestType_ARRAYSIZE;
+const FrameGroupRequest_RequestType FrameGroupRequest::Fetch;
+const FrameGroupRequest_RequestType FrameGroupRequest::PriorityChanged;
+const FrameGroupRequest_RequestType FrameGroupRequest::SetPrimaryFrame;
+const FrameGroupRequest_RequestType FrameGroupRequest::Cancel;
+const FrameGroupRequest_RequestType FrameGroupRequest::RequestType_MIN;
+const FrameGroupRequest_RequestType FrameGroupRequest::RequestType_MAX;
+const int FrameGroupRequest::RequestType_ARRAYSIZE;
 #endif  // _MSC_VER
-const ::google::protobuf::EnumDescriptor* SeriesRequest_Priority_descriptor() {
+const ::google::protobuf::EnumDescriptor* FrameGroupRequest_Priority_descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return SeriesRequest_Priority_descriptor_;
+  return FrameGroupRequest_Priority_descriptor_;
 }
-bool SeriesRequest_Priority_IsValid(int value) {
+bool FrameGroupRequest_Priority_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
@@ -592,39 +594,40 @@ bool SeriesRequest_Priority_IsValid(int value) {
 }
 
 #ifndef _MSC_VER
-const SeriesRequest_Priority SeriesRequest::Selected;
-const SeriesRequest_Priority SeriesRequest::Visible;
-const SeriesRequest_Priority SeriesRequest::Hidden;
-const SeriesRequest_Priority SeriesRequest::Priority_MIN;
-const SeriesRequest_Priority SeriesRequest::Priority_MAX;
-const int SeriesRequest::Priority_ARRAYSIZE;
+const FrameGroupRequest_Priority FrameGroupRequest::Selected;
+const FrameGroupRequest_Priority FrameGroupRequest::Visible;
+const FrameGroupRequest_Priority FrameGroupRequest::Hidden;
+const FrameGroupRequest_Priority FrameGroupRequest::Priority_MIN;
+const FrameGroupRequest_Priority FrameGroupRequest::Priority_MAX;
+const int FrameGroupRequest::Priority_ARRAYSIZE;
 #endif  // _MSC_VER
 #ifndef _MSC_VER
-const int SeriesRequest::kTypeFieldNumber;
-const int SeriesRequest::kStudyUidFieldNumber;
-const int SeriesRequest::kStudyUidNumberFieldNumber;
-const int SeriesRequest::kSeriesUidFieldNumber;
-const int SeriesRequest::kSeriesUidNumberFieldNumber;
-const int SeriesRequest::kPriorityFieldNumber;
-const int SeriesRequest::kInstanceUidPrefixFieldNumber;
-const int SeriesRequest::kFramesFieldNumber;
+const int FrameGroupRequest::kTypeFieldNumber;
+const int FrameGroupRequest::kStudyUidFieldNumber;
+const int FrameGroupRequest::kStudyUidNumberFieldNumber;
+const int FrameGroupRequest::kSeriesUidFieldNumber;
+const int FrameGroupRequest::kSeriesUidNumberFieldNumber;
+const int FrameGroupRequest::kPriorityFieldNumber;
+const int FrameGroupRequest::kInstanceUidPrefixFieldNumber;
+const int FrameGroupRequest::kFramesFieldNumber;
+const int FrameGroupRequest::kMultiFrameFieldNumber;
 #endif  // !_MSC_VER
 
-SeriesRequest::SeriesRequest()
+FrameGroupRequest::FrameGroupRequest()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void SeriesRequest::InitAsDefaultInstance() {
+void FrameGroupRequest::InitAsDefaultInstance() {
 }
 
-SeriesRequest::SeriesRequest(const SeriesRequest& from)
+FrameGroupRequest::FrameGroupRequest(const FrameGroupRequest& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void SeriesRequest::SharedCtor() {
+void FrameGroupRequest::SharedCtor() {
   _cached_size_ = 0;
   type_ = 0;
   studyuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
@@ -633,14 +636,15 @@ void SeriesRequest::SharedCtor() {
   seriesuidnumber_ = 0u;
   priority_ = 0;
   instanceuidprefix_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  multiframe_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-SeriesRequest::~SeriesRequest() {
+FrameGroupRequest::~FrameGroupRequest() {
   SharedDtor();
 }
 
-void SeriesRequest::SharedDtor() {
+void FrameGroupRequest::SharedDtor() {
   if (studyuid_ != &::google::protobuf::internal::kEmptyString) {
     delete studyuid_;
   }
@@ -654,27 +658,27 @@ void SeriesRequest::SharedDtor() {
   }
 }
 
-void SeriesRequest::SetCachedSize(int size) const {
+void FrameGroupRequest::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* SeriesRequest::descriptor() {
+const ::google::protobuf::Descriptor* FrameGroupRequest::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return SeriesRequest_descriptor_;
+  return FrameGroupRequest_descriptor_;
 }
 
-const SeriesRequest& SeriesRequest::default_instance() {
+const FrameGroupRequest& FrameGroupRequest::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_stream_2eproto();  return *default_instance_;
 }
 
-SeriesRequest* SeriesRequest::default_instance_ = NULL;
+FrameGroupRequest* FrameGroupRequest::default_instance_ = NULL;
 
-SeriesRequest* SeriesRequest::New() const {
-  return new SeriesRequest;
+FrameGroupRequest* FrameGroupRequest::New() const {
+  return new FrameGroupRequest;
 }
 
-void SeriesRequest::Clear() {
+void FrameGroupRequest::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     type_ = 0;
     if (has_studyuid()) {
@@ -696,18 +700,21 @@ void SeriesRequest::Clear() {
       }
     }
   }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    multiframe_ = false;
+  }
   frames_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool SeriesRequest::MergePartialFromCodedStream(
+bool FrameGroupRequest::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .Protocol.SeriesRequest.RequestType type = 1;
+      // required .Protocol.FrameGroupRequest.RequestType type = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -715,8 +722,8 @@ bool SeriesRequest::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
                  input, &value)));
-          if (::Protocol::SeriesRequest_RequestType_IsValid(value)) {
-            set_type(static_cast< ::Protocol::SeriesRequest_RequestType >(value));
+          if (::Protocol::FrameGroupRequest_RequestType_IsValid(value)) {
+            set_type(static_cast< ::Protocol::FrameGroupRequest_RequestType >(value));
           } else {
             mutable_unknown_fields()->AddVarint(1, value);
           }
@@ -793,7 +800,7 @@ bool SeriesRequest::MergePartialFromCodedStream(
         break;
       }
       
-      // required .Protocol.SeriesRequest.Priority priority = 6;
+      // required .Protocol.FrameGroupRequest.Priority priority = 6;
       case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -802,8 +809,8 @@ bool SeriesRequest::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
                  input, &value)));
-          if (::Protocol::SeriesRequest_Priority_IsValid(value)) {
-            set_priority(static_cast< ::Protocol::SeriesRequest_Priority >(value));
+          if (::Protocol::FrameGroupRequest_Priority_IsValid(value)) {
+            set_priority(static_cast< ::Protocol::FrameGroupRequest_Priority >(value));
           } else {
             mutable_unknown_fields()->AddVarint(6, value);
           }
@@ -842,6 +849,22 @@ bool SeriesRequest::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(66)) goto parse_frames;
+        if (input->ExpectTag(72)) goto parse_multiFrame;
+        break;
+      }
+      
+      // required bool multiFrame = 9;
+      case 9: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_multiFrame:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &multiframe_)));
+          set_has_multiframe();
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -862,9 +885,9 @@ bool SeriesRequest::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void SeriesRequest::SerializeWithCachedSizes(
+void FrameGroupRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .Protocol.SeriesRequest.RequestType type = 1;
+  // required .Protocol.FrameGroupRequest.RequestType type = 1;
   if (has_type()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       1, this->type(), output);
@@ -898,7 +921,7 @@ void SeriesRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->seriesuidnumber(), output);
   }
   
-  // required .Protocol.SeriesRequest.Priority priority = 6;
+  // required .Protocol.FrameGroupRequest.Priority priority = 6;
   if (has_priority()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       6, this->priority(), output);
@@ -919,15 +942,20 @@ void SeriesRequest::SerializeWithCachedSizes(
       8, this->frames(i), output);
   }
   
+  // required bool multiFrame = 9;
+  if (has_multiframe()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(9, this->multiframe(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
 
-::google::protobuf::uint8* SeriesRequest::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* FrameGroupRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .Protocol.SeriesRequest.RequestType type = 1;
+  // required .Protocol.FrameGroupRequest.RequestType type = 1;
   if (has_type()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       1, this->type(), target);
@@ -963,7 +991,7 @@ void SeriesRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->seriesuidnumber(), target);
   }
   
-  // required .Protocol.SeriesRequest.Priority priority = 6;
+  // required .Protocol.FrameGroupRequest.Priority priority = 6;
   if (has_priority()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       6, this->priority(), target);
@@ -986,6 +1014,11 @@ void SeriesRequest::SerializeWithCachedSizes(
         8, this->frames(i), target);
   }
   
+  // required bool multiFrame = 9;
+  if (has_multiframe()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(9, this->multiframe(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -993,11 +1026,11 @@ void SeriesRequest::SerializeWithCachedSizes(
   return target;
 }
 
-int SeriesRequest::ByteSize() const {
+int FrameGroupRequest::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .Protocol.SeriesRequest.RequestType type = 1;
+    // required .Protocol.FrameGroupRequest.RequestType type = 1;
     if (has_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
@@ -1031,7 +1064,7 @@ int SeriesRequest::ByteSize() const {
           this->seriesuidnumber());
     }
     
-    // required .Protocol.SeriesRequest.Priority priority = 6;
+    // required .Protocol.FrameGroupRequest.Priority priority = 6;
     if (has_priority()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->priority());
@@ -1042,6 +1075,13 @@ int SeriesRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->instanceuidprefix());
+    }
+    
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // required bool multiFrame = 9;
+    if (has_multiframe()) {
+      total_size += 1 + 1;
     }
     
   }
@@ -1064,10 +1104,10 @@ int SeriesRequest::ByteSize() const {
   return total_size;
 }
 
-void SeriesRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void FrameGroupRequest::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const SeriesRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SeriesRequest*>(
+  const FrameGroupRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const FrameGroupRequest*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1076,7 +1116,7 @@ void SeriesRequest::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void SeriesRequest::MergeFrom(const SeriesRequest& from) {
+void FrameGroupRequest::MergeFrom(const FrameGroupRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
   frames_.MergeFrom(from.frames_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
@@ -1102,23 +1142,28 @@ void SeriesRequest::MergeFrom(const SeriesRequest& from) {
       set_instanceuidprefix(from.instanceuidprefix());
     }
   }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_multiframe()) {
+      set_multiframe(from.multiframe());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void SeriesRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void FrameGroupRequest::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void SeriesRequest::CopyFrom(const SeriesRequest& from) {
+void FrameGroupRequest::CopyFrom(const FrameGroupRequest& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool SeriesRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000007f) != 0x0000007f) return false;
+bool FrameGroupRequest::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000017f) != 0x0000017f) return false;
   
   for (int i = 0; i < frames_size(); i++) {
     if (!this->frames(i).IsInitialized()) return false;
@@ -1126,7 +1171,7 @@ bool SeriesRequest::IsInitialized() const {
   return true;
 }
 
-void SeriesRequest::Swap(SeriesRequest* other) {
+void FrameGroupRequest::Swap(FrameGroupRequest* other) {
   if (other != this) {
     std::swap(type_, other->type_);
     std::swap(studyuid_, other->studyuid_);
@@ -1136,17 +1181,18 @@ void SeriesRequest::Swap(SeriesRequest* other) {
     std::swap(priority_, other->priority_);
     std::swap(instanceuidprefix_, other->instanceuidprefix_);
     frames_.Swap(&other->frames_);
+    std::swap(multiframe_, other->multiframe_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata SeriesRequest::GetMetadata() const {
+::google::protobuf::Metadata FrameGroupRequest::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = SeriesRequest_descriptor_;
-  metadata.reflection = SeriesRequest_reflection_;
+  metadata.descriptor = FrameGroupRequest_descriptor_;
+  metadata.reflection = FrameGroupRequest_reflection_;
   return metadata;
 }
 

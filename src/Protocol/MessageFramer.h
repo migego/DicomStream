@@ -24,7 +24,7 @@ public:
 	enum MessageType
 	{
 		None,
-		SeriesRequest,
+		FrameGroupRequest,
 		FrameRequest,
 		FrameFragment
 	};
@@ -42,9 +42,9 @@ public:
 
 	};
 
-	void write(Protocol::SeriesRequest* seriesRequest)
+	void write(Protocol::FrameGroupRequest* frameGroupRequest)
 	{
-		write(SeriesRequest, seriesRequest);
+		write(FrameGroupRequest, frameGroupRequest);
 	}
 	void write(Protocol::FrameResponse* frameResponse)
 	{
@@ -134,8 +134,8 @@ public:
 			::google::protobuf::Message* msg = NULL;
 			switch(type)
 			{
-			case SeriesRequest:
-				msg = new Protocol::SeriesRequest();
+			case FrameGroupRequest:
+				msg = new Protocol::FrameGroupRequest();
 				break;
 			case FrameRequest:
 				  msg = new Protocol::FrameRequest();

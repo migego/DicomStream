@@ -10,16 +10,16 @@
 #include "unixStream.h"
 
 
-DicomPixels::DicomPixels(int fd)
+void DicomPixels::parse(int imageFileDescriptor)
 {
 
-	if (fd == -1)
+	if (imageFileDescriptor == -1)
 		return;
 
 
 	// Open the file containing the dicom dataset
 	ptr<puntoexe::unixStream> inputStream(new puntoexe::unixStream);
-	inputStream->attach(fd);
+	inputStream->attach(imageFileDescriptor);
 
 	// Connect a stream reader to the dicom stream. Several stream reader
 	//  can share the same stream
@@ -125,9 +125,8 @@ DicomPixels::DicomPixels(int fd)
 		numberOfFrames = pData->getUnsignedLong(0x0028, 0, 0x0008, 0);
 	}
 
-	frameVec = new vector<FrameIterator*>();
 
-	// for each frame, create a FrameIterator
+	// for each frame, create a vector of FragmentIterators
 	for (unsigned int i = 0; i < numberOfFrames; ++i)
 	{
 
@@ -135,18 +134,21 @@ DicomPixels::DicomPixels(int fd)
 		imbxUint32 offset = 0;
 		imbxUint32 length=0;
 
-		vector<FragmentIterator*>* fragVec = new vector<FragmentIterator*>();
+		vector<FragmentIterator*>* fragmentVec = new vector<FragmentIterator*>();
 
 
 		while( pData->getImageOffset(frameCount,offset,length) )
 		{
-			fragVec->push_back(new FragmentIterator(offset, length, -1));
+			fragmentVec->push_back(new FragmentIterator(offset, length, -1));
 			printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
 			frameCount++;
 		}
-		frameVec->push_back(new FrameIterator(fragVec, i));
+
+		frameFragments.push_back(fragmentVec);
 
 	}
+
+	//notify listeners
 
 }
 

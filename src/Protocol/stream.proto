@@ -13,7 +13,7 @@ message FrameRequest
 }
 
 
-message SeriesRequest 
+message FrameGroupRequest 
 {
 
 	enum RequestType
@@ -26,7 +26,7 @@ message SeriesRequest
 		//set series primary frame (default is 0)
 		SetPrimaryFrame = 2; // instance and frame number
 
-		// cancel (cancel series or study)
+		// cancel
 		Cancel = 3;
 
 	}
@@ -47,6 +47,7 @@ message SeriesRequest
 
 	required string instanceUidPrefix=7;  //common part of sop instance uid string
     repeated FrameRequest frames=8;
+    required bool multiFrame=9;
   
 }
 

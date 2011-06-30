@@ -13,7 +13,7 @@ using namespace std;
 
 template <typename Data, typename Iterator> class UpDownIterator {
 protected:
-	vector<Iterator*>* items;
+	vector<Iterator*>* childIterators;
 	size_t primaryIndex;
 	size_t currentIndex;
 	size_t count;
@@ -21,30 +21,30 @@ protected:
 public:
 	virtual ~UpDownIterator()
 	{
-		if (items != NULL)
+		if (childIterators != NULL)
 		{
 			typename vector<Iterator*>::iterator  iter;
-			for (iter = items->begin(); iter != items->end(); iter++)
+			for (iter = childIterators->begin(); iter != childIterators->end(); iter++)
 			{
 				delete *iter;
 			}
-			delete items;
+			delete childIterators;
 		}
 	}
 
-	UpDownIterator(vector<Iterator*>* itms, size_t primaryInd)
+	UpDownIterator(vector<Iterator*>* childIters, size_t primaryInd)
 	{
-		setItems(itms, primaryInd);
+		setChildIterators(childIters, primaryInd);
 	}
 
 	UpDownIterator(void)
 	{
-		setItems(NULL,0);
+		setChildIterators(NULL,0);
 	}
 
-	void setItems(vector<Iterator*>* itms, size_t primaryInd)
+	void setChildIterators(vector<Iterator*>* childIters, size_t primaryInd)
 	{
-		items = itms;
+		childIterators = childIters;
 		primaryIndex = primaryInd;
 		currentIndex = primaryInd;
 		count = 0;
@@ -53,7 +53,7 @@ public:
 
 	bool next(Data& item)
 	{
-		 if (done || items == NULL || currentIndex >= items->size() || items->empty() )
+		 if (done || childIterators == NULL || currentIndex >= childIterators->size() || childIterators->empty() )
 			   return false;
 
 		//is there another fragment in current iterator ?
@@ -67,7 +67,7 @@ public:
 			  count++;
 		}
 
-		int maxIncr = max(primaryIndex,  items->size() - primaryIndex)-1;
+		int maxIncr = max(primaryIndex,  childIterators->size() - primaryIndex)-1;
 		int incr = 0;
 		while ( abs(incr) <= maxIncr)
 		{
@@ -81,7 +81,7 @@ public:
 					incr *= -1;
 
 				int nextIndex = primaryIndex + incr;
-				if (nextIndex >= 0 && nextIndex < (int)items->size())
+				if (nextIndex >= 0 && nextIndex < (int)childIterators->size())
 				{
 					currentIndex = nextIndex;
 					if (!getNextFragment(item))
@@ -97,14 +97,14 @@ public:
 private:
     bool getNextFragment(Data& fragment)
 	{
-    	Iterator* iter  = items->operator[](currentIndex);
+    	Iterator* iter  = childIterators->operator[](currentIndex);
     	if (!iter)
     		return false;
 		bool rc =  iter->next(fragment);
 		if (!rc)
 		{
 			delete iter;
-			items->operator[](currentIndex) = NULL;
+			childIterators->operator[](currentIndex) = NULL;
 		}
 		return rc;
 	}
