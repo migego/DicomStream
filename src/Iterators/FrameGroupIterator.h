@@ -43,6 +43,15 @@ public:
 		release();
 	}
 
+	string currentFile()
+	{
+		string rc = "";
+		FrameIterator* current = currentIterator();
+		if (current)
+			rc = current->getFileName();
+		return rc;
+	}
+
 private:
     void finish()
 	{

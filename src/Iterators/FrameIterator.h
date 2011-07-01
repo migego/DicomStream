@@ -21,7 +21,7 @@
 typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIterator;
 
 
-class FrameIterator : public tFrameIterator, RefCounter, public IParseListener{
+class FrameIterator : public tFrameIterator, public RefCounter, public IParseListener{
 public:
 
 	FrameIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, string fName) :
@@ -56,7 +56,7 @@ private:
     	if (!doneReleased())
     	{
 			if (parseListenManager)
-				parseListenManager->removeListener(fileName, this);
+				parseListenManager->removeListener(getFileName(), this);
 			release();
     	}
 	}

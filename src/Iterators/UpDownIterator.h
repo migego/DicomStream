@@ -89,6 +89,15 @@ public:
 		return false;
 
 	}
+protected:
+	Iterator* currentIterator()
+	{
+		if (!childIterators || childIterators->empty())
+			return NULL;
+
+		return childIterators->operator[](currentIndex);
+
+	}
 private:
     bool getNextFragment(Data& fragment)
 	{

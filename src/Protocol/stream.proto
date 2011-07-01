@@ -24,7 +24,7 @@ message FrameGroupRequest
 		PriorityChanged = 1;
 
 		//set series primary frame (default is 0)
-		SetPrimaryFrame = 2; // instance and frame number
+		SetPrimaryFrame = 2; 
 
 		// cancel
 		Cancel = 3;

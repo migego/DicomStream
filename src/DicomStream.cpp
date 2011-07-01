@@ -194,8 +194,8 @@ int DicomStream::open_cb_(eio_req *req)
 	int fd = EIO_RESULT (req);
 	if (fd != -1)
 	{
-		TFileInfo* data = (TFileInfo*)req->data;
-		data->fd = fd;
+		TEio* data = (TEio*)req->data;
+		data->fileInfo->fd = fd;
 
 		//trigger readahead
 		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
@@ -210,16 +210,44 @@ int DicomStream::readahead_cb_(eio_req *req)
 	if (req->result < 0)
 	  abort ();
 
-	TFileInfo* data = (TFileInfo*)req->data;
+	TEio* data = (TEio*)req->data;
 	//parse file
-	data->parser = new DicomPixels();
-	data->parser->parse(data->fd, data->fileName, &listenManager);
+	data->fileInfo->parser = new DicomPixels();
+	data->fileInfo->parser->parse(data->fileInfo->fd, data->fileInfo->fileName, &listenManager);
+
+	TClient* cli = data->cli;
+	delete(data);
+
+	//trigger write on next fragment
+	struct ev_loop *loop = ev_default_loop (0);
+	ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+	ev_io_start(loop,&cli->ev_write);
 
 	return 0;
-
 }
 
+int DicomStream::sendfile_cb_(eio_req *req)
+{
+	if (req->result < 0)
+	  abort ();
 
+	TClient* cli = (TClient*)req->data;
+	//trigger write on next fragment
+	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+ 	{
+ 		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+ 		if (frameQueue->empty())
+ 		{
+ 			deleteMessageFramer(cli->fd);
+			close(cli->fd);
+			delete cli;
+			return 0;
+ 		}
+ 		string currentFile = frameQueue->front()->currentFile();
+ 		triggerEventOnFile(cli, currentFile);
+ 	}
+	return 0;
+}
 
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
@@ -227,16 +255,28 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
  	if (revents & EV_WRITE)
  	{
 
- 		//write message header
+ 		if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+ 		{
+ 			queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
 
- 		//trigger eio sendfile
+ 			//if (frameQueue->empty())
+ 			{
+ 		 		deleteMessageFramer(cli->fd);
+ 		 		close(cli->fd);
+ 		 		delete cli;
+ 			}
+ 			//1. get next fragment from queue
 
+ 			//2. write header
 
+ 			//3. trigger eio sendfile on fragment
+ 			//TFileInfo* info = getFileInfo()
+ 		    //eio_sendfile (1, last_fd, 4, 5, 0, res_cb, (void*)"sendfile"); // write "test\n" to stdout
+
+ 		}
 	}
 	ev_io_stop(EV_A_ w);
-	deleteMessageFramer(cli->fd);
- 	close(cli->fd);
-	delete cli;
+
 
 }
 
@@ -245,24 +285,27 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 
     TClient *cli= ((TClient*) (((char*)w) - offsetof(TClient,ev_read)));
-    MessageFramer::GenericMessage msg;
 	if (revents & EV_READ){
 		// parse message
 		printf("Reading message \n");
-		msg  = messageFramers[cli->fd]->read();
-		if (msg.message != NULL)
+		MessageFramer::MessageWrapper wrapper;
+
+		try
 		{
+			messageFramers[cli->fd]->read(wrapper);
+
 			//process message
-			processIncomingMessage(cli->fd, msg);
+			processIncomingMessage(cli, wrapper);
+
+		}
+		catch (ReadException& r)
+		{
+			//close socket
 		}
 
 	}
 	ev_io_stop(EV_A_ w);
-	if (msg.message != NULL)
-	{
-		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-		ev_io_start(loop,&cli->ev_write);
-	}
+
 }
 
 void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
@@ -281,11 +324,27 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
          close(client_fd);
          return;
 	}
-
-
 	createMessageFramer(client_fd);
 	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
 	ev_io_start(loop,&myClient->ev_read);
+}
+
+void DicomStream::triggerEventOnFile(TClient* cli, string fileName)
+{
+	TFileInfo* info = getFileInfo(fileName);
+	if (info->fd == -1)
+	{
+		TEio* eioData = new TEio();
+		eioData->cli = cli;
+		eioData->fileInfo = info;
+		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
+	}
+	else
+	{
+		struct ev_loop *loop = ev_default_loop (0);
+		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+		ev_io_start(loop,&cli->ev_write);
+	}
 }
 
 void DicomStream::createMessageFramer(int fd)
@@ -302,7 +361,7 @@ void DicomStream::deleteMessageFramer(int fd)
 	}
 }
 
-void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg)
+void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg)
 {
 	if (msg.message == NULL)
 		return;
@@ -343,32 +402,24 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 	    }
 	    else
 	    {
-	    	//queue iterator
+	    	//queue new iterator
 	    	queue<FrameGroupIterator*>* frameQueue = NULL;
-	    	if (frameGroupIterators.find(clientFd) == frameGroupIterators.end())
+	    	if (frameGroupIterators.find(cli->fd) == frameGroupIterators.end())
 	    	{
 	    		frameQueue = new queue<FrameGroupIterator*>();
-	    		frameGroupIterators[clientFd] = frameQueue;
+	    		frameGroupIterators[cli->fd] = frameQueue;
 	    	}
 	    	else
 	    	{
-	    		frameQueue = frameGroupIterators[clientFd];
+	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
 	    	frameQueue->push(new FrameGroupIterator(this, &listenManager, fileNames));
 
-	    	//trigger file open
-		    frames = frameGroupRequest->frames().begin();
-		    while (frames != frameGroupRequest->frames().end())
-		    {
-			    string fileName = fileRoot + frames->instanceuid() + ".dcm";
-			    printf("Incoming request for file: %s\n",fileName.c_str());
-
-			    TFileInfo* data = getFileInfo(fileName);
-			    //trigger open if fd is uninitialized
-			    if (data->fd == -1)
-			         eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
-			    frames++;
-		    }
+	    	if (!frameQueue->empty())
+	    	{
+				string currentFile = frameQueue->front()->currentFile();
+				triggerEventOnFile(cli, currentFile);
+	    	}
 	    }
 
 	    }
@@ -554,7 +605,10 @@ int DicomStream::readahead_cb (eio_req *req)
 {
 	return Instance()->readahead_cb_(req);
 }
-
+int DicomStream::sendfile_cb (eio_req *req)
+{
+	return Instance()->sendfile_cb_(req);
+}
 void DicomStream::write_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 	Instance()->write_cb_(loop,w,revents);

@@ -29,6 +29,10 @@ public:
 	{
 		release();
 	}
+	string getFileName()
+	{
+		return fileName;
+	}
 protected:
 	void release()
 	{
@@ -37,12 +41,12 @@ protected:
 		releasedRefCount = true;
 
 	}
-	string fileName;
 	bool doneReleased()
 	{
 		return releasedRefCount;
 	}
 private:
+	string fileName;
 	IFileRefCounter* fileRefCounter;
 	bool releasedRefCount;
 };

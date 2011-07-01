@@ -9,6 +9,7 @@
 #define MESSAGEFRAMER_H_
 
 #include "stream.pb.h"
+#include "ReadException.h"
 
 class MessageFramer {
 public:
@@ -29,9 +30,9 @@ public:
 		FrameFragment
 	};
 
-	struct GenericMessage
+	struct MessageWrapper
 	{
-		GenericMessage()
+		MessageWrapper()
 		{
 			type = None;
 			message = NULL;
@@ -65,46 +66,64 @@ public:
 		offset = 0;
 	}
 
-	bool validateRead(int n)
+	void validateRead(int n)
 	{
 		if (n < 0)
 		{
 			perror("Error reading from socket");
+			throw new ReadException();
 		   close (fd);
-		   return false;
 		}
-		return true;
-
 	}
 
-	GenericMessage read()
+    void read(MessageWrapper& wrapper)
+    {
+    	while(!read_(wrapper))
+    	{
+
+    	}
+    }
+
+private:
+
+	int fd;
+
+	bool hasType;
+	char type;
+	char rawSize[4];
+	int size;
+	int sizeOffset;
+	char* data;
+	int offset;
+
+	bool read_(MessageWrapper& wrapper)
 	{
 		int n = 0;
-		GenericMessage rc;
 
 		if (!hasType)
 		{
 			n = ::read(fd, &type, 1);
-			if (!validateRead(n) || n == 0)
-				return rc;
+			validateRead(n);
+			if (n == 0)
+				return false;
 
 			hasType = true;
 		}
 		if (sizeOffset != 4)
 		{
 			n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
-			if (!validateRead(n) || n == 0)
-				return rc;
+			validateRead(n);
+			if (n == 0)
+				return false;
 			sizeOffset += n;
 			while (n > 0)
 			{
 				n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
-				if (!validateRead(n))
-					return rc;
+				validateRead(n);
 				sizeOffset += n;
 			}
 			if (sizeOffset != 4)
-				return rc;
+				return false;
 			size = ntohl( *((int*)rawSize));
 		}
 		if (!data)
@@ -113,19 +132,17 @@ public:
 		if (offset != size)
 		{
 			n = ::read(fd, data+offset, size-offset);
-			if (!validateRead(n) )
-				return rc;
+			validateRead(n);
+			if (n == 0)
+				return false;
 
 			offset += n;
 			while ( n > 0)
 			{
 				n = ::read(fd, data+offset, size-offset);
-				if (!validateRead(n) )
-					return rc;
-
+				validateRead(n);
 				offset += n;
 			}
-
 		}
 
 
@@ -151,29 +168,19 @@ public:
 				printf("parsed message\n");
 				msg->ParseFromArray(data, size);
 
-				rc.message = msg;
-				rc.type = (MessageType)type;
+				wrapper.message = msg;
+				wrapper.type = (MessageType)type;
+
 
 				//prepare for next message
 				initRead();
+
+				return true;
 			}
 
 		}
-		return rc;
+		return false;
 	}
-
-private:
-
-	int fd;
-
-	bool hasType;
-	char type;
-	char rawSize[4];
-	int size;
-	int sizeOffset;
-	char* data;
-	int offset;
-
 
 	void write(char type, ::google::protobuf::Message* msg)
 	{

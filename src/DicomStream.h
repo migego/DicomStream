@@ -68,6 +68,13 @@ private:
 	        ev_io ev_write;
 			ev_io ev_read;
 	};
+
+	struct TEio
+	{
+		TClient* cli;
+		TFileInfo* fileInfo;
+	};
+
 	ev_io ev_accept;
 
 	//singleton
@@ -84,12 +91,13 @@ private:
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
 	map<int, MessageFramer*> messageFramers;
-	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
+	void processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg);
 
 	// parsing
 	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
+    void triggerEventOnFile(TClient* cli, string fileName);
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
@@ -115,11 +123,13 @@ private:
 	static void done_poll();
 	static int open_cb (eio_req *req);
 	static int readahead_cb (eio_req *req);
+	static int sendfile_cb (eio_req *req);
 
     void want_poll_();
 	void done_poll_();
     int open_cb_ (eio_req *req);
     int readahead_cb_ (eio_req *req);
+    int sendfile_cb_ (eio_req *req);
 
 	void unitTest();
 
