@@ -47,6 +47,9 @@ private:
 		TFileInfo()
 		{
 			fd = -1;
+			parser = NULL;
+			fileName="";
+			sentHeader = false;
 
 		}
 		~TFileInfo()
@@ -58,8 +61,11 @@ private:
 		int fd;
 		int refCount;
 		DicomPixels* parser;
+		bool sentHeader;
 
 	};
+	void cleanup(string fileName);
+
 
 	unsigned short port;
 
@@ -68,6 +74,9 @@ private:
 	        ev_io ev_write;
 			ev_io ev_read;
 	};
+
+	void cleanup(TClient* cli);
+
 
 	struct TEio
 	{
@@ -97,7 +106,7 @@ private:
 	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
-    void triggerEventOnFile(TClient* cli, string fileName);
+    void triggerRetrieve(TClient* cli, string fileName);
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;

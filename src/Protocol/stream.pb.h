@@ -748,28 +748,17 @@ class FrameResponse : public ::google::protobuf::Message {
   inline ::Protocol::FrameRequest* mutable_framerequest();
   inline ::Protocol::FrameRequest* release_framerequest();
   
-  // required .Protocol.FrameHeader frameHeader = 2;
-  inline bool has_frameheader() const;
-  inline void clear_frameheader();
-  static const int kFrameHeaderFieldNumber = 2;
-  inline const ::Protocol::FrameHeader& frameheader() const;
-  inline ::Protocol::FrameHeader* mutable_frameheader();
-  inline ::Protocol::FrameHeader* release_frameheader();
-  
   // @@protoc_insertion_point(class_scope:Protocol.FrameResponse)
  private:
   inline void set_has_framerequest();
   inline void clear_has_framerequest();
-  inline void set_has_frameheader();
-  inline void clear_has_frameheader();
   
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
   ::Protocol::FrameRequest* framerequest_;
-  ::Protocol::FrameHeader* frameheader_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -1709,35 +1698,6 @@ inline ::Protocol::FrameRequest* FrameResponse::release_framerequest() {
   clear_has_framerequest();
   ::Protocol::FrameRequest* temp = framerequest_;
   framerequest_ = NULL;
-  return temp;
-}
-
-// required .Protocol.FrameHeader frameHeader = 2;
-inline bool FrameResponse::has_frameheader() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void FrameResponse::set_has_frameheader() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void FrameResponse::clear_has_frameheader() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void FrameResponse::clear_frameheader() {
-  if (frameheader_ != NULL) frameheader_->::Protocol::FrameHeader::Clear();
-  clear_has_frameheader();
-}
-inline const ::Protocol::FrameHeader& FrameResponse::frameheader() const {
-  return frameheader_ != NULL ? *frameheader_ : *default_instance_->frameheader_;
-}
-inline ::Protocol::FrameHeader* FrameResponse::mutable_frameheader() {
-  set_has_frameheader();
-  if (frameheader_ == NULL) frameheader_ = new ::Protocol::FrameHeader;
-  return frameheader_;
-}
-inline ::Protocol::FrameHeader* FrameResponse::release_frameheader() {
-  clear_has_frameheader();
-  ::Protocol::FrameHeader* temp = frameheader_;
-  frameheader_ = NULL;
   return temp;
 }
 

@@ -20,16 +20,19 @@ using namespace std;
 //iterator for either a series of single frame images, or a single multi-frame image
 typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> tFrameGroupIterator;
 
+
+
+
 class FrameGroupIterator : public tFrameGroupIterator, RefCounter{
 public:
 
 	// series of images
-	FrameGroupIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, vector<string> fNames)
+	FrameGroupIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, vector<TFrameInfo> fNames)
 	{
 		if (fNames.empty() || !refCounter || !listenManager)
 			return;
 
-		vector<string>::iterator iter;
+		vector<TFrameInfo>::iterator iter;
 		vector<FrameIterator*>* itms = new vector<FrameIterator*>();
 		for (iter = fNames.begin(); iter != fNames.end(); ++iter)
 		{
@@ -43,14 +46,17 @@ public:
 		release();
 	}
 
-	string currentFile()
+	bool getCurrentFrameInfo(TFrameInfo& info)
 	{
-		string rc = "";
 		FrameIterator* current = currentIterator();
 		if (current)
-			rc = current->getFileName();
-		return rc;
+		{
+			info = current->getFrameInfo();
+			return true;
+		}
+		return false;
 	}
+
 
 private:
     void finish()

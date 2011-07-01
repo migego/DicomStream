@@ -20,17 +20,25 @@
 // iterator for image frame
 typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIterator;
 
+struct TFrameInfo
+{
+	string fileName;
+	Protocol::FrameRequest frameRequest;
+
+};
+
 
 class FrameIterator : public tFrameIterator, public RefCounter, public IParseListener{
 public:
 
-	FrameIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, string fName) :
-		                                                                 RefCounter(refCounter, fName),
+	FrameIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, TFrameInfo frameInfo) :
+		                                                                 RefCounter(refCounter, frameInfo.fileName),
+		                                                                 frameInfo(frameInfo),
 	                                                                     frameNumber(0),
 	                                                                     parseListenManager(listenManager)
 	{
 		if (parseListenManager)
-			parseListenManager->addListener(fName, this);
+			parseListenManager->addListener(frameInfo.fileName, this);
 	}
 	virtual ~FrameIterator(){
         finish();
@@ -46,8 +54,13 @@ public:
        if (!frameFragments.empty())
     	   setChildIterators(frameFragments[0]);
 	}
+	TFrameInfo getFrameInfo()
+	{
+		return frameInfo;
+	}
 
 private:
+	TFrameInfo frameInfo;
 	unsigned int frameNumber;
 	ParseListenManager* parseListenManager;
 
@@ -56,7 +69,7 @@ private:
     	if (!doneReleased())
     	{
 			if (parseListenManager)
-				parseListenManager->removeListener(getFileName(), this);
+				parseListenManager->removeListener(frameInfo.fileName, this);
 			release();
     	}
 	}

@@ -93,7 +93,7 @@ message FrameResponse
 {
 
     required FrameRequest frameRequest=1;
-    required FrameHeader frameHeader=2;
+   // required FrameHeader frameHeader=2;
 
 };
 

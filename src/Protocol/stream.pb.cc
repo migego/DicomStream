@@ -117,9 +117,8 @@ void protobuf_AssignDesc_stream_2eproto() {
       sizeof(FrameHeader));
   FrameHeader_bitDepth_descriptor_ = FrameHeader_descriptor_->enum_type(0);
   FrameResponse_descriptor_ = file->message_type(3);
-  static const int FrameResponse_offsets_[2] = {
+  static const int FrameResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, framerequest_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, frameheader_),
   };
   FrameResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -218,11 +217,10 @@ void protobuf_AddDesc_stream_2eproto() {
     "\014 \002(\r\022\024\n\014bSubSampledY\030\r \002(\010\022\024\n\014bSubSampl"
     "edX\030\016 \002(\010\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007de"
     "pthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n\010d"
-    "epthU32\020\004\022\014\n\010depthS32\020\005\"i\n\rFrameResponse"
+    "epthU32\020\004\022\014\n\010depthS32\020\005\"=\n\rFrameResponse"
     "\022,\n\014frameRequest\030\001 \002(\0132\026.Protocol.FrameR"
-    "equest\022*\n\013frameHeader\030\002 \002(\0132\025.Protocol.F"
-    "rameHeader\"-\n\rFrameFragment\022\016\n\006offset\030\001 "
-    "\002(\r\022\014\n\004size\030\002 \002(\r", 1137);
+    "equest\"-\n\rFrameFragment\022\016\n\006offset\030\001 \002(\r\022"
+    "\014\n\004size\030\002 \002(\r", 1093);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
@@ -1996,7 +1994,6 @@ void FrameHeader::Swap(FrameHeader* other) {
 
 #ifndef _MSC_VER
 const int FrameResponse::kFrameRequestFieldNumber;
-const int FrameResponse::kFrameHeaderFieldNumber;
 #endif  // !_MSC_VER
 
 FrameResponse::FrameResponse()
@@ -2006,7 +2003,6 @@ FrameResponse::FrameResponse()
 
 void FrameResponse::InitAsDefaultInstance() {
   framerequest_ = const_cast< ::Protocol::FrameRequest*>(&::Protocol::FrameRequest::default_instance());
-  frameheader_ = const_cast< ::Protocol::FrameHeader*>(&::Protocol::FrameHeader::default_instance());
 }
 
 FrameResponse::FrameResponse(const FrameResponse& from)
@@ -2018,7 +2014,6 @@ FrameResponse::FrameResponse(const FrameResponse& from)
 void FrameResponse::SharedCtor() {
   _cached_size_ = 0;
   framerequest_ = NULL;
-  frameheader_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2029,7 +2024,6 @@ FrameResponse::~FrameResponse() {
 void FrameResponse::SharedDtor() {
   if (this != default_instance_) {
     delete framerequest_;
-    delete frameheader_;
   }
 }
 
@@ -2058,9 +2052,6 @@ void FrameResponse::Clear() {
     if (has_framerequest()) {
       if (framerequest_ != NULL) framerequest_->::Protocol::FrameRequest::Clear();
     }
-    if (has_frameheader()) {
-      if (frameheader_ != NULL) frameheader_->::Protocol::FrameHeader::Clear();
-    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -2078,20 +2069,6 @@ bool FrameResponse::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_framerequest()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(18)) goto parse_frameHeader;
-        break;
-      }
-      
-      // required .Protocol.FrameHeader frameHeader = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_frameHeader:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_frameheader()));
         } else {
           goto handle_uninterpreted;
         }
@@ -2123,12 +2100,6 @@ void FrameResponse::SerializeWithCachedSizes(
       1, this->framerequest(), output);
   }
   
-  // required .Protocol.FrameHeader frameHeader = 2;
-  if (has_frameheader()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->frameheader(), output);
-  }
-  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2142,13 +2113,6 @@ void FrameResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->framerequest(), target);
-  }
-  
-  // required .Protocol.FrameHeader frameHeader = 2;
-  if (has_frameheader()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->frameheader(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2167,13 +2131,6 @@ int FrameResponse::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->framerequest());
-    }
-    
-    // required .Protocol.FrameHeader frameHeader = 2;
-    if (has_frameheader()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->frameheader());
     }
     
   }
@@ -2206,9 +2163,6 @@ void FrameResponse::MergeFrom(const FrameResponse& from) {
     if (from.has_framerequest()) {
       mutable_framerequest()->::Protocol::FrameRequest::MergeFrom(from.framerequest());
     }
-    if (from.has_frameheader()) {
-      mutable_frameheader()->::Protocol::FrameHeader::MergeFrom(from.frameheader());
-    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2226,13 +2180,10 @@ void FrameResponse::CopyFrom(const FrameResponse& from) {
 }
 
 bool FrameResponse::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
   
   if (has_framerequest()) {
     if (!this->framerequest().IsInitialized()) return false;
-  }
-  if (has_frameheader()) {
-    if (!this->frameheader().IsInitialized()) return false;
   }
   return true;
 }
@@ -2240,7 +2191,6 @@ bool FrameResponse::IsInitialized() const {
 void FrameResponse::Swap(FrameResponse* other) {
   if (other != this) {
     std::swap(framerequest_, other->framerequest_);
-    std::swap(frameheader_, other->frameheader_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -243,8 +243,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
 			delete cli;
 			return 0;
  		}
- 		string currentFile = frameQueue->front()->currentFile();
- 		triggerEventOnFile(cli, currentFile);
+ 		TFrameInfo frameInfo;
+ 		if (frameQueue->front()->getCurrentFrameInfo(frameInfo))
+ 		   triggerRetrieve(cli, frameInfo.fileName);
  	}
 	return 0;
 }
@@ -254,25 +255,31 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
     TClient *cli= ((TClient*) (((char*)w) - offsetof(struct TClient,ev_write)));
  	if (revents & EV_WRITE)
  	{
-
  		if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  		{
  			queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
-
- 			//if (frameQueue->empty())
+ 			if (!frameQueue->empty())
  			{
- 		 		deleteMessageFramer(cli->fd);
- 		 		close(cli->fd);
- 		 		delete cli;
+				TFrameInfo frameInfo;
+				if ( frameQueue->front()->getCurrentFrameInfo(frameInfo) )
+				{
+					//1. write frame header, if necessary
+					TFileInfo* fileInfo = getFileInfo(frameInfo.fileName);
+					if (!fileInfo->sentHeader)
+					{
+						Protocol::FrameResponse frameResponse;
+						frameResponse.mutable_framerequest()->Swap(&frameInfo.frameRequest);
+						messageFramers[cli->fd]->write(&frameResponse);
+
+					}
+
+					//2. write fragment header
+
+
+					//3. trigger eio sendfile on fragment
+					//eio_sendfile (1, last_fd, 4, 5, 0, res_cb, (void*)"sendfile"); // write "test\n" to stdout
+				}
  			}
- 			//1. get next fragment from queue
-
- 			//2. write header
-
- 			//3. trigger eio sendfile on fragment
- 			//TFileInfo* info = getFileInfo()
- 		    //eio_sendfile (1, last_fd, 4, 5, 0, res_cb, (void*)"sendfile"); // write "test\n" to stdout
-
  		}
 	}
 	ev_io_stop(EV_A_ w);
@@ -329,7 +336,31 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	ev_io_start(loop,&myClient->ev_read);
 }
 
-void DicomStream::triggerEventOnFile(TClient* cli, string fileName)
+void DicomStream::cleanup(TClient* cli)
+{
+	deleteMessageFramer(cli->fd);
+	close(cli->fd);
+	delete cli;
+}
+
+void DicomStream::cleanup(string fileName)
+{
+   if (fileInfo.find(fileName) != fileInfo.end())
+   {
+	   TFileInfo* info;
+	   if (info->parser)
+		   delete info->parser;
+	   delete info;
+	   fileInfo.erase(fileName);
+   }
+   else
+   {
+	   printf("cleaning up unopened file %s", fileName.c_str());
+   }
+
+}
+
+void DicomStream::triggerRetrieve(TClient* cli, string fileName)
 {
 	TFileInfo* info = getFileInfo(fileName);
 	if (info->fd == -1)
@@ -341,9 +372,18 @@ void DicomStream::triggerEventOnFile(TClient* cli, string fileName)
 	}
 	else
 	{
-		struct ev_loop *loop = ev_default_loop (0);
-		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-		ev_io_start(loop,&cli->ev_write);
+		//check if queue is valid
+		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+		if (frameQueue->empty())
+		{
+			cleanup(cli);
+		}
+		else
+		{
+			struct ev_loop *loop = ev_default_loop (0);
+			ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+			ev_io_start(loop,&cli->ev_write);
+		}
 	}
 }
 
@@ -375,19 +415,22 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 								  + "/" + frameGroupRequest->seriesuid()
 								  + "/" + frameGroupRequest->instanceuidprefix();
 	    vector< SimpleIterator<string>*  >* prefetchIterators = new vector< SimpleIterator<string>*  >();
-	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = frameGroupRequest->frames().begin();
+	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator framesIter = frameGroupRequest->frames().begin();
 
 	    //prefetch
-	    vector<string> fileNames;
-	    while (frames != frameGroupRequest->frames().end())
+	    vector<TFrameInfo> frameInfo;
+	    while (framesIter != frameGroupRequest->frames().end())
 		{
-			string fileName = fileRoot + frames->instanceuid() + ".dcm";
-			fileNames.push_back(fileName);
+			string fileName = fileRoot + framesIter->instanceuid() + ".dcm";
+			TFrameInfo info;
+			info.fileName = fileName;
+			info.frameRequest = *framesIter;
+			frameInfo.push_back(info);
 
 			printf("Incoming request for file: %s\n",fileName.c_str());
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
 
-			frames++;
+			framesIter++;
 		}
 	    if ( !prefetchIterators->empty())
 	    {
@@ -413,21 +456,18 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	{
 	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
-	    	frameQueue->push(new FrameGroupIterator(this, &listenManager, fileNames));
+	    	frameQueue->push(new FrameGroupIterator(this, &listenManager, frameInfo));
 
 	    	if (!frameQueue->empty())
 	    	{
-				string currentFile = frameQueue->front()->currentFile();
-				triggerEventOnFile(cli, currentFile);
+	    		TFrameInfo frameInfo;
+	     		if (frameQueue->front()->getCurrentFrameInfo(frameInfo))
+	     		   triggerRetrieve(cli, frameInfo.fileName);
 	    	}
 	    }
 
 	    }
 
-		break;
-	case MessageFramer::FrameRequest:
-
-		 // msg = new Protocol::FrameRequest();
 		break;
 	default:
 		break;
@@ -459,12 +499,10 @@ void DicomStream::clientTest_()
 {
 	for (int i = 0; i < 100; ++i)
 	{
-		string host = "localhost";
-	    int sockfd, n;
+
 	    struct sockaddr_in serv_addr;
 
-	    char buffer[256];
-	    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	    if (sockfd < 0)
 	        perror("ERROR opening socket");
 
@@ -476,6 +514,7 @@ void DicomStream::clientTest_()
 	      exit( EXIT_FAILURE );
 	    }
 
+		string host = "localhost";
 	    struct hostent* server = gethostbyname(host.c_str());
 	    if (server == NULL) {
 	        fprintf(stderr,"ERROR, no such host\n");
@@ -520,17 +559,22 @@ void DicomStream::clientTest_()
 
 	    MessageFramer* framer = new MessageFramer(sockfd);
 	    framer->write(req);
-	    delete framer;
 
-	    bzero(buffer,256);
-	    while ( (n = read(sockfd,buffer,255)) > 0 )
+
+	    //read header
+	    MessageFramer::MessageWrapper wrapper;
+	    try
 	    {
-	        printf("%s\n",buffer);
+	    	framer->read(wrapper);
 	    }
-	    if (n < 0)
+	    catch (ReadException &r)
+	    {
 	    	perror("ERROR reading from socket");
+	    }
 
+	    //read pixels
 	    close(sockfd);
+	    delete framer;
 		sleep(1);
 
 	}
@@ -553,6 +597,10 @@ int DicomStream::release(string fileName)
 	}
 	TFileInfo* info = fileInfo[fileName];
 	info->refCount--;
+	if (info->refCount == 0)
+	{
+		cleanup(info->fileName);
+	}
 	return info->refCount;
 
 }

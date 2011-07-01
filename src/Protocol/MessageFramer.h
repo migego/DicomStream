@@ -26,7 +26,7 @@ public:
 	{
 		None,
 		FrameGroupRequest,
-		FrameRequest,
+		FrameResponse,
 		FrameFragment
 	};
 
@@ -49,7 +49,7 @@ public:
 	}
 	void write(Protocol::FrameResponse* frameResponse)
 	{
-		write(FrameRequest, frameResponse);
+		write(FrameResponse, frameResponse);
 	}
 	void write(Protocol::FrameFragment* frameFragment)
 	{
@@ -71,8 +71,8 @@ public:
 		if (n < 0)
 		{
 			perror("Error reading from socket");
-			throw new ReadException();
-		   close (fd);
+			close (fd);
+			throw ReadException();
 		}
 	}
 
@@ -154,8 +154,8 @@ private:
 			case FrameGroupRequest:
 				msg = new Protocol::FrameGroupRequest();
 				break;
-			case FrameRequest:
-				  msg = new Protocol::FrameRequest();
+			case FrameResponse:
+				  msg = new Protocol::FrameResponse();
 				break;
 			case FrameFragment:
 				  msg = new Protocol::FrameFragment();
