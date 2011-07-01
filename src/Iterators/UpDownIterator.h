@@ -32,11 +32,6 @@ public:
 		}
 	}
 
-	UpDownIterator(vector<Iterator*>* childIters, size_t primaryInd)
-	{
-		setChildIterators(childIters, primaryInd);
-	}
-
 	UpDownIterator(void)
 	{
 		setChildIterators(NULL,0);
@@ -107,6 +102,11 @@ private:
 			childIterators->operator[](currentIndex) = NULL;
 		}
 		return rc;
+	}
+
+	virtual void finish()
+	{
+
 	}
 
 };

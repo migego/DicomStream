@@ -28,11 +28,6 @@ public:
 		}
 	}
 
-	SequentialIterator(vector<Iterator*>* childIters)
-	{
-		setChildIterators(childIters);
-	}
-
 	SequentialIterator(void)
 	{
 		setChildIterators(NULL);
@@ -51,9 +46,18 @@ public:
         {
         	childIterators->pop_back();
             if (childIterators->empty())
+            {
+            	finish();
             	return false;
+            }
         }
         return true;
+	}
+
+private:
+	virtual void finish()
+	{
+
 	}
 
 };

@@ -9,26 +9,21 @@
 #define FRAMEGROUPITERATOR_H_
 
 using namespace std;
-#include "FrameIterator.h"
-#include "../Iterators/UpDownIterator.h"
 #include <string>
 
+#include "FrameIterator.h"
+#include "../Iterators/UpDownIterator.h"
+#include "../IFileRefCounter.h"
+#include "RefCounter.h"
 
 //iterator for either a series of single frame images, or a single multi-frame image
 typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> tFrameGroupIterator;
 
-class FrameGroupIterator : public tFrameGroupIterator{
+class FrameGroupIterator : public tFrameGroupIterator, RefCounter{
 public:
-	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd) : tFrameGroupIterator(childIters, primaryInd)
-	{
 
-	}
-
-	FrameGroupIterator(string fName) : fileName(fName)
-	{
-
-	}
-	FrameGroupIterator(vector<string> fNames)
+	// series of images
+	FrameGroupIterator(IFileRefCounter* refCounter, vector<string> fNames)
 	{
 		if (fNames.empty())
 			return;
@@ -37,17 +32,21 @@ public:
 		vector<FrameIterator*>* itms = new vector<FrameIterator*>();
 		for (iter = fNames.begin(); iter != fNames.end(); ++iter)
 		{
-			itms->push_back(new FrameIterator(*iter));
+			itms->push_back(new FrameIterator(refCounter, *iter));
 		}
 		setChildIterators(itms,0);
 
 	}
-	virtual ~FrameGroupIterator(){}
-
+	virtual ~FrameGroupIterator()
+	{
+		release();
+	}
 
 private:
-	//for multi-frame image
-	string fileName;
+    void finish()
+	{
+         release();
+	}
 };
 
 #endif /* FRAMEGROUPITERATOR_H_ */

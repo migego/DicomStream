@@ -12,25 +12,36 @@
 #include "../Iterators/SequentialIterator.h"
 #include "../Protocol/stream.pb.h"
 
+#include "../IFileRefCounter.h"
+#include "RefCounter.h"
+
 // iterator for image frame
 typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIterator;
 
 
-class FrameIterator : public tFrameIterator{
+class FrameIterator : public tFrameIterator, RefCounter{
 public:
-	FrameIterator(vector<FragmentIterator*>* childIters, unsigned int fNumber) : tFrameIterator(childIters), frameNumber(fNumber){
 
-	}
-	FrameIterator(string fName) : fileName(fName)
+	FrameIterator(IFileRefCounter* refCounter, string fName) : RefCounter(refCounter, fName)
 	{
-
 	}
 	virtual ~FrameIterator(){
 
 	}
+
+	void setChildIterators(vector<FragmentIterator*>* childIters, unsigned int fNumber)
+	{
+		tFrameIterator::setChildIterators(childIters);
+		frameNumber = fNumber;
+	}
+
 private:
-	string fileName;
 	unsigned int frameNumber;
+
+    void finish()
+	{
+        release();
+	}
 };
 
 #endif /* FRAMEITERATOR_H_ */

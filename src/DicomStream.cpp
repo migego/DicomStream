@@ -77,8 +77,8 @@ void DicomStream::unitTest()
 	fragIterators->push_back(new SimpleIterator<string>("helloa3"));
 
 
-    UpDownIterator< string, SimpleIterator<string> >* upDown = new UpDownIterator< string, SimpleIterator<string> >(fragIterators, 1);
-
+    UpDownIterator< string, SimpleIterator<string> >* upDown = new UpDownIterator< string, SimpleIterator<string> >();
+    upDown->setChildIterators(fragIterators, 1);
     // start pre-fetch on these files
     if ( !fragIterators->empty())
         precacheQueue.push(upDown);
@@ -329,7 +329,11 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 			frames++;
 		}
 	    if ( !prefetchIterators->empty())
-	        precacheQueue.push(new UpDownIterator< string, SimpleIterator<string> >(prefetchIterators, 0));
+	    {
+	    	UpDownIterator< string, SimpleIterator<string> >* iter = new UpDownIterator< string, SimpleIterator<string> >();
+	    	iter->setChildIterators(prefetchIterators, prefetchIterators->size()/2);
+	    	precacheQueue.push(iter);
+	    }
 
 	    if (frameGroupRequest->multiframe())
 	    {

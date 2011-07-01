@@ -24,21 +24,17 @@ Design:
 2) socket read callback:  
    a) read and parse request message
    b) queue file prefetch on all files in request
-   c) create FrameGroupIterator with list of files (or single file)
+   c) create FrameGroupIterator with list of files (or single file, in the case of multi-frame)
+      - iterator should be passed pointer to IFileRefCounter, and ParseListenManager
    d) iterators can register as listeners for parse results for a given file
-   dd) frame iterator can register interest in a file; frame group iterator can register interest, in the case
-   of a multiframe image
-   d) start iterating
-   e) if iterator->needsFileOpen is true, trigger eio file open on returned file name
-   f) open callback: trigger readahead (5 K)
-   g) readahead callback: parse header, calculate pixel offsets, and set appropriate iterator (???)
-      
-   
-
-   h) really start iterating   
+   e) start iterating
+   f) if iterator->needsFileOpen is true, trigger eio file open on returned file name
+   g) open callback: trigger readahead (5 K)
+   h) readahead callback: parse header, calculate pixel offsets, and notify listeners     
+   i) really start iterating   
 	   i) trigger socket write for file fragment
 	   ii) socket write callback: write message, trigger eio sendfile on fragment
-   i) process next fragment 
+   j) next fragment
       
 
 

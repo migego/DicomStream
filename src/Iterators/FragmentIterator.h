@@ -9,10 +9,8 @@
 #define FRAGMENTITERATOR_H_
 
 #include <math.h>
+#include <string>
 #include "../Protocol/stream.pb.h"
-
-class FragmentIterator;
-typedef vector<FragmentIterator*> FragIterVec;
 
 class FragmentIterator  {
 
@@ -46,6 +44,7 @@ public:
 		}
 		return true;
 	}
+
 };
 
 #endif /* FRAGMENTITERATOR_H_ */

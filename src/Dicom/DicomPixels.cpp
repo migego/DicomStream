@@ -135,8 +135,6 @@ void DicomPixels::parse(int imageFileDescriptor)
 		imbxUint32 length=0;
 
 		vector<FragmentIterator*>* fragmentVec = new vector<FragmentIterator*>();
-
-
 		while( pData->getImageOffset(frameCount,offset,length) )
 		{
 			fragmentVec->push_back(new FragmentIterator(offset, length, -1));
