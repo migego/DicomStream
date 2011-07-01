@@ -363,13 +363,10 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 			    string fileName = fileRoot + frames->instanceuid() + ".dcm";
 			    printf("Incoming request for file: %s\n",fileName.c_str());
 
-			    if (fileInfo.find(fileName) == fileInfo.end())
-			    {
-					TFileInfo* data = new TFileInfo();
-					data->fileName = fileName;
-					fileInfo[fileName] = data;
-			    	eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
-			    }
+			    TFileInfo* data = getFileInfo(fileName);
+			    //trigger open if fd is uninitialized
+			    if (data->fd == -1)
+			         eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
 			    frames++;
 		    }
 	    }
@@ -490,18 +487,10 @@ void DicomStream::clientTest_()
 
 }
 
+
 int DicomStream::acquire(string fileName)
 {
-	TFileInfo* info = NULL;
-	if (fileInfo.find(fileName) == fileInfo.end())
-	{
-		info = new TFileInfo();
-		fileInfo[fileName] = info;
-	}
-	else
-	{
-		info = fileInfo[fileName];
-	}
+	TFileInfo* info = getFileInfo(fileName);
 	info->refCount++;
 	return info->refCount;
 }
@@ -516,6 +505,33 @@ int DicomStream::release(string fileName)
 	return info->refCount;
 
 }
+
+int DicomStream::refCount(string fileName)
+{
+	if (fileInfo.find(fileName) == fileInfo.end())
+	{
+		return -1;
+	}
+	return fileInfo[fileName]->refCount;
+}
+
+
+ DicomStream::TFileInfo* DicomStream::getFileInfo(string fileName)
+{
+	TFileInfo* info = NULL;
+	if (fileInfo.find(fileName) == fileInfo.end())
+	{
+		info = new TFileInfo();
+		fileInfo[fileName] = info;
+		info->fileName = fileName;
+	}
+	else
+	{
+		info = fileInfo[fileName];
+	}
+	return info;
+}
+
 
 
 //// STATIC WRAPPER METHODS/////////////////

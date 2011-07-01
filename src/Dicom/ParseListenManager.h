@@ -52,6 +52,7 @@ public:
 		while (iter != listeners->end())
 		{
 			(*iter)->parsed(frameFragments);
+			iter++;
 		}
 	}
 private:

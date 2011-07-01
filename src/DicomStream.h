@@ -76,6 +76,9 @@ private:
 	//IFileRefCounter implementation
 	int acquire(string fileName);
 	int release(string fileName);
+	int refCount(string fileName);
+
+    TFileInfo* getFileInfo(string fileName);
 
 	// message processing
 	void createMessageFramer(int fd);

@@ -15,6 +15,7 @@ class IFileRefCounter {
 public:
 	virtual int acquire(string fileName)=0;
 	virtual int release(string fileName)=0;
+	virtual int refCount(string fileName)=0;
 };
 
 #endif /* IFILEREFCOUNTER_H_ */
