@@ -10,7 +10,7 @@
 
 using namespace std;
 #include <vector>
-#include "../Iterators/FrameGroupIterator.h"
+#include "../Iterators/FragmentIterator.h"
 typedef vector<FragmentIterator*> tFragVec;
 
 class IParseListener {

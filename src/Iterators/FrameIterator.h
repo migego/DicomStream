@@ -14,33 +14,51 @@
 
 #include "../IFileRefCounter.h"
 #include "RefCounter.h"
+#include "../Dicom/IParseListener.h"
+#include "../Dicom/ParseListenManager.h"
 
 // iterator for image frame
 typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIterator;
 
 
-class FrameIterator : public tFrameIterator, RefCounter{
+class FrameIterator : public tFrameIterator, RefCounter, public IParseListener{
 public:
 
-	FrameIterator(IFileRefCounter* refCounter, string fName) : RefCounter(refCounter, fName)
+	FrameIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, string fName) :
+		                                                                 RefCounter(refCounter, fName),
+	                                                                     frameNumber(0),
+	                                                                     parseListenManager(listenManager)
 	{
+		if (parseListenManager)
+			parseListenManager->addListener(fName, this);
 	}
 	virtual ~FrameIterator(){
-
+        finish();
 	}
 
-	void setChildIterators(vector<FragmentIterator*>* childIters, unsigned int fNumber)
+	void setChildIterators(vector<FragmentIterator*>* childIters)
 	{
 		tFrameIterator::setChildIterators(childIters);
-		frameNumber = fNumber;
+	}
+
+	void parsed(vector< tFragVec* >& frameFragments)
+	{
+       if (!frameFragments.empty())
+    	   setChildIterators(frameFragments[0]);
 	}
 
 private:
 	unsigned int frameNumber;
+	ParseListenManager* parseListenManager;
 
     void finish()
 	{
-        release();
+    	if (!doneReleased())
+    	{
+			if (parseListenManager)
+				parseListenManager->removeListener(fileName, this);
+			release();
+    	}
 	}
 };
 

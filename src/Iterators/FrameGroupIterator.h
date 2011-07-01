@@ -15,6 +15,7 @@ using namespace std;
 #include "../Iterators/UpDownIterator.h"
 #include "../IFileRefCounter.h"
 #include "RefCounter.h"
+#include "../Dicom/ParseListenManager.h"
 
 //iterator for either a series of single frame images, or a single multi-frame image
 typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> tFrameGroupIterator;
@@ -23,16 +24,16 @@ class FrameGroupIterator : public tFrameGroupIterator, RefCounter{
 public:
 
 	// series of images
-	FrameGroupIterator(IFileRefCounter* refCounter, vector<string> fNames)
+	FrameGroupIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, vector<string> fNames)
 	{
-		if (fNames.empty())
+		if (fNames.empty() || !refCounter || !listenManager)
 			return;
 
 		vector<string>::iterator iter;
 		vector<FrameIterator*>* itms = new vector<FrameIterator*>();
 		for (iter = fNames.begin(); iter != fNames.end(); ++iter)
 		{
-			itms->push_back(new FrameIterator(refCounter, *iter));
+			itms->push_back(new FrameIterator(refCounter, listenManager, *iter));
 		}
 		setChildIterators(itms,0);
 

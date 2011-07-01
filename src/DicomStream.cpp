@@ -213,7 +213,7 @@ int DicomStream::readahead_cb_(eio_req *req)
 	TFileInfo* data = (TFileInfo*)req->data;
 	//parse file
 	data->parser = new DicomPixels();
-	data->parser->parse(data->fd);
+	data->parser->parse(data->fd, data->fileName, &listenManager);
 
 	return 0;
 
@@ -319,11 +319,13 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator frames = frameGroupRequest->frames().begin();
 
 	    //prefetch
+	    vector<string> fileNames;
 	    while (frames != frameGroupRequest->frames().end())
 		{
 			string fileName = fileRoot + frames->instanceuid() + ".dcm";
-			printf("Incoming request for file: %s\n",fileName.c_str());
+			fileNames.push_back(fileName);
 
+			printf("Incoming request for file: %s\n",fileName.c_str());
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
 
 			frames++;
@@ -341,6 +343,19 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 	    }
 	    else
 	    {
+	    	//queue iterator
+	    	queue<FrameGroupIterator*>* frameQueue = NULL;
+	    	if (frameGroupIterators.find(clientFd) == frameGroupIterators.end())
+	    	{
+	    		frameQueue = new queue<FrameGroupIterator*>();
+	    		frameGroupIterators[clientFd] = frameQueue;
+	    	}
+	    	else
+	    	{
+	    		frameQueue = frameGroupIterators[clientFd];
+	    	}
+	    	frameQueue->push(new FrameGroupIterator(this, &listenManager, fileNames));
+
 	    	//trigger file open
 		    frames = frameGroupRequest->frames().begin();
 		    while (frames != frameGroupRequest->frames().end())
@@ -351,6 +366,7 @@ void  DicomStream::processIncomingMessage(int clientFd, MessageFramer::GenericMe
 			    if (fileInfo.find(fileName) == fileInfo.end())
 			    {
 					TFileInfo* data = new TFileInfo();
+					data->fileName = fileName;
 					fileInfo[fileName] = data;
 			    	eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)data);
 			    }
@@ -477,9 +493,10 @@ void DicomStream::clientTest_()
 int DicomStream::acquire(string fileName)
 {
 	TFileInfo* info = NULL;
-	if (fileInfo.find(fileName) != fileInfo.end())
+	if (fileInfo.find(fileName) == fileInfo.end())
 	{
 		info = new TFileInfo();
+		fileInfo[fileName] = info;
 	}
 	else
 	{

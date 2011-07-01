@@ -17,7 +17,7 @@ using namespace puntoexe::imebra;
 
 #include <string>
 
-#include "IParseListener.h"
+#include "ParseListenManager.h"
 
 
 
@@ -26,7 +26,7 @@ public:
 	DicomPixels(){}
 	virtual ~DicomPixels();
 
-	void parse(int imageFileDescriptor);
+	void parse(int imageFileDescriptor, string fileName, ParseListenManager* listenManager);
 
 	imbxUint32 getnumberOfFrames(){return numberOfFrames;}
 	imbxUint32 getimageSizeX(){return imageSizeX;}

@@ -37,8 +37,12 @@ protected:
 		releasedRefCount = true;
 
 	}
-private:
 	string fileName;
+	bool doneReleased()
+	{
+		return releasedRefCount;
+	}
+private:
 	IFileRefCounter* fileRefCounter;
 	bool releasedRefCount;
 };

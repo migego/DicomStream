@@ -7,6 +7,13 @@
 
 #ifndef DICOMSTREAM_H_
 #define DICOMSTREAM_H_
+
+#include <map>
+#include <vector>
+#include <queue>
+using namespace std;
+
+
 #include <ev.h>
 #include "eio.h"
 
@@ -14,18 +21,14 @@
 #include "Iterators/UpDownIterator.h"
 #include "Iterators/SimpleIterator.h"
 #include "Iterators/FragmentIterator.h"
+#include "Iterators/FrameGroupIterator.h"
+#include "Iterators/SequentialIterator.h"
 
 #include "Protocol/MessageFramer.h"
 #include "Dicom/DicomPixels.h"
-
-#include "Iterators/SequentialIterator.h"
-#include <map>
-#include <vector>
-using namespace std;
-
-#include "IFileRefCounter.h"
 #include "Dicom/ParseListenManager.h"
 
+#include "IFileRefCounter.h"
 
 
 class DicomStream : public IFileRefCounter {
@@ -51,6 +54,7 @@ private:
 			if (parser)
 				delete parser;
 		}
+		string fileName;
 		int fd;
 		int refCount;
 		DicomPixels* parser;
@@ -69,9 +73,9 @@ private:
 	//singleton
 	static DicomStream* instance;
 
+	//IFileRefCounter implementation
 	int acquire(string fileName);
 	int release(string fileName);
-
 
 	// message processing
 	void createMessageFramer(int fd);
@@ -79,8 +83,9 @@ private:
 	map<int, MessageFramer*> messageFramers;
 	void processIncomingMessage(int clientFd, MessageFramer::GenericMessage msg);
 
-	map<string, TFileInfo*> fileInfo;
-
+	// parsing
+	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
+	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
 
 	//precache
