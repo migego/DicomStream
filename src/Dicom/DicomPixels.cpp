@@ -32,11 +32,11 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 		ptr<codecs::codecFactory> codecsFactory(codecs::codecFactory::getCodecFactory());
 		ptr<dataSet> pData = codecsFactory->load(reader, 2048);
 
-		transferSyntax = pData->getUnicodeString(0x0002, 0x0, 0x0010, 0x0);
+		transferSyntax = pData->getString(0x0002, 0x0, 0x0010, 0x0);
 
 		// Check for color space and sub-sampled channels
 		///////////////////////////////////////////////////////////
-		colorSpace=pData->getUnicodeString(0x0028, 0x0, 0x0004, 0x0);
+		colorSpace=pData->getString(0x0028, 0x0, 0x0004, 0x0);
 
 		// Retrieve the number of planes
 		///////////////////////////////////////////////////////////
@@ -47,13 +47,13 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 		///////////////////////////////////////////////////////////
 		if(colorSpace.empty() && (channelsNumber == 0 || channelsNumber == 1))
 		{
-			colorSpace = L"MONOCHROME2";
+			colorSpace = "MONOCHROME2";
 			channelsNumber = 1;
 		}
 
 		if(colorSpace.empty() && channelsNumber == 3)
 		{
-			colorSpace = L"RGB";
+			colorSpace = "RGB";
 		}
 
 		// Retrieve the image's size
@@ -80,13 +80,6 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 		highBit=(imbxUint8)pData->getUnsignedLong(0x0028, 0x0, 0x0102, 0x0);
 		if(highBit<storedBits-1)
 			highBit=storedBits-1;
-
-
-		// If the chrominance channels are sub-sampled, then find
-		//  the right image's size
-		///////////////////////////////////////////////////////////
-		bSubSampledY=channelsNumber>0x1 && transforms::colorTransforms::colorTransformsFactory::isSubsampledY(colorSpace);
-		bSubSampledX=channelsNumber>0x1 && transforms::colorTransforms::colorTransformsFactory::isSubsampledX(colorSpace);
 
 		// get depth
 		///////////////////////////////////////////////////////////

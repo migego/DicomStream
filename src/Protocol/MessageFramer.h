@@ -82,6 +82,7 @@ public:
     	{
 
     	}
+		printf("read message of type %d\n", (int)wrapper.type);
     }
 
 private:
@@ -116,7 +117,7 @@ private:
 			if (n == 0)
 				return false;
 			sizeOffset += n;
-			while (n > 0)
+			while (sizeOffset != 4 && n > 0)
 			{
 				n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
 				validateRead(n);
@@ -137,7 +138,7 @@ private:
 				return false;
 
 			offset += n;
-			while ( n > 0)
+			while ( offset != size && n > 0)
 			{
 				n = ::read(fd, data+offset, size-offset);
 				validateRead(n);

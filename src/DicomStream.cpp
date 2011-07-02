@@ -238,9 +238,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
  		if (frameQueue->empty())
  		{
- 			deleteMessageFramer(cli->fd);
-			close(cli->fd);
-			delete cli;
+ 			cleanup(cli);
 			return 0;
  		}
  		TFrameInfo frameInfo;
@@ -253,6 +251,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
 void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
     TClient *cli= ((TClient*) (((char*)w) - offsetof(struct TClient,ev_write)));
+    // stop current write event before issuing new one
+	ev_io_stop(EV_A_ w);
+
  	if (revents & EV_WRITE)
  	{
  		if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
@@ -269,20 +270,46 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 					{
 						Protocol::FrameResponse frameResponse;
 						frameResponse.mutable_framerequest()->Swap(&frameInfo.frameRequest);
+
+						DicomPixels* parser = fileInfo->parser;
+						if (parser)
+						{
+							frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
+							frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
+							frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
+							frameResponse.mutable_frameheader()->set_colorspace(parser->getcolorSpace());
+							frameResponse.mutable_frameheader()->set_transfersyntax(parser->gettransferSyntax());
+							frameResponse.mutable_frameheader()->set_channelsnumber(parser->getchannelsNumber());
+							frameResponse.mutable_frameheader()->set_binterleaved(parser->getbInterleaved());
+							frameResponse.mutable_frameheader()->set_b2complement(parser->getb2Complement());
+							frameResponse.mutable_frameheader()->set_allocatedbits(parser->getallocatedBits());
+							frameResponse.mutable_frameheader()->set_storedbits(parser->getstoredBits());
+							frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
+
+						}
 						messageFramers[cli->fd]->write(&frameResponse);
+						fileInfo->sentHeader = true;
 
+						//trigger fragment write
+						triggerRetrieve(cli, fileInfo->fileName);
 					}
+					else
+					{
+						Protocol::FrameFragment item;
+						if (frameQueue->front()->next(item))
+						{
+							//2. write fragment header
+							messageFramers[cli->fd]->write(&item);
 
-					//2. write fragment header
-
-
-					//3. trigger eio sendfile on fragment
-					//eio_sendfile (1, last_fd, 4, 5, 0, res_cb, (void*)"sendfile"); // write "test\n" to stdout
+							//3. trigger eio sendfile on fragment
+							eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
+						}
+					}
 				}
  			}
  		}
 	}
-	ev_io_stop(EV_A_ w);
+
 
 
 }
@@ -294,9 +321,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
     TClient *cli= ((TClient*) (((char*)w) - offsetof(TClient,ev_read)));
 	if (revents & EV_READ){
 		// parse message
-		printf("Reading message \n");
 		MessageFramer::MessageWrapper wrapper;
-
 		try
 		{
 			messageFramers[cli->fd]->read(wrapper);
@@ -340,6 +365,7 @@ void DicomStream::cleanup(TClient* cli)
 {
 	deleteMessageFramer(cli->fd);
 	close(cli->fd);
+	cli->fd = -1;
 	delete cli;
 }
 
@@ -355,7 +381,7 @@ void DicomStream::cleanup(string fileName)
    }
    else
    {
-	   printf("cleaning up unopened file %s", fileName.c_str());
+	   printf("attempt at cleaning up unopened file %s", fileName.c_str());
    }
 
 }
@@ -427,7 +453,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			info.frameRequest = *framesIter;
 			frameInfo.push_back(info);
 
-			printf("Incoming request for file: %s\n",fileName.c_str());
+			printf("FrameGroupRequest for file: %s\n",fileName.c_str());
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
 
 			framesIter++;
@@ -456,14 +482,11 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	{
 	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
-	    	frameQueue->push(new FrameGroupIterator(this, &listenManager, frameInfo));
-
-	    	if (!frameQueue->empty())
-	    	{
-	    		TFrameInfo frameInfo;
-	     		if (frameQueue->front()->getCurrentFrameInfo(frameInfo))
-	     		   triggerRetrieve(cli, frameInfo.fileName);
-	    	}
+	    	FrameGroupIterator* frameIter = new FrameGroupIterator(this, &listenManager, frameInfo);
+	    	frameQueue->push(frameIter);
+	    	TFrameInfo frameInfo;
+			if (frameIter->getCurrentFrameInfo(frameInfo))
+			   triggerRetrieve(cli, frameInfo.fileName);
 	    }
 
 	    }
@@ -497,88 +520,117 @@ void DicomStream::preFetch_()
 
 void DicomStream::clientTest_()
 {
-	for (int i = 0; i < 100; ++i)
-	{
+	struct sockaddr_in serv_addr;
 
-	    struct sockaddr_in serv_addr;
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0)
+		perror("ERROR opening socket");
 
-	    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	    if (sockfd < 0)
-	        perror("ERROR opening socket");
-
-	    /* Disable the Nagle (TCP No Delay) algorithm */
-	    int flag = 1;
-	    int ret = setsockopt( sockfd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
-	    if (ret == -1) {
-	      printf("Couldn't setsockopt(TCP_NODELAY)\n");
-	      exit( EXIT_FAILURE );
-	    }
-
-		string host = "localhost";
-	    struct hostent* server = gethostbyname(host.c_str());
-	    if (server == NULL) {
-	        fprintf(stderr,"ERROR, no such host\n");
-	        exit(0);
-	    }
-	    bzero((char *) &serv_addr, sizeof(serv_addr));
-	    serv_addr.sin_family = AF_INET;
-	    bcopy((char *)server->h_addr,
-	         (char *)&serv_addr.sin_addr.s_addr,
-	         server->h_length);
-	    serv_addr.sin_port = htons(port);
-	    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-	    	perror("ERROR connecting");
-
-	    Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
-	    req->set_studyuid("study1");
-	    req->set_studyuidnumber(0);
-	    req->set_seriesuid("series1");
-	    req->set_seriesuidnumber(0);
-	    req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
-	    req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
-	    req->set_instanceuidprefix("");
-
-	    Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
-	    frameReq->set_instanceuid("instance1");
-	    frameReq->set_instanceuidnumber(0);
-	    frameReq->set_framenumber(1);
-	    req->mutable_frames()->AddAllocated(frameReq);
-
-	    frameReq = new Protocol::FrameRequest();
-		frameReq->set_instanceuid("instance2");
-		frameReq->set_instanceuidnumber(1);
-		frameReq->set_framenumber(1);
-		req->mutable_frames()->AddAllocated(frameReq);
-
-		frameReq = new Protocol::FrameRequest();
-		frameReq->set_instanceuid("instance3");
-		frameReq->set_instanceuidnumber(2);
-		frameReq->set_framenumber(1);
-		req->mutable_frames()->AddAllocated(frameReq);
-		req->set_multiframe(false);
-
-	    MessageFramer* framer = new MessageFramer(sockfd);
-	    framer->write(req);
-
-
-	    //read header
-	    MessageFramer::MessageWrapper wrapper;
-	    try
-	    {
-	    	framer->read(wrapper);
-	    }
-	    catch (ReadException &r)
-	    {
-	    	perror("ERROR reading from socket");
-	    }
-
-	    //read pixels
-	    close(sockfd);
-	    delete framer;
-		sleep(1);
-
+	/* Disable the Nagle (TCP No Delay) algorithm */
+	int flag = 1;
+	int ret = setsockopt( sockfd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
+	if (ret == -1) {
+	  printf("Couldn't setsockopt(TCP_NODELAY)\n");
+	  exit( EXIT_FAILURE );
 	}
 
+	string host = "localhost";
+	struct hostent* server = gethostbyname(host.c_str());
+	if (server == NULL) {
+		fprintf(stderr,"ERROR, no such host\n");
+		exit(0);
+	}
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	bcopy((char *)server->h_addr,
+		 (char *)&serv_addr.sin_addr.s_addr,
+		 server->h_length);
+	serv_addr.sin_port = htons(port);
+	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+		perror("ERROR connecting");
+
+	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
+	req->set_studyuid("study1");
+	req->set_studyuidnumber(0);
+	req->set_seriesuid("series1");
+	req->set_seriesuidnumber(0);
+	req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
+	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
+	req->set_instanceuidprefix("");
+
+	Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance1");
+	frameReq->set_instanceuidnumber(0);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+
+	frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance2");
+	frameReq->set_instanceuidnumber(1);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+
+	frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance3");
+	frameReq->set_instanceuidnumber(2);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+	req->set_multiframe(false);
+
+	MessageFramer* framer = new MessageFramer(sockfd);
+	framer->write(req);
+
+	while(true)
+	{
+
+		//read frame header
+		MessageFramer::MessageWrapper wrapper;
+		try
+		{
+			framer->read(wrapper);
+			printf("[client] read frame header");
+		}
+		catch (ReadException &r)
+		{
+			perror("ERROR reading from socket");
+			exit(0);
+		}
+
+
+		//read fragment header
+		try
+		{
+			framer->read(wrapper);
+			printf("[client] read fragment header");
+		}
+		catch (ReadException &r)
+		{
+			perror("ERROR reading from socket");
+			exit(0);
+		}
+
+		if (wrapper.type == MessageFramer::FrameFragment)
+		{
+			Protocol::FrameFragment* fragmentHeader = (Protocol::FrameFragment*)wrapper.message;
+			unsigned int size = fragmentHeader->size();
+			unsigned int count = 0;
+			char buffer[256];
+			//read pixels
+			while (count < size)
+			{
+				int n = ::read(sockfd, buffer, 256);
+				if (n < 0)
+				{
+					exit(0);
+					break;
+				}
+				count += n;
+			}
+
+
+		}
+
+	}
 
 }
 
