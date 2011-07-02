@@ -151,7 +151,20 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 
 DicomPixels::~DicomPixels()
 {
+	 vector<tFragVec*>::iterator  frameIter;
+	for (frameIter = frameFragments.begin(); frameIter != frameFragments.end(); frameIter++)
+	{
+		 tFragVec::iterator fragIter;
+		 tFragVec* fragVec = *frameIter;
+		for (fragIter =  fragVec->begin(); fragIter != fragVec->end(); fragIter++)
+		{
+		   delete *fragIter;
 
+		}
+
+		delete fragVec;
+	}
+	frameFragments.clear();
 }
 
 

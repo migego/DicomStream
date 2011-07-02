@@ -14,21 +14,14 @@ using namespace std;
 template <typename Data, typename Iterator> class SequentialIterator {
 private:
 	vector<Iterator*>* childIterators;
+	size_t position;
 public:
 	virtual ~SequentialIterator()
 	{
-		if (childIterators != NULL)
-		{
-			typename vector<Iterator*>::iterator  iter;
-			for (iter = childIterators->begin(); iter != childIterators->end(); iter++)
-			{
-				delete *iter;
-			}
-			delete childIterators;
-		}
+
 	}
 
-	SequentialIterator(void)
+	SequentialIterator(void) : position(0)
 	{
 		setChildIterators(NULL);
 	}
@@ -42,10 +35,10 @@ public:
 	{
 		if ( childIterators == NULL || childIterators->empty() )
 			return false;
-        while (!childIterators->back()->next(item))
+        while (!childIterators->operator[](position)->next(item))
         {
-        	childIterators->pop_back();
-            if (childIterators->empty())
+        	position++;
+            if (position == childIterators->size())
             {
             	finish();
             	return false;

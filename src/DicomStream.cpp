@@ -231,6 +231,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	if (req->result < 0)
 	  abort ();
 
+	printf("[server] sent pixels\n");
 	TClient* cli = (TClient*)req->data;
 	//trigger write on next fragment
 	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
@@ -238,6 +239,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
  		if (frameQueue->empty())
  		{
+ 			printf("[server] queue is empty\n");
  			cleanup(cli);
 			return 0;
  		}
@@ -302,6 +304,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 							messageFramers[cli->fd]->write(&item);
 
 							//3. trigger eio sendfile on fragment
+							printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
 							eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
 						}
 					}
@@ -373,10 +376,14 @@ void DicomStream::cleanup(string fileName)
 {
    if (fileInfo.find(fileName) != fileInfo.end())
    {
-	   TFileInfo* info;
-	   if (info->parser)
-		   delete info->parser;
-	   delete info;
+	   TFileInfo* info = fileInfo[fileName];
+	   if (info)
+	   {
+		   if (info->fd != -1)
+				::close(info->fd);
+		   delete info;
+	   }
+
 	   fileInfo.erase(fileName);
    }
    else
@@ -576,42 +583,31 @@ void DicomStream::clientTest_()
 	frameReq->set_framenumber(1);
 	req->mutable_frames()->AddAllocated(frameReq);
 	req->set_multiframe(false);
-
 	MessageFramer* framer = new MessageFramer(sockfd);
-	framer->write(req);
-
-	while(true)
+	for (int i = 0; i < 50; ++i)
 	{
+		framer->write(req);
 
 		//read frame header
 		MessageFramer::MessageWrapper wrapper;
 		try
 		{
 			framer->read(wrapper);
-			printf("[client] read frame header");
 		}
 		catch (ReadException &r)
 		{
 			perror("ERROR reading from socket");
 			exit(0);
 		}
-
-
-		//read fragment header
-		try
+		switch(wrapper.type)
 		{
-			framer->read(wrapper);
-			printf("[client] read fragment header");
-		}
-		catch (ReadException &r)
-		{
-			perror("ERROR reading from socket");
-			exit(0);
-		}
-
-		if (wrapper.type == MessageFramer::FrameFragment)
-		{
+		case MessageFramer::FrameResponse:
+			printf("[client] frame header\n");
+			break;
+		case MessageFramer::FrameFragment:
+			{
 			Protocol::FrameFragment* fragmentHeader = (Protocol::FrameFragment*)wrapper.message;
+			printf("[client] fragment header: offset %d, size %d\n",fragmentHeader->offset(), fragmentHeader->size());
 			unsigned int size = fragmentHeader->size();
 			unsigned int count = 0;
 			char buffer[256];
@@ -626,11 +622,17 @@ void DicomStream::clientTest_()
 				}
 				count += n;
 			}
-
-
+			printf("[client] read pixels: offset %d, size %d\n",fragmentHeader->offset(), count);
+			}
+			break;
+		case MessageFramer::None:
+		case MessageFramer::FrameGroupRequest:
+			break;
 		}
-
 	}
+
+	::close(sockfd);
+	delete framer;
 
 }
 

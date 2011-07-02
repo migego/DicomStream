@@ -21,15 +21,7 @@ protected:
 public:
 	virtual ~UpDownIterator()
 	{
-		if (childIterators != NULL)
-		{
-			typename vector<Iterator*>::iterator  iter;
-			for (iter = childIterators->begin(); iter != childIterators->end(); iter++)
-			{
-				delete *iter;
-			}
-			delete childIterators;
-		}
+
 	}
 
 	UpDownIterator(void)

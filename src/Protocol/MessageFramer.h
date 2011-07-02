@@ -166,12 +166,9 @@ private:
 			}
 			if (msg != NULL)
 			{
-				printf("parsed message\n");
 				msg->ParseFromArray(data, size);
-
 				wrapper.message = msg;
 				wrapper.type = (MessageType)type;
-
 
 				//prepare for next message
 				initRead();
