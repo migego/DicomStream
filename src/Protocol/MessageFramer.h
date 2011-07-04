@@ -80,9 +80,7 @@ public:
     {
     	while(!read_(wrapper))
     	{
-
     	}
-		printf("read message of type %d\n", (int)wrapper.type);
     }
 
 private:

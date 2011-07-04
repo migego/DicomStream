@@ -56,7 +56,7 @@ private:
 	imbxUint8 highBit;
 
 
-	vector< tFragVec* > frameFragments;
+	vector< TParsedFrame* > frameFragments;
 
 };
 

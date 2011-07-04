@@ -198,6 +198,7 @@ int DicomStream::open_cb_(eio_req *req)
 		data->fileInfo->fd = fd;
 
 		//trigger readahead
+
 		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
 	}
 
@@ -276,6 +277,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 						DicomPixels* parser = fileInfo->parser;
 						if (parser)
 						{
+							frameResponse.mutable_frameheader()->set_totalbytes(frameInfo.totalBytes);
 							frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
 							frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
 							frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
@@ -292,21 +294,16 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 						messageFramers[cli->fd]->write(&frameResponse);
 						fileInfo->sentHeader = true;
 
-						//trigger fragment write
-						triggerRetrieve(cli, fileInfo->fileName);
 					}
-					else
+					Protocol::FrameFragment item;
+					if (frameQueue->front()->next(item))
 					{
-						Protocol::FrameFragment item;
-						if (frameQueue->front()->next(item))
-						{
-							//2. write fragment header
-							messageFramers[cli->fd]->write(&item);
+						//2. write fragment header
+						messageFramers[cli->fd]->write(&item);
 
-							//3. trigger eio sendfile on fragment
-							printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
-							eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
-						}
+						//3. trigger eio sendfile on fragment
+						printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
+						eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
 					}
 				}
  			}
@@ -588,47 +585,69 @@ void DicomStream::clientTest_()
 	{
 		framer->write(req);
 
-		//read frame header
-		MessageFramer::MessageWrapper wrapper;
-		try
+		Protocol::FrameResponse* frameResponse;
+		Protocol::FrameFragment* frameFragment;
+
+		bool finished = false;
+
+		int totalBytes = -1;
+		int totalCount = 0;
+		while (!finished)
 		{
-			framer->read(wrapper);
-		}
-		catch (ReadException &r)
-		{
-			perror("ERROR reading from socket");
-			exit(0);
-		}
-		switch(wrapper.type)
-		{
-		case MessageFramer::FrameResponse:
-			printf("[client] frame header\n");
-			break;
-		case MessageFramer::FrameFragment:
+
+			//read message
+			MessageFramer::MessageWrapper wrapper;
+			try
 			{
-			Protocol::FrameFragment* fragmentHeader = (Protocol::FrameFragment*)wrapper.message;
-			printf("[client] fragment header: offset %d, size %d\n",fragmentHeader->offset(), fragmentHeader->size());
-			unsigned int size = fragmentHeader->size();
-			unsigned int count = 0;
-			char buffer[256];
-			//read pixels
-			while (count < size)
+				framer->read(wrapper);
+			}
+			catch (ReadException &r)
 			{
-				int n = ::read(sockfd, buffer, 256);
-				if (n < 0)
+				perror("ERROR reading from socket");
+				exit(0);
+			}
+			switch(wrapper.type)
+			{
+			case MessageFramer::FrameResponse:
+				frameResponse = (Protocol::FrameResponse*)wrapper.message;
+				totalBytes = frameResponse->frameheader().totalbytes();
+				printf("[client] received frame header: total bytes: %d\n",totalBytes);
+				break;
+			case MessageFramer::FrameFragment:
 				{
-					exit(0);
-					break;
+				frameFragment = (Protocol::FrameFragment*)wrapper.message;
+				unsigned int size = frameFragment->size();
+				unsigned int offset = frameFragment->offset();
+				printf("[client] fragment header: offset %d, size %d\n",offset, size);
+				unsigned int count = 0;
+				char buffer[256];
+				//read pixels
+				while (count < size)
+				{
+					int n = ::read(sockfd, buffer, 256);
+					if (n < 0)
+					{
+						exit(0);
+						break;
+					}
+					count += n;
 				}
-				count += n;
+				totalCount += count;
+				printf("[client] read pixels: offset %d, size %d, totalCount %d, totalBytes %d\n",offset, count, totalCount, totalBytes);
+				if (totalCount == totalBytes)
+				{
+					delete frameResponse;
+					delete frameFragment;
+					finished = true;
+				}
+				}
+				break;
+			case MessageFramer::None:
+			case MessageFramer::FrameGroupRequest:
+				break;
 			}
-			printf("[client] read pixels: offset %d, size %d\n",fragmentHeader->offset(), count);
-			}
-			break;
-		case MessageFramer::None:
-		case MessageFramer::FrameGroupRequest:
-			break;
-		}
+
+	    }
 	}
 
 	::close(sockfd);

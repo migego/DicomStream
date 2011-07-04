@@ -69,7 +69,7 @@ message FrameHeader
 			depthS32 = 5;   ///< signed integer, 4 bytes
 	};
 
-		
+	required uint32 totalBytes=1;	//compressed or uncompressed
 	required uint32 imageSizeX=2;
 	required uint32 imageSizeY=3;
 	required bitDepth depth=4;

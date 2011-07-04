@@ -129,16 +129,16 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 			imbxUint32 offset = 0;
 			imbxUint32 length=0;
 
+			int totalBytes = 0;
 			vector<FragmentIterator*>* fragmentVec = new vector<FragmentIterator*>();
 			while( pData->getImageOffset(frameCount,offset,length) )
 			{
+				totalBytes += length;
 				fragmentVec->push_back(new FragmentIterator(offset, length, -1));
 				printf("frame = %d, offset = %d, length = %d\n",frameCount,offset,length);
 				frameCount++;
 			}
-
-			frameFragments.push_back(fragmentVec);
-
+			frameFragments.push_back(new TParsedFrame(fragmentVec, totalBytes));
 		}
 
 	}
@@ -151,18 +151,19 @@ void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenMan
 
 DicomPixels::~DicomPixels()
 {
-	 vector<tFragVec*>::iterator  frameIter;
+	 vector<TParsedFrame*>::iterator  frameIter;
 	for (frameIter = frameFragments.begin(); frameIter != frameFragments.end(); frameIter++)
 	{
 		 tFragVec::iterator fragIter;
-		 tFragVec* fragVec = *frameIter;
+		 TParsedFrame* parsedFrame = *frameIter;
+		 tFragVec* fragVec = parsedFrame->fragVec;
 		for (fragIter =  fragVec->begin(); fragIter != fragVec->end(); fragIter++)
 		{
 		   delete *fragIter;
 
 		}
-
 		delete fragVec;
+		delete parsedFrame;
 	}
 	frameFragments.clear();
 }

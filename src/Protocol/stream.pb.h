@@ -520,6 +520,13 @@ class FrameHeader : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
+  // required uint32 totalBytes = 1;
+  inline bool has_totalbytes() const;
+  inline void clear_totalbytes();
+  static const int kTotalBytesFieldNumber = 1;
+  inline ::google::protobuf::uint32 totalbytes() const;
+  inline void set_totalbytes(::google::protobuf::uint32 value);
+  
   // required uint32 imageSizeX = 2;
   inline bool has_imagesizex() const;
   inline void clear_imagesizex();
@@ -607,6 +614,8 @@ class FrameHeader : public ::google::protobuf::Message {
   
   // @@protoc_insertion_point(class_scope:Protocol.FrameHeader)
  private:
+  inline void set_has_totalbytes();
+  inline void clear_has_totalbytes();
   inline void set_has_imagesizex();
   inline void clear_has_imagesizex();
   inline void set_has_imagesizey();
@@ -632,12 +641,13 @@ class FrameHeader : public ::google::protobuf::Message {
   
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
+  ::google::protobuf::uint32 totalbytes_;
   ::google::protobuf::uint32 imagesizex_;
   ::google::protobuf::uint32 imagesizey_;
-  ::std::string* colorspace_;
   int depth_;
-  ::google::protobuf::uint32 channelsnumber_;
+  ::std::string* colorspace_;
   ::std::string* transfersyntax_;
+  ::google::protobuf::uint32 channelsnumber_;
   bool binterleaved_;
   bool b2complement_;
   ::google::protobuf::uint32 allocatedbits_;
@@ -645,7 +655,7 @@ class FrameHeader : public ::google::protobuf::Message {
   ::google::protobuf::uint32 highbit_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(11 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(12 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -1268,15 +1278,37 @@ inline void FrameGroupRequest::set_multiframe(bool value) {
 
 // FrameHeader
 
-// required uint32 imageSizeX = 2;
-inline bool FrameHeader::has_imagesizex() const {
+// required uint32 totalBytes = 1;
+inline bool FrameHeader::has_totalbytes() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void FrameHeader::set_has_imagesizex() {
+inline void FrameHeader::set_has_totalbytes() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void FrameHeader::clear_has_imagesizex() {
+inline void FrameHeader::clear_has_totalbytes() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void FrameHeader::clear_totalbytes() {
+  totalbytes_ = 0u;
+  clear_has_totalbytes();
+}
+inline ::google::protobuf::uint32 FrameHeader::totalbytes() const {
+  return totalbytes_;
+}
+inline void FrameHeader::set_totalbytes(::google::protobuf::uint32 value) {
+  set_has_totalbytes();
+  totalbytes_ = value;
+}
+
+// required uint32 imageSizeX = 2;
+inline bool FrameHeader::has_imagesizex() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void FrameHeader::set_has_imagesizex() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void FrameHeader::clear_has_imagesizex() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void FrameHeader::clear_imagesizex() {
   imagesizex_ = 0u;
@@ -1292,13 +1324,13 @@ inline void FrameHeader::set_imagesizex(::google::protobuf::uint32 value) {
 
 // required uint32 imageSizeY = 3;
 inline bool FrameHeader::has_imagesizey() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void FrameHeader::set_has_imagesizey() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void FrameHeader::clear_has_imagesizey() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void FrameHeader::clear_imagesizey() {
   imagesizey_ = 0u;
@@ -1314,13 +1346,13 @@ inline void FrameHeader::set_imagesizey(::google::protobuf::uint32 value) {
 
 // required .Protocol.FrameHeader.bitDepth depth = 4;
 inline bool FrameHeader::has_depth() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void FrameHeader::set_has_depth() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void FrameHeader::clear_has_depth() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void FrameHeader::clear_depth() {
   depth_ = 0;
@@ -1337,13 +1369,13 @@ inline void FrameHeader::set_depth(::Protocol::FrameHeader_bitDepth value) {
 
 // required string colorSpace = 5;
 inline bool FrameHeader::has_colorspace() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void FrameHeader::set_has_colorspace() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void FrameHeader::clear_has_colorspace() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void FrameHeader::clear_colorspace() {
   if (colorspace_ != &::google::protobuf::internal::kEmptyString) {
@@ -1395,13 +1427,13 @@ inline ::std::string* FrameHeader::release_colorspace() {
 
 // required string transferSyntax = 6;
 inline bool FrameHeader::has_transfersyntax() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void FrameHeader::set_has_transfersyntax() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void FrameHeader::clear_has_transfersyntax() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void FrameHeader::clear_transfersyntax() {
   if (transfersyntax_ != &::google::protobuf::internal::kEmptyString) {
@@ -1453,13 +1485,13 @@ inline ::std::string* FrameHeader::release_transfersyntax() {
 
 // required uint32 channelsNumber = 7;
 inline bool FrameHeader::has_channelsnumber() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void FrameHeader::set_has_channelsnumber() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void FrameHeader::clear_has_channelsnumber() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void FrameHeader::clear_channelsnumber() {
   channelsnumber_ = 0u;
@@ -1475,13 +1507,13 @@ inline void FrameHeader::set_channelsnumber(::google::protobuf::uint32 value) {
 
 // required bool bInterleaved = 8;
 inline bool FrameHeader::has_binterleaved() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void FrameHeader::set_has_binterleaved() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void FrameHeader::clear_has_binterleaved() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void FrameHeader::clear_binterleaved() {
   binterleaved_ = false;
@@ -1497,13 +1529,13 @@ inline void FrameHeader::set_binterleaved(bool value) {
 
 // required bool b2Complement = 9;
 inline bool FrameHeader::has_b2complement() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void FrameHeader::set_has_b2complement() {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void FrameHeader::clear_has_b2complement() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void FrameHeader::clear_b2complement() {
   b2complement_ = false;
@@ -1519,13 +1551,13 @@ inline void FrameHeader::set_b2complement(bool value) {
 
 // required uint32 allocatedBits = 10;
 inline bool FrameHeader::has_allocatedbits() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
 inline void FrameHeader::set_has_allocatedbits() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000200u;
 }
 inline void FrameHeader::clear_has_allocatedbits() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000200u;
 }
 inline void FrameHeader::clear_allocatedbits() {
   allocatedbits_ = 0u;
@@ -1541,13 +1573,13 @@ inline void FrameHeader::set_allocatedbits(::google::protobuf::uint32 value) {
 
 // required uint32 storedBits = 11;
 inline bool FrameHeader::has_storedbits() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00000400u) != 0;
 }
 inline void FrameHeader::set_has_storedbits() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00000400u;
 }
 inline void FrameHeader::clear_has_storedbits() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline void FrameHeader::clear_storedbits() {
   storedbits_ = 0u;
@@ -1563,13 +1595,13 @@ inline void FrameHeader::set_storedbits(::google::protobuf::uint32 value) {
 
 // required uint32 highBit = 12;
 inline bool FrameHeader::has_highbit() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
+  return (_has_bits_[0] & 0x00000800u) != 0;
 }
 inline void FrameHeader::set_has_highbit() {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00000800u;
 }
 inline void FrameHeader::clear_has_highbit() {
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00000800u;
 }
 inline void FrameHeader::clear_highbit() {
   highbit_ = 0u;

@@ -22,8 +22,11 @@ typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIter
 
 struct TFrameInfo
 {
+	TFrameInfo() : totalBytes(0), sentFrameHeader(false){}
 	string fileName;
 	Protocol::FrameRequest frameRequest;
+	int totalBytes;
+	bool sentFrameHeader;
 
 };
 
@@ -49,10 +52,15 @@ public:
 		tFrameIterator::setChildIterators(childIters);
 	}
 
-	void parsed(vector< tFragVec* >& frameFragments)
+	void parsed(vector< TParsedFrame* >& frameFragments)
 	{
        if (!frameFragments.empty())
-    	   setChildIterators(frameFragments[0]);
+       {
+    	   setChildIterators(frameFragments[0]->fragVec);
+    	   frameInfo.totalBytes = frameFragments[0]->totalBytes;
+
+       }
+
 	}
 	TFrameInfo getFrameInfo()
 	{

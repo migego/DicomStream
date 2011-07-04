@@ -88,7 +88,8 @@ void protobuf_AssignDesc_stream_2eproto() {
   FrameGroupRequest_RequestType_descriptor_ = FrameGroupRequest_descriptor_->enum_type(0);
   FrameGroupRequest_Priority_descriptor_ = FrameGroupRequest_descriptor_->enum_type(1);
   FrameHeader_descriptor_ = file->message_type(2);
-  static const int FrameHeader_offsets_[11] = {
+  static const int FrameHeader_offsets_[12] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, totalbytes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizex_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizey_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, depth_),
@@ -204,20 +205,21 @@ void protobuf_AddDesc_stream_2eproto() {
     "ultiFrame\030\t \002(\010\"N\n\013RequestType\022\t\n\005Fetch\020"
     "\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPrimaryFram"
     "e\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010Selected\020"
-    "\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\356\002\n\013FrameHead"
-    "er\022\022\n\nimageSizeX\030\002 \002(\r\022\022\n\nimageSizeY\030\003 \002"
-    "(\r\022-\n\005depth\030\004 \002(\0162\036.Protocol.FrameHeader"
-    ".bitDepth\022\022\n\ncolorSpace\030\005 \002(\t\022\026\n\016transfe"
-    "rSyntax\030\006 \002(\t\022\026\n\016channelsNumber\030\007 \002(\r\022\024\n"
-    "\014bInterleaved\030\010 \002(\010\022\024\n\014b2Complement\030\t \002("
-    "\010\022\025\n\rallocatedBits\030\n \002(\r\022\022\n\nstoredBits\030\013"
-    " \002(\r\022\017\n\007highBit\030\014 \002(\r\"\\\n\010bitDepth\022\013\n\007dep"
-    "thU8\020\000\022\013\n\007depthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010dep"
-    "thS16\020\003\022\014\n\010depthU32\020\004\022\014\n\010depthS32\020\005\"i\n\rF"
-    "rameResponse\022,\n\014frameRequest\030\001 \002(\0132\026.Pro"
-    "tocol.FrameRequest\022*\n\013frameHeader\030\002 \002(\0132"
-    "\025.Protocol.FrameHeader\"-\n\rFrameFragment\022"
-    "\016\n\006offset\030\001 \002(\r\022\014\n\004size\030\002 \002(\r", 1069);
+    "\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\202\003\n\013FrameHead"
+    "er\022\022\n\ntotalBytes\030\001 \002(\r\022\022\n\nimageSizeX\030\002 \002"
+    "(\r\022\022\n\nimageSizeY\030\003 \002(\r\022-\n\005depth\030\004 \002(\0162\036."
+    "Protocol.FrameHeader.bitDepth\022\022\n\ncolorSp"
+    "ace\030\005 \002(\t\022\026\n\016transferSyntax\030\006 \002(\t\022\026\n\016cha"
+    "nnelsNumber\030\007 \002(\r\022\024\n\014bInterleaved\030\010 \002(\010\022"
+    "\024\n\014b2Complement\030\t \002(\010\022\025\n\rallocatedBits\030\n"
+    " \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007highBit\030\014 \002("
+    "\r\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007depthS8\020\001\022"
+    "\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n\010depthU32\020"
+    "\004\022\014\n\010depthS32\020\005\"i\n\rFrameResponse\022,\n\014fram"
+    "eRequest\030\001 \002(\0132\026.Protocol.FrameRequest\022*"
+    "\n\013frameHeader\030\002 \002(\0132\025.Protocol.FrameHead"
+    "er\"-\n\rFrameFragment\022\016\n\006offset\030\001 \002(\r\022\014\n\004s"
+    "ize\030\002 \002(\r", 1089);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
@@ -1224,6 +1226,7 @@ const FrameHeader_bitDepth FrameHeader::bitDepth_MAX;
 const int FrameHeader::bitDepth_ARRAYSIZE;
 #endif  // _MSC_VER
 #ifndef _MSC_VER
+const int FrameHeader::kTotalBytesFieldNumber;
 const int FrameHeader::kImageSizeXFieldNumber;
 const int FrameHeader::kImageSizeYFieldNumber;
 const int FrameHeader::kDepthFieldNumber;
@@ -1253,6 +1256,7 @@ FrameHeader::FrameHeader(const FrameHeader& from)
 
 void FrameHeader::SharedCtor() {
   _cached_size_ = 0;
+  totalbytes_ = 0u;
   imagesizex_ = 0u;
   imagesizey_ = 0u;
   depth_ = 0;
@@ -1304,6 +1308,7 @@ FrameHeader* FrameHeader::New() const {
 
 void FrameHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    totalbytes_ = 0u;
     imagesizex_ = 0u;
     imagesizey_ = 0u;
     depth_ = 0;
@@ -1319,9 +1324,9 @@ void FrameHeader::Clear() {
     }
     channelsnumber_ = 0u;
     binterleaved_ = false;
-    b2complement_ = false;
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    b2complement_ = false;
     allocatedbits_ = 0u;
     storedbits_ = 0u;
     highbit_ = 0u;
@@ -1336,10 +1341,26 @@ bool FrameHeader::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required uint32 totalBytes = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &totalbytes_)));
+          set_has_totalbytes();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_imageSizeX;
+        break;
+      }
+      
       // required uint32 imageSizeX = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_imageSizeX:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &imagesizex_)));
@@ -1536,6 +1557,11 @@ bool FrameHeader::MergePartialFromCodedStream(
 
 void FrameHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // required uint32 totalBytes = 1;
+  if (has_totalbytes()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->totalbytes(), output);
+  }
+  
   // required uint32 imageSizeX = 2;
   if (has_imagesizex()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->imagesizex(), output);
@@ -1608,6 +1634,11 @@ void FrameHeader::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* FrameHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // required uint32 totalBytes = 1;
+  if (has_totalbytes()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->totalbytes(), target);
+  }
+  
   // required uint32 imageSizeX = 2;
   if (has_imagesizex()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->imagesizex(), target);
@@ -1685,6 +1716,13 @@ int FrameHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint32 totalBytes = 1;
+    if (has_totalbytes()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->totalbytes());
+    }
+    
     // required uint32 imageSizeX = 2;
     if (has_imagesizex()) {
       total_size += 1 +
@@ -1731,13 +1769,13 @@ int FrameHeader::ByteSize() const {
       total_size += 1 + 1;
     }
     
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // required bool b2Complement = 9;
     if (has_b2complement()) {
       total_size += 1 + 1;
     }
     
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // required uint32 allocatedBits = 10;
     if (has_allocatedbits()) {
       total_size += 1 +
@@ -1786,6 +1824,9 @@ void FrameHeader::MergeFrom(const ::google::protobuf::Message& from) {
 void FrameHeader::MergeFrom(const FrameHeader& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_totalbytes()) {
+      set_totalbytes(from.totalbytes());
+    }
     if (from.has_imagesizex()) {
       set_imagesizex(from.imagesizex());
     }
@@ -1807,11 +1848,11 @@ void FrameHeader::MergeFrom(const FrameHeader& from) {
     if (from.has_binterleaved()) {
       set_binterleaved(from.binterleaved());
     }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_b2complement()) {
       set_b2complement(from.b2complement());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_allocatedbits()) {
       set_allocatedbits(from.allocatedbits());
     }
@@ -1838,13 +1879,14 @@ void FrameHeader::CopyFrom(const FrameHeader& from) {
 }
 
 bool FrameHeader::IsInitialized() const {
-  if ((_has_bits_[0] & 0x000007ff) != 0x000007ff) return false;
+  if ((_has_bits_[0] & 0x00000fff) != 0x00000fff) return false;
   
   return true;
 }
 
 void FrameHeader::Swap(FrameHeader* other) {
   if (other != this) {
+    std::swap(totalbytes_, other->totalbytes_);
     std::swap(imagesizex_, other->imagesizex_);
     std::swap(imagesizey_, other->imagesizey_);
     std::swap(depth_, other->depth_);

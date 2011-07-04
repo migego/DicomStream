@@ -41,7 +41,7 @@ public:
 		return listeners->erase(listener);
 
 	}
-	void notifyListeners(string fileName, vector< tFragVec* >& frameFragments)
+	void notifyListeners(string fileName, vector< TParsedFrame* >& frameFragments)
 	{
 		if (parseListeners.find(fileName) == parseListeners.end())
 		{
