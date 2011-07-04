@@ -46,15 +46,14 @@ public:
 		release();
 	}
 
-	bool getCurrentFrameInfo(TFrameInfo& info)
+	TFrameInfo* getCurrentFrameInfo()
 	{
 		FrameIterator* current = currentIterator();
 		if (current)
 		{
-			info = current->getFrameInfo();
-			return true;
+			return current->getFrameInfo();
 		}
-		return false;
+		return NULL;
 	}
 
 

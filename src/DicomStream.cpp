@@ -244,9 +244,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
  			cleanup(cli);
 			return 0;
  		}
- 		TFrameInfo frameInfo;
- 		if (frameQueue->front()->getCurrentFrameInfo(frameInfo))
- 		   triggerRetrieve(cli, frameInfo.fileName);
+ 		TFrameInfo* frameInfo = frameQueue->front()->getCurrentFrameInfo();
+ 		if (frameInfo)
+ 		   triggerRetrieve(cli, frameInfo->fileName);
  	}
 	return 0;
 }
@@ -264,20 +264,20 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
  			queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
  			if (!frameQueue->empty())
  			{
-				TFrameInfo frameInfo;
-				if ( frameQueue->front()->getCurrentFrameInfo(frameInfo) )
+				TFrameInfo* frameInfo=  frameQueue->front()->getCurrentFrameInfo();
+				if (frameInfo)
 				{
 					//1. write frame header, if necessary
-					TFileInfo* fileInfo = getFileInfo(frameInfo.fileName);
-					if (!fileInfo->sentHeader)
+					TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
+					if (!frameInfo->sentFrameHeader)
 					{
 						Protocol::FrameResponse frameResponse;
-						frameResponse.mutable_framerequest()->Swap(&frameInfo.frameRequest);
+						frameResponse.mutable_framerequest()->Swap(&frameInfo->frameRequest);
 
 						DicomPixels* parser = fileInfo->parser;
 						if (parser)
 						{
-							frameResponse.mutable_frameheader()->set_totalbytes(frameInfo.totalBytes);
+							frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->totalBytes);
 							frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
 							frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
 							frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
@@ -292,7 +292,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 						}
 						messageFramers[cli->fd]->write(&frameResponse);
-						fileInfo->sentHeader = true;
+						frameInfo->sentFrameHeader = true;
 
 					}
 					Protocol::FrameFragment item;
@@ -304,6 +304,10 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 						//3. trigger eio sendfile on fragment
 						printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
 						eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
+					}
+					else
+					{
+						frameQueue->pop();
 					}
 				}
  			}
@@ -488,9 +492,9 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	}
 	    	FrameGroupIterator* frameIter = new FrameGroupIterator(this, &listenManager, frameInfo);
 	    	frameQueue->push(frameIter);
-	    	TFrameInfo frameInfo;
-			if (frameIter->getCurrentFrameInfo(frameInfo))
-			   triggerRetrieve(cli, frameInfo.fileName);
+	    	TFrameInfo* frameInfo = frameIter->getCurrentFrameInfo();
+	    	if (frameInfo)
+			   triggerRetrieve(cli, frameInfo->fileName);
 	    }
 
 	    }

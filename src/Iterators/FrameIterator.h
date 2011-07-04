@@ -62,9 +62,9 @@ public:
        }
 
 	}
-	TFrameInfo getFrameInfo()
+	TFrameInfo* getFrameInfo()
 	{
-		return frameInfo;
+		return &frameInfo;
 	}
 
 private:

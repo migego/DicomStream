@@ -49,8 +49,6 @@ private:
 			fd = -1;
 			parser = NULL;
 			fileName="";
-			sentHeader = false;
-
 		}
 		~TFileInfo()
 		{
@@ -61,7 +59,6 @@ private:
 		int fd;
 		int refCount;
 		DicomPixels* parser;
-		bool sentHeader;
 
 	};
 	void cleanup(string fileName);
