@@ -44,6 +44,10 @@ public:
 		}
 		return true;
 	}
+    bool isDone()
+    {
+    	return done;
+    }
 
 };
 

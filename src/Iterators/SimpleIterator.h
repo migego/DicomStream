@@ -30,6 +30,10 @@ public:
 		done = true;
 		return true;
 	}
+    bool isDone()
+    {
+    	return done;
+    }
 };
 
 #endif /* SIMPLEFRAGMENTITERATOR_H_ */

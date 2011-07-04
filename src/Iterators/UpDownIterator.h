@@ -81,6 +81,11 @@ public:
 		return false;
 
 	}
+
+	bool isDone()
+	{
+		return done;
+	}
 protected:
 	Iterator* currentIterator()
 	{

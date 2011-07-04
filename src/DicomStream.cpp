@@ -305,10 +305,6 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 						printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
 						eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
 					}
-					else
-					{
-						frameQueue->pop();
-					}
 				}
  			}
  		}

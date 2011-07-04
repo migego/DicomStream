@@ -15,13 +15,14 @@ template <typename Data, typename Iterator> class SequentialIterator {
 private:
 	vector<Iterator*>* childIterators;
 	size_t position;
+	bool done;
 public:
 	virtual ~SequentialIterator()
 	{
 
 	}
 
-	SequentialIterator(void) : position(0)
+	SequentialIterator(void) : position(0), done(false)
 	{
 		setChildIterators(NULL);
 	}
@@ -40,11 +41,18 @@ public:
         	position++;
             if (position == childIterators->size())
             {
+            	done = true;
             	finish();
             	return false;
             }
         }
+
         return true;
+	}
+
+	bool isDone()
+	{
+		return done;
 	}
 
 private:
