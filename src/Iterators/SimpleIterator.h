@@ -21,7 +21,8 @@ public:
 	{
 
 	}
-    // return false if iterator is done ( in which case the iterator will be freed and removed from parent)
+    // return false if iterator is done
+	// ( in which case the iterator will be freed and removed from parent)
     bool next( Data& fragment)
 	{
     	if (done)
@@ -30,9 +31,9 @@ public:
 		done = true;
 		return true;
 	}
-    bool isDone()
+    bool hasNext()
     {
-    	return done;
+    	return !done;
     }
 };
 

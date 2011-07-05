@@ -28,8 +28,8 @@ public:
 	}
     bool next( Protocol::FrameFragment& fragment)
 	{
-		if (done)
-			return false;
+    	if (done)
+    		return false;
 		size_t block;
 		if (chunk <=0)
 			block = size;
@@ -37,16 +37,16 @@ public:
 		   block = min(chunk, size-offsetIncrement);
 		fragment.set_offset( offset + offsetIncrement);
 		fragment.set_size(block);
-		offsetIncrement += block;
+		offsetIncrement += fragment.size();
 		if (offsetIncrement == size)
 		{
 			done = true;
 		}
 		return true;
 	}
-    bool isDone()
+    bool hasNext()
     {
-    	return done;
+    	return !done;
     }
 
 };

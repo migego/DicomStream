@@ -12,19 +12,23 @@ using namespace std;
 #include <vector>
 
 template <typename Data, typename Iterator> class UpDownIterator {
-protected:
-	vector<Iterator*>* childIterators;
-	size_t primaryIndex;
-	size_t currentIndex;
-	size_t count;
-	bool done;
+
 public:
 	virtual ~UpDownIterator()
 	{
-
+      if (childIterators != NULL)
+      {
+    	  typename vector<Iterator*>::iterator iter = childIterators->begin();
+    	  while (iter != childIterators->end())
+    	  {
+    		  delete *iter;
+    		  iter++;
+    	  }
+    	  delete childIterators;
+      }
 	}
 
-	UpDownIterator(void)
+	UpDownIterator(void) : count(0), completedIterators(0)
 	{
 		setChildIterators(NULL,0);
 	}
@@ -34,17 +38,36 @@ public:
 		childIterators = childIters;
 		primaryIndex = primaryInd;
 		currentIndex = primaryInd;
-		count = 0;
-		done = false;
 	}
 
+	bool hasNext()
+	{
+		 if (childIterators == NULL ||
+				 childIterators->empty() ||
+				    (completedIterators == childIterators->size()) ||
+				       (currentIndex >= childIterators->size())  )
+			   return false;
+		 typename vector<Iterator*>::const_iterator iter = childIterators->begin();
+		 while(iter != childIterators->end())
+		 {
+			 Iterator* iterVal = *iter;
+             if (iterVal->hasNext() || !iterVal->isInitialized() )
+            	 return true;
+			 iter++;
+		 }
+		 return false;
+
+	}
 	bool next(Data& item)
 	{
-		 if (done || childIterators == NULL || currentIndex >= childIterators->size() || childIterators->empty() )
+		 if (childIterators == NULL ||
+				 childIterators->empty() ||
+				    completedIterators == childIterators->size() ||
+				       currentIndex >= childIterators->size()  )
 			   return false;
 
 		//is there another fragment in current iterator ?
-		if (getNextFragment(item))
+		if (currentFragment(item))
 			return true;
 
 		//first increment
@@ -54,9 +77,8 @@ public:
 			  count++;
 		}
 
-		int maxIncr = max(primaryIndex,  childIterators->size() - primaryIndex)-1;
 		int incr = 0;
-		while ( abs(incr) <= maxIncr)
+		while ( completedIterators < childIterators->size())
 		{
 			//try both directions
 			for (int i = 0; i < 2; ++i)
@@ -71,32 +93,38 @@ public:
 				if (nextIndex >= 0 && nextIndex < (int)childIterators->size())
 				{
 					currentIndex = nextIndex;
-					if (!getNextFragment(item))
+					if (!currentFragment(item))
 						continue;
 					return true;
 				}
 			}
 		}
-		done = true;
 		return false;
 
 	}
+    bool isInitialized()
+    {
+    	return (childIterators != NULL);
+    }
 
-	bool isDone()
-	{
-		return done;
-	}
 protected:
+	vector<Iterator*>* childIterators;
+	size_t primaryIndex;
+	size_t currentIndex;
+	size_t count;
+	size_t completedIterators;
 	Iterator* currentIterator()
 	{
-		if (!childIterators || childIterators->empty())
+		if (!childIterators ||
+				childIterators->empty() ||
+				 (completedIterators == childIterators->size()))
 			return NULL;
 
 		return childIterators->operator[](currentIndex);
 
 	}
 private:
-    bool getNextFragment(Data& fragment)
+    bool currentFragment(Data& fragment)
 	{
     	Iterator* iter  = childIterators->operator[](currentIndex);
     	if (!iter)
@@ -106,6 +134,7 @@ private:
 		{
 			delete iter;
 			childIterators->operator[](currentIndex) = NULL;
+			completedIterators++;
 		}
 		return rc;
 	}

@@ -238,6 +238,14 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  	{
  		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+ 		while(!frameQueue->empty() &&
+ 				frameQueue->front()->isInitialized() &&
+ 				         !frameQueue->front()->hasNext())
+ 		{
+ 			FrameGroupIterator* it = frameQueue->front();
+ 			delete it;
+ 			frameQueue->pop();
+ 		}
  		if (frameQueue->empty())
  		{
  			printf("[server] queue is empty\n");
@@ -363,9 +371,27 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 void DicomStream::cleanup(TClient* cli)
 {
-	deleteMessageFramer(cli->fd);
+	//close socket
 	close(cli->fd);
-	cli->fd = -1;
+
+	//delete message framer
+	deleteMessageFramer(cli->fd);
+
+	//delete client queue
+	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+	{
+		queue<FrameGroupIterator*>*  frameQueue = frameGroupIterators[cli->fd];
+		while(!frameQueue->empty())
+		{
+			delete frameQueue->front();
+			frameQueue->pop();
+
+		}
+		delete frameQueue;
+		frameGroupIterators.erase(cli->fd);
+
+	}
+
 	delete cli;
 }
 
@@ -385,7 +411,7 @@ void DicomStream::cleanup(string fileName)
    }
    else
    {
-	   printf("attempt at cleaning up unopened file %s", fileName.c_str());
+	   printf("[server] attempt at cleaning up unopened file %s", fileName.c_str());
    }
 
 }
@@ -446,6 +472,8 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 								  + "/" + frameGroupRequest->instanceuidprefix();
 	    vector< SimpleIterator<string>*  >* prefetchIterators = new vector< SimpleIterator<string>*  >();
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator framesIter = frameGroupRequest->frames().begin();
+        if (frameGroupRequest->frames().size() == 0)
+        	return;
 
 	    //prefetch
 	    vector<TFrameInfo> frameInfo;
@@ -457,7 +485,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			info.frameRequest = *framesIter;
 			frameInfo.push_back(info);
 
-			printf("FrameGroupRequest for file: %s\n",fileName.c_str());
+			printf("[server] FrameGroupRequest for file: %s\n",fileName.c_str());
 			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
 
 			framesIter++;
@@ -488,9 +516,10 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	}
 	    	FrameGroupIterator* frameIter = new FrameGroupIterator(this, &listenManager, frameInfo);
 	    	frameQueue->push(frameIter);
+
+	    	//trigger retrieve
 	    	TFrameInfo* frameInfo = frameIter->getCurrentFrameInfo();
-	    	if (frameInfo)
-			   triggerRetrieve(cli, frameInfo->fileName);
+		    triggerRetrieve(cli, frameInfo->fileName);
 	    }
 
 	    }
@@ -506,17 +535,17 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 void DicomStream::preFetch_()
 {
 
-	printf("starting prefetch thread\n");
+	printf("[server] starting prefetch thread\n");
 	string file;
 	while(!stopPrecache)
 	{
 		if (precacheQueue.wait_and_pop(file))
-		    printf("prefetching file %s\n",file.c_str());
+		    printf("[server] prefetching file %s\n",file.c_str());
 		//posix_fadvise();
 
 	}
 
-	printf("exiting prefetch thread\n");
+	printf("[server] exiting prefetch thread\n");
 
 }
 
@@ -524,6 +553,37 @@ void DicomStream::preFetch_()
 
 void DicomStream::clientTest_()
 {
+
+
+	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
+	req->set_studyuid("study1");
+	req->set_studyuidnumber(0);
+	req->set_seriesuid("series1");
+	req->set_seriesuidnumber(0);
+	req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
+	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
+	req->set_instanceuidprefix("");
+
+	Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance1");
+	frameReq->set_instanceuidnumber(0);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+
+	frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance2");
+	frameReq->set_instanceuidnumber(1);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+
+	frameReq = new Protocol::FrameRequest();
+	frameReq->set_instanceuid("instance3");
+	frameReq->set_instanceuidnumber(2);
+	frameReq->set_framenumber(1);
+	req->mutable_frames()->AddAllocated(frameReq);
+	req->set_multiframe(false);
+
+
 	struct sockaddr_in serv_addr;
 
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -553,33 +613,6 @@ void DicomStream::clientTest_()
 	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
 		perror("ERROR connecting");
 
-	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
-	req->set_studyuid("study1");
-	req->set_studyuidnumber(0);
-	req->set_seriesuid("series1");
-	req->set_seriesuidnumber(0);
-	req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
-	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
-	req->set_instanceuidprefix("");
-
-	Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
-	frameReq->set_instanceuid("instance1");
-	frameReq->set_instanceuidnumber(0);
-	frameReq->set_framenumber(1);
-	req->mutable_frames()->AddAllocated(frameReq);
-
-	frameReq = new Protocol::FrameRequest();
-	frameReq->set_instanceuid("instance2");
-	frameReq->set_instanceuidnumber(1);
-	frameReq->set_framenumber(1);
-	req->mutable_frames()->AddAllocated(frameReq);
-
-	frameReq = new Protocol::FrameRequest();
-	frameReq->set_instanceuid("instance3");
-	frameReq->set_instanceuidnumber(2);
-	frameReq->set_framenumber(1);
-	req->mutable_frames()->AddAllocated(frameReq);
-	req->set_multiframe(false);
 	MessageFramer* framer = new MessageFramer(sockfd);
 	for (int i = 0; i < 50; ++i)
 	{
