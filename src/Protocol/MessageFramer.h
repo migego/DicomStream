@@ -11,6 +11,7 @@
 #include "stream.pb.h"
 #include "ReadException.h"
 #include "EAgainException.h"
+#include "WriteException.h"
 
 #include <errno.h>
 #include <err.h>
@@ -80,9 +81,23 @@ public:
 			if (errno == EAGAIN)
 			{
 				printf("[server] EAGAIN when reading from socket\n");
-				return;
+				throw EAgainException();
 			}
 			throw ReadException();
+		}
+	}
+	void validateWrite(int n)
+	{
+		if (n < 0)
+		{
+			//EAGAIN is acceptable on non-blocking socket; just means that write
+			//buffer is full
+			if (errno == EAGAIN)
+			{
+				printf("[server] EAGAIN when writing to socket\n");
+				throw EAgainException();
+			}
+			throw WriteException();
 		}
 	}
 
@@ -191,19 +206,17 @@ private:
 	void write(char type, ::google::protobuf::Message* msg)
 	{
 		int n = ::write(fd, &type,1);
-		if (n < 0)
-			perror("Error writing to socket");
+		validateWrite(n);
 		int size = msg->ByteSize();
 		int sizeBE = htonl(size);
 		n = ::write(fd, &sizeBE, sizeof(size));
-		if (n < 0)
-			perror("Error writing to socket");
+		validateWrite(n);
 		char* data = new char[size];
 		msg->SerializeToArray(data, size);
 		n = ::write(fd, data, size );
-		if (n < 0)
-			perror("Error writing to socket");
-	    delete[] data;
+		delete[] data;
+		validateWrite(n);
+
 	}
 
 

@@ -282,7 +282,22 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 					frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
 
 				}
-				messageFramers[cli->fd]->write(&frameResponse);
+				try
+				{
+				    messageFramers[cli->fd]->write(&frameResponse);
+				}
+				catch (EAgainException& ee)
+				{
+					//trigger another write
+					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+					ev_io_start(loop,&cli->ev_write);
+					return;
+				}
+				catch (WriteException& we)
+				{
+					cleanup(cli);
+					return;
+				}
 				frameInfo->sentFrameHeader = true;
 
 			}
@@ -292,8 +307,22 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			Protocol::FrameFragment item;
 			if (frameQueue->front()->next(item))
 			{
-
-				messageFramers[cli->fd]->write(&item);
+                try
+                {
+				   messageFramers[cli->fd]->write(&item);
+                }
+                catch (EAgainException& ee)
+				{
+					//trigger another write
+					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+					ev_io_start(loop,&cli->ev_write);
+					return;
+				}
+				catch (WriteException& we)
+				{
+					cleanup(cli);
+					return;
+				}
 
 				//3. trigger eio sendfile on fragment
 				printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
