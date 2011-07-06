@@ -10,6 +10,11 @@
 
 #include "stream.pb.h"
 #include "ReadException.h"
+#include "EAgainException.h"
+
+#include <errno.h>
+#include <err.h>
+#include <stddef.h>
 
 class MessageFramer {
 public:
@@ -70,8 +75,13 @@ public:
 	{
 		if (n < 0)
 		{
-			perror("Error reading from socket");
-			close (fd);
+			//EAGAIN is acceptable on non-blocking socket; just means that read
+			//buffer is empty
+			if (errno == EAGAIN)
+			{
+				printf("[server] EAGAIN when reading from socket\n");
+				return;
+			}
 			throw ReadException();
 		}
 	}

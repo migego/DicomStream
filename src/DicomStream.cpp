@@ -310,7 +310,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
  void DicomStream::read_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 {
-
+	ev_io_stop(EV_A_ w);
     TClient *cli= ((TClient*) (((char*)w) - offsetof(TClient,ev_read)));
 	if (revents & EV_READ){
 		// parse message
@@ -323,13 +323,19 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			processIncomingMessage(cli, wrapper);
 
 		}
-		catch (ReadException& r)
+		catch (ReadException& re)
 		{
-			//close socket
+			cleanup(cli);
+		}
+		catch (EAgainException& ee)
+		{
+            //trigger another read
+			ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
+			ev_io_start(loop,&cli->ev_read);
 		}
 
 	}
-	ev_io_stop(EV_A_ w);
+
 
 }
 
@@ -341,17 +347,17 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	if (client_fd == -1) {
 			return;
 	}
-    TClient* myClient = new TClient;
-	myClient->fd=client_fd;
-	if (setNonBlock(myClient->fd) < 0)
+    TClient* cli = new TClient;
+	cli->fd=client_fd;
+	if (setNonBlock(cli->fd) < 0)
 	{
          err(1, "failed to set client socket to non-blocking");
          close(client_fd);
          return;
 	}
 	createMessageFramer(client_fd);
-	ev_io_init(&myClient->ev_read,read_cb,myClient->fd,EV_READ);
-	ev_io_start(loop,&myClient->ev_read);
+	ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
+	ev_io_start(loop,&cli->ev_read);
 }
 
 void DicomStream::cleanup(TClient* cli)
