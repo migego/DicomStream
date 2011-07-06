@@ -43,14 +43,25 @@ public:
 		 if (!isValid() )
 			   return false;
 
-		//advance current index if current iterator is done
-		while (!currentFragment(item) )
+		//delete iterators that are initialized and done
+		while (!isDone() )
 		{
-			 advanceCurrentIndex();
-			 if (isDone())
-				 return false;
+			Iterator* iter  = childIterators->operator[](currentIndex);
+			bool rc =  iter->next(item);
+			if (rc)
+				return true;
+			else if (iter->isInitialized())
+			{
+				delete iter;
+				childIterators->operator[](currentIndex) = NULL;
+				completedIterators++;
+				advanceCurrentIndex();
+			}
+			else
+				//return false for uninitialized child iterator
+				return false;
 		}
-		return true;
+		return false;
 
 
 	}
@@ -67,7 +78,7 @@ public:
 			 Data dummy;
 			 next(dummy);
 			 printf("[Server] remove iterator with no next fragment\n");
-			 advanceCurrentIndex();
+
 		 }
 	}
     bool isInitialized()
@@ -94,21 +105,6 @@ protected:
 
 	}
 private:
-    bool currentFragment(Data& fragment)
-	{
-    	Iterator* iter  = childIterators->operator[](currentIndex);
-    	if (!iter)
-    		return false;
-		bool rc =  iter->next(fragment);
-		//delete completed child iterator
-		if (!rc && iter->isInitialized())
-		{
-			delete iter;
-			childIterators->operator[](currentIndex) = NULL;
-			completedIterators++;
-		}
-		return rc;
-	}
 	bool advanceCurrentIndex()
 	{
 		for (int i = 0; i < 2; ++i)
