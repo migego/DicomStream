@@ -28,11 +28,6 @@ public:
       }
 	}
 
-	UpDownIterator(void) : count(0), completedIterators(0)
-	{
-		setChildIterators(NULL,0);
-	}
-
 	void setChildIterators(vector<Iterator*>* childIters, size_t primaryInd)
 	{
 		childIterators = childIters;
@@ -40,71 +35,48 @@ public:
 		currentIndex = primaryInd;
 	}
 
-	bool hasNext()
-	{
-		 if (childIterators == NULL ||
-				 childIterators->empty() ||
-				    (completedIterators == childIterators->size()) ||
-				       (currentIndex >= childIterators->size())  )
-			   return false;
-		 typename vector<Iterator*>::const_iterator iter = childIterators->begin();
-		 while(iter != childIterators->end())
-		 {
-			 Iterator* iterVal = *iter;
-             if (iterVal->hasNext() || !iterVal->isInitialized() )
-            	 return true;
-			 iter++;
-		 }
-		 return false;
-
-	}
+	// get next fragment; return false if parent iterator is not valid,
+	// or we hit an uninitialized child iterator
+	// current iterator is guaranteed to be valid after this operation completes
 	bool next(Data& item)
 	{
-		 if (childIterators == NULL ||
-				 childIterators->empty() ||
-				    completedIterators == childIterators->size() ||
-				       currentIndex >= childIterators->size()  )
+		 if (!isValid() )
 			   return false;
 
-		//is there another fragment in current iterator ?
-		if (currentFragment(item))
-			return true;
-
-		//first increment
-		if (count == 0)
+		//advance current index if current iterator is done
+		while (!currentFragment(item) )
 		{
-			  //after first item is done, then increment count, so that it will be equal to 2 at next increment
-			  count++;
+			 advanceCurrentIndex();
+			 if (isDone())
+				 return false;
 		}
+		return true;
 
-		int incr = 0;
-		while ( completedIterators < childIterators->size())
-		{
-			//try both directions
-			for (int i = 0; i < 2; ++i)
-			{
-				count++;
-			    incr = count >> 1;
-			    //if count is odd..
-				if ( count&1 == 1)
-					incr *= -1;
 
-				int nextIndex = primaryIndex + incr;
-				if (nextIndex >= 0 && nextIndex < (int)childIterators->size())
-				{
-					currentIndex = nextIndex;
-					if (!currentFragment(item))
-						continue;
-					return true;
-				}
-			}
-		}
-		return false;
+	}
 
+	// remove current iterator that has no next fragment
+	void completeNext()
+	{
+
+		 if (!isValid() )
+			   return;
+
+		 if (!currentIterator()->hasNext())
+		 {
+			 Data dummy;
+			 next(dummy);
+			 printf("[Server] remove iterator with no next fragment\n");
+			 advanceCurrentIndex();
+		 }
 	}
     bool isInitialized()
     {
     	return (childIterators != NULL);
+    }
+    bool isDone()
+    {
+    	return (completedIterators == childIterators->size());
     }
 
 protected:
@@ -115,9 +87,7 @@ protected:
 	size_t completedIterators;
 	Iterator* currentIterator()
 	{
-		if (!childIterators ||
-				childIterators->empty() ||
-				 (completedIterators == childIterators->size()))
+		if (!isValid())
 			return NULL;
 
 		return childIterators->operator[](currentIndex);
@@ -130,7 +100,8 @@ private:
     	if (!iter)
     		return false;
 		bool rc =  iter->next(fragment);
-		if (!rc)
+		//delete completed child iterator
+		if (!rc && iter->isInitialized())
 		{
 			delete iter;
 			childIterators->operator[](currentIndex) = NULL;
@@ -138,6 +109,38 @@ private:
 		}
 		return rc;
 	}
+	bool advanceCurrentIndex()
+	{
+		for (int i = 0; i < 2; ++i)
+		{
+			//we only count the primaryIndex once
+			if (count == 0)
+				  count=2;
+			else
+				count++;
+
+			int incr = count >> 1;
+			//if count is odd..
+			if ( count&1 == 1)
+				incr *= -1;
+
+			int nextIndex = primaryIndex + incr;
+			if (nextIndex >= 0 && nextIndex < (int)childIterators->size())
+			{
+				currentIndex = nextIndex;
+				return true;
+			}
+
+		}
+		return false;
+
+	}
+
+    bool isValid()
+    {
+		 return (isInitialized() && !childIterators->empty() && !isDone() &&
+				          currentIndex >= 0 &&  currentIndex < childIterators->size() );
+    }
 
 	virtual void finish()
 	{

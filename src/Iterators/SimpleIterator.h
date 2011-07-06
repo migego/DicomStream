@@ -31,9 +31,13 @@ public:
 		done = true;
 		return true;
 	}
-    bool hasNext()
+    bool isInitialized()
     {
-    	return !done;
+    	return true;
+    }
+    bool isDone()
+    {
+    	return done;
     }
 };
 

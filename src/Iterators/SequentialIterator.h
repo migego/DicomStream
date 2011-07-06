@@ -18,7 +18,7 @@ private:
 public:
 	virtual ~SequentialIterator()
 	{
-
+       childIterators = NULL;
 	}
 
 	SequentialIterator(void) : position(0)
@@ -33,12 +33,12 @@ public:
 
 	bool next(Data& item)
 	{
-		if ( childIterators == NULL || childIterators->empty() || (position == childIterators->size()))
+		if (!isValid())
 			return false;
         while (!childIterators->operator[](position)->next(item))
         {
         	position++;
-            if (position == childIterators->size())
+            if (isDone())
             {
             	finish();
             	return false;
@@ -49,7 +49,7 @@ public:
 	}
 	bool hasNext()
 	{
-		if ( childIterators == NULL || childIterators->empty() || (position == childIterators->size()))
+		if (!isValid())
 			return false;
 		size_t pos = position;
 		while (!childIterators->operator[](pos)->hasNext() )
@@ -65,11 +65,20 @@ public:
     {
     	return (childIterators != NULL);
     }
+    bool isDone()
+     {
+     	return (position == childIterators->size());
+     }
 
 private:
 	virtual void finish()
 	{
 
+	}
+
+	bool isValid()
+	{
+		return ( isInitialized() && !isDone() && !childIterators->empty());
 	}
 
 };

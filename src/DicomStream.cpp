@@ -65,31 +65,8 @@ DicomStream* DicomStream::Instance()
 }
 
 
-void DicomStream::unitTest()
-{
-    //start prefetch thread
-    boost::thread workerThread(preFetch);
-
-    vector< SimpleIterator<string>*  >* fragIterators = new vector< SimpleIterator<string>*  >();
-
-	fragIterators->push_back(new SimpleIterator<string>("helloa1"));
-	fragIterators->push_back(new SimpleIterator<string>("helloa2"));
-	fragIterators->push_back(new SimpleIterator<string>("helloa3"));
-
-
-    UpDownIterator< string, SimpleIterator<string> >* upDown = new UpDownIterator< string, SimpleIterator<string> >();
-    upDown->setChildIterators(fragIterators, 1);
-    // start pre-fetch on these files
-    if ( !fragIterators->empty())
-        precacheQueue.push(upDown);
-
-    sleep(5000);
-
-}
-
 void DicomStream::start()
 {
-	//unitTest();
 
 	// read config file
 	boost::property_tree::ptree pTree;
@@ -198,7 +175,6 @@ int DicomStream::open_cb_(eio_req *req)
 		data->fileInfo->fd = fd;
 
 		//trigger readahead
-
 		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
 	}
 
@@ -216,6 +192,7 @@ int DicomStream::readahead_cb_(eio_req *req)
 	data->fileInfo->parser = new DicomPixels();
 	data->fileInfo->parser->parse(data->fileInfo->fd, data->fileInfo->fileName, &listenManager);
 
+	printf("[Server] readahead triggered write on file %s\n", data->fileInfo->fileName.c_str());
 	TClient* cli = data->cli;
 	delete(data);
 
@@ -238,9 +215,12 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  	{
  		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+ 		frameQueue->front()->completeNext();
+
+ 		// remove spent queue items
  		while(!frameQueue->empty() &&
  				frameQueue->front()->isInitialized() &&
- 				         !frameQueue->front()->hasNext())
+ 				         frameQueue->front()->isDone())
  		{
  			FrameGroupIterator* it = frameQueue->front();
  			delete it;
@@ -252,6 +232,8 @@ int DicomStream::sendfile_cb_(eio_req *req)
  			cleanup(cli);
 			return 0;
  		}
+
+
  		TFrameInfo* frameInfo = frameQueue->front()->getCurrentFrameInfo();
  		if (frameInfo)
  		   triggerRetrieve(cli, frameInfo->fileName);
@@ -269,57 +251,60 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
  	{
  		if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  		{
+ 			// queue must not be empty, because we do not trigger a write on an empty queue
  			queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
- 			if (!frameQueue->empty())
- 			{
-				TFrameInfo* frameInfo=  frameQueue->front()->getCurrentFrameInfo();
-				if (frameInfo)
+
+ 			//frame info cannot be null, because we do not trigger a write on an
+ 			// uninitialized or completed FrameGroupIterator
+			TFrameInfo* frameInfo =  frameQueue->front()->getCurrentFrameInfo();
+
+			//1. write frame header, if necessary
+			TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
+			if (!frameInfo->sentFrameHeader)
+			{
+				Protocol::FrameResponse frameResponse;
+				frameResponse.mutable_framerequest()->Swap(&frameInfo->frameRequest);
+
+				DicomPixels* parser = fileInfo->parser;
+				if (parser)
 				{
-					//1. write frame header, if necessary
-					TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
-					if (!frameInfo->sentFrameHeader)
-					{
-						Protocol::FrameResponse frameResponse;
-						frameResponse.mutable_framerequest()->Swap(&frameInfo->frameRequest);
+					frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->totalBytes);
+					frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
+					frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
+					frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
+					frameResponse.mutable_frameheader()->set_colorspace(parser->getcolorSpace());
+					frameResponse.mutable_frameheader()->set_transfersyntax(parser->gettransferSyntax());
+					frameResponse.mutable_frameheader()->set_channelsnumber(parser->getchannelsNumber());
+					frameResponse.mutable_frameheader()->set_binterleaved(parser->getbInterleaved());
+					frameResponse.mutable_frameheader()->set_b2complement(parser->getb2Complement());
+					frameResponse.mutable_frameheader()->set_allocatedbits(parser->getallocatedBits());
+					frameResponse.mutable_frameheader()->set_storedbits(parser->getstoredBits());
+					frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
 
-						DicomPixels* parser = fileInfo->parser;
-						if (parser)
-						{
-							frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->totalBytes);
-							frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
-							frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
-							frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
-							frameResponse.mutable_frameheader()->set_colorspace(parser->getcolorSpace());
-							frameResponse.mutable_frameheader()->set_transfersyntax(parser->gettransferSyntax());
-							frameResponse.mutable_frameheader()->set_channelsnumber(parser->getchannelsNumber());
-							frameResponse.mutable_frameheader()->set_binterleaved(parser->getbInterleaved());
-							frameResponse.mutable_frameheader()->set_b2complement(parser->getb2Complement());
-							frameResponse.mutable_frameheader()->set_allocatedbits(parser->getallocatedBits());
-							frameResponse.mutable_frameheader()->set_storedbits(parser->getstoredBits());
-							frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
-
-						}
-						messageFramers[cli->fd]->write(&frameResponse);
-						frameInfo->sentFrameHeader = true;
-
-					}
-					Protocol::FrameFragment item;
-					if (frameQueue->front()->next(item))
-					{
-						//2. write fragment header
-						messageFramers[cli->fd]->write(&item);
-
-						//3. trigger eio sendfile on fragment
-						printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
-						eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
-					}
 				}
- 			}
- 		}
+				messageFramers[cli->fd]->write(&frameResponse);
+				frameInfo->sentFrameHeader = true;
+
+			}
+
+			//2. write fragment header and trigger fragment sendfile
+			// next must return true, since we do not trigger write on completed FrameGroupIterator??
+			Protocol::FrameFragment item;
+			if (frameQueue->front()->next(item))
+			{
+
+				messageFramers[cli->fd]->write(&item);
+
+				//3. trigger eio sendfile on fragment
+				printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
+				eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
+			}
+			else
+			{
+
+			}
+		}
 	}
-
-
-
 }
 
 
@@ -371,6 +356,7 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 void DicomStream::cleanup(TClient* cli)
 {
+	printf("[server] cleanup client\n");
 	//close socket
 	close(cli->fd);
 
@@ -424,6 +410,7 @@ void DicomStream::triggerRetrieve(TClient* cli, string fileName)
 		TEio* eioData = new TEio();
 		eioData->cli = cli;
 		eioData->fileInfo = info;
+		printf("[Server] trigger open on file %s\n", fileName.c_str());
 		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
 	}
 	else
@@ -438,6 +425,7 @@ void DicomStream::triggerRetrieve(TClient* cli, string fileName)
 		{
 			struct ev_loop *loop = ev_default_loop (0);
 			ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+			printf("[Server] trigger write on file %s\n", fileName.c_str());
 			ev_io_start(loop,&cli->ev_write);
 		}
 	}
@@ -490,13 +478,15 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 
 			framesIter++;
 		}
+
+	    /*
 	    if ( !prefetchIterators->empty())
 	    {
 	    	UpDownIterator< string, SimpleIterator<string> >* iter = new UpDownIterator< string, SimpleIterator<string> >();
 	    	iter->setChildIterators(prefetchIterators, prefetchIterators->size()/2);
 	    	precacheQueue.push(iter);
 	    }
-
+*/
 	    if (frameGroupRequest->multiframe())
 	    {
 
