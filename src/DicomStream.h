@@ -103,7 +103,7 @@ private:
 	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
-    void triggerRetrieve(TClient* cli, string fileName);
+    void triggerNextEvent(TClient* cli, FrameIterator* frameIter);
 
 	//precache
 	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;

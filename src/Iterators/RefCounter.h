@@ -29,10 +29,6 @@ public:
 	{
 		release();
 	}
-	string getFileName()
-	{
-		return fileName;
-	}
 protected:
 	void release()
 	{

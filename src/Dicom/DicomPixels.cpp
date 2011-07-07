@@ -10,6 +10,12 @@
 #include "unixStream.h"
 
 
+void  DicomPixels::notify(IParseListener* listener)
+{
+	if (listener)
+		listener->parsed(frameFragments);
+}
+
 void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenManager* listenManager)
 {
 	if (frameFragments.empty())

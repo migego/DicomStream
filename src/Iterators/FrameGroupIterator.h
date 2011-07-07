@@ -44,18 +44,8 @@ public:
 	virtual ~FrameGroupIterator()
 	{
 		release();
-	}
 
-	TFrameInfo* getCurrentFrameInfo()
-	{
-		FrameIterator* current = currentIterator();
-		if (current)
-		{
-			return current->getFrameInfo();
-		}
-		return NULL;
 	}
-
 
 private:
     void finish()

@@ -215,9 +215,11 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  	{
  		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+
+ 		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
 
- 		// remove spent queue items
+ 		// remove done queue items
  		while(!frameQueue->empty() &&
  				frameQueue->front()->isInitialized() &&
  				         frameQueue->front()->isDone())
@@ -233,10 +235,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 			return 0;
  		}
 
-
- 		TFrameInfo* frameInfo = frameQueue->front()->getCurrentFrameInfo();
- 		if (frameInfo)
- 		   triggerRetrieve(cli, frameInfo->fileName);
+ 		triggerNextEvent(cli, frameQueue->front()->currentIterator());
  	}
 	return 0;
 }
@@ -256,7 +255,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
  			//frame info cannot be null, because we do not trigger a write on an
  			// uninitialized or completed FrameGroupIterator
-			TFrameInfo* frameInfo =  frameQueue->front()->getCurrentFrameInfo();
+			TFrameInfo* frameInfo =  frameQueue->front()->currentIterator()->getFrameInfo();
 
 			//1. write frame header, if necessary
 			TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
@@ -330,7 +329,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			}
 			else
 			{
-
+                printf("[server] warning: front of frame queue has no next item\n");
 			}
 		}
 	}
@@ -437,9 +436,11 @@ void DicomStream::cleanup(string fileName)
 
 }
 
-void DicomStream::triggerRetrieve(TClient* cli, string fileName)
+void DicomStream::triggerNextEvent(TClient* cli, FrameIterator* frameIter )
 {
+	string fileName = frameIter->getFrameInfo()->fileName;
 	TFileInfo* info = getFileInfo(fileName);
+	// trigger open file (which will initialize the FrameIterator
 	if (info->fd == -1)
 	{
 		TEio* eioData = new TEio();
@@ -448,21 +449,20 @@ void DicomStream::triggerRetrieve(TClient* cli, string fileName)
 		printf("[Server] trigger open on file %s\n", fileName.c_str());
 		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
 	}
+	//trigger write of next fragment
 	else
 	{
-		//check if queue is valid
-		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
-		if (frameQueue->empty())
+		//initialize FrameIterator, if file is already open
+		if (!frameIter->isInitialized())
 		{
-			cleanup(cli);
+			info->parser->notify(frameIter);
 		}
-		else
-		{
-			struct ev_loop *loop = ev_default_loop (0);
-			ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-			printf("[Server] trigger write on file %s\n", fileName.c_str());
-			ev_io_start(loop,&cli->ev_write);
-		}
+
+		struct ev_loop *loop = ev_default_loop (0);
+		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+		printf("[Server] trigger write on file %s\n", fileName.c_str());
+		ev_io_start(loop,&cli->ev_write);
+
 	}
 }
 
@@ -543,8 +543,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	frameQueue->push(frameIter);
 
 	    	//trigger retrieve
-	    	TFrameInfo* frameInfo = frameIter->getCurrentFrameInfo();
-		    triggerRetrieve(cli, frameInfo->fileName);
+		    triggerNextEvent(cli, frameIter->currentIterator());
 	    }
 
 	    }

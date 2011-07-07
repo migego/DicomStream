@@ -54,7 +54,7 @@ public:
 
 	void parsed(vector< TParsedFrame* >& frameFragments)
 	{
-       if (!frameFragments.empty())
+       if (!isInitialized() && !frameFragments.empty())
        {
     	   setChildIterators(frameFragments[0]->fragVec);
     	   frameInfo.totalBytes = frameFragments[0]->totalBytes;

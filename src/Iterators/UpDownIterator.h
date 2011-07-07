@@ -89,13 +89,6 @@ public:
     {
     	return (completedIterators == childIterators->size());
     }
-
-protected:
-	vector<Iterator*>* childIterators;
-	size_t primaryIndex;
-	size_t currentIndex;
-	size_t count;
-	size_t completedIterators;
 	Iterator* currentIterator()
 	{
 		if (!isValid())
@@ -104,6 +97,13 @@ protected:
 		return childIterators->operator[](currentIndex);
 
 	}
+protected:
+	vector<Iterator*>* childIterators;
+	size_t primaryIndex;
+	size_t currentIndex;
+	size_t count;
+	size_t completedIterators;
+
 private:
 	bool advanceCurrentIndex()
 	{
