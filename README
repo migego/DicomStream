@@ -16,27 +16,5 @@ $ git submodule init
 $ git submodule update
 
 
-Design:
-
-0) map file name ==> {file descriptor, file name, parser, ref count}
-   when ref count drops back to zero, we can close the file
-1) socket accept callback: trigger socket read
-2) socket read callback:  
-   a) read and parse request message
-   b) queue file prefetch on all files in request in prefetch thread
-   c) create FrameGroupIterator with list of files (or single file, in the case of multi-frame)
-      - iterator should be passed pointer to IFileRefCounter, and ParseListenManager
-   d) iterators register as listeners for parse results for a given file
-   
-   [
-   i) if iterator->needsFileOpen is true, trigger eio file open on returned file name
-   ii) open callback: trigger readahead (16 K)
-   iii) readahead callback: parse header, calculate pixel offsets, and notify listeners  
-   ]
-   
-   e) trigger a write on the socket
-   f) socket write callback: write fragment header, trigger eio sendfile on fragment (in 100K chunks)
-   g) eio callback: trigger write on next fragment, or exit
-      
 
 

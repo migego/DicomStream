@@ -115,7 +115,7 @@ private:
 	static void clientTest();
 
 	int setNonBlock(int fd);
-	int setCork(int fd, bool cork);
+	int setCork(int clientFd, bool cork);
 
 	static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void read_cb(struct ev_loop *loop, struct ev_io *w, int revents);

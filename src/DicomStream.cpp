@@ -153,15 +153,15 @@ int DicomStream::setNonBlock(int fd)
 }
 
 //TCP_CORK for low=latency sending of large amounts of data
-int DicomStream::setCork(int fd, bool cork)
+int DicomStream::setCork(int clientFd, bool cork)
 {
     int rc = 0;
 #ifdef LINUX
     int state = 0;
-    rc = setsockopt(imageFileDescriptor, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+    rc = setsockopt(clientFd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
 
     state ~= state;
-    setsockopt(imageFileDescriptor, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+    setsockopt(clientFd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
 #endif
     return rc;
 }
@@ -220,8 +220,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		frameQueue->front()->completeNext();
 
  		// remove done queue items
- 		while(!frameQueue->empty() &&
- 				frameQueue->front()->isInitialized() &&
+ 		if ( frameQueue->front()->isInitialized() &&
  				         frameQueue->front()->isDone())
  		{
  			FrameGroupIterator* it = frameQueue->front();
@@ -730,9 +729,9 @@ int DicomStream::release(string fileName)
 	if (info->refCount == 0)
 	{
 		cleanup(info->fileName);
+		return 0;
 	}
 	return info->refCount;
-
 }
 
 int DicomStream::refCount(string fileName)
