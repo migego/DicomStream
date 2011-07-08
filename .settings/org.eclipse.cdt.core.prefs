@@ -1,8 +1,5 @@
-#Thu Jun 02 17:53:33 EDT 2011
+#Fri Jul 08 09:15:04 EDT 2011
 eclipse.preferences.version=1
-environment/project/cdt.managedbuild.config.gnu.macosx.exe.debug.379603297/DYLD_LIBRARY_PATH/delimiter=\:
-environment/project/cdt.managedbuild.config.gnu.macosx.exe.debug.379603297/DYLD_LIBRARY_PATH/operation=append
-environment/project/cdt.managedbuild.config.gnu.macosx.exe.debug.379603297/DYLD_LIBRARY_PATH/value=/Users/aboxer/src/boost_1_46_1/stage/lib
 environment/project/cdt.managedbuild.config.gnu.macosx.exe.debug.379603297/append=true
 environment/project/cdt.managedbuild.config.gnu.macosx.exe.debug.379603297/appendContributed=true
 environment/project/cdt.managedbuild.config.macosx.exe.release.1386578709/DYLD_LIBRARY_PATH/delimiter=\:

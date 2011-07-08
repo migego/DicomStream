@@ -50,18 +50,18 @@ main-build: DicomStream
 # Tool invocations
 DicomStream: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L/Users/aboxer/src/boost_1_46_1/stage/lib -o "DicomStream" $(OBJS) $(USER_OBJS) $(LIBS)
+	@echo 'Invoking: GCC C++ Linker'
+	g++  -o "DicomStream" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) DicomStream
+	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) DicomStream
 	-@echo ' '
 
 pre-build:
-	-/usr/local/bin/protoc  --cpp_out=../src/Protocol   --proto_path=/Users/aboxer/src/DicomStream/src/Protocol/  /Users/aboxer/src/DicomStream/src/Protocol/stream.proto
+	-/usr/local/bin/protoc  --cpp_out=../src/Protocol   --proto_path=/home/aaron/src/DicomStream/src/Protocol/  /home/aaron/src/DicomStream/src/Protocol/stream.proto
 	-@echo ' '
 
 .PHONY: all clean dependents

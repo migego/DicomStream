@@ -15,7 +15,8 @@
 
 #include <errno.h>
 #include <err.h>
-#include <stddef.h>
+#include <stdio.h>
+#include <arpa/inet.h>
 
 class MessageFramer {
 public:

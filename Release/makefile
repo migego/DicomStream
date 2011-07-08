@@ -10,10 +10,8 @@ RM := rm -rf
 -include sources.mk
 -include subdir.mk
 -include src/subdir.mk
--include src/Parse/subdir.mk
+-include src/Protocol/subdir.mk
 -include src/Dicom/subdir.mk
--include imebra/imebra/src/subdir.mk
--include imebra/base/src/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -42,19 +40,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: DicomStream
+all: DIcomStream
 
 # Tool invocations
-DicomStream: $(OBJS) $(USER_OBJS)
+DIcomStream: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L/Users/aboxer/src/boost_1_46_1/stage/lib -o "DicomStream" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/Users/aboxer/src/boost_1_46_1/stage/lib -o "DIcomStream" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) DicomStream
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) DIcomStream
 	-@echo ' '
 
 .PHONY: all clean dependents

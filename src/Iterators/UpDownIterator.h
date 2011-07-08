@@ -10,6 +10,7 @@
 
 using namespace std;
 #include <vector>
+#include <stdio.h>
 
 template <typename Data, typename Iterator> class UpDownIterator {
 
@@ -117,7 +118,7 @@ private:
 
 			int incr = count >> 1;
 			//if count is odd..
-			if ( count&1 == 1)
+			if ( (count&1) == 1)
 				incr *= -1;
 
 			int nextIndex = primaryIndex + incr;

@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lev -lboost_thread -liconv -lprotobuf -leio
+LIBS := -lev -lboost_thread -lprotobuf -leio
 

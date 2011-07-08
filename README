@@ -7,13 +7,26 @@ Dependencies:
 0) Boost threads
 1) libev
 2) libeio
-3) iconv (this is needed by the Imbera  Dicom library, but will eventually be
-  removed once a stripped-down version of Imebra is integrated)
-4) Imebra Dicom toolkit: I have forked a version of this excellent toolkit
-and put it on Github. It is included as a submodule of DicomStream. So, after
-cloning this project, you must call:
+3) Imebra Dicom toolkit: I have forked a version of this excellent toolkit
+and put it on Github. It is included as a submodule of DicomStream. 
+
+
+After cloning this project, do the following:
+
+A) set up git submodules
+
 $ git submodule init
 $ git submodule update
+
+
+B) Install boost
+
+C) Install libev
+
+D) Install libevio
+
+E) 
+
 
 
 
