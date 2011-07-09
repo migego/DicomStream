@@ -47,7 +47,7 @@ void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
 
 DicomStream* DicomStream::instance=NULL;
 
-DicomStream::DicomStream() : stopPrecache(false)
+DicomStream::DicomStream()
 {
 }
 
@@ -71,7 +71,7 @@ void DicomStream::start()
 	// read config file
 	boost::property_tree::ptree pTree;
 	try {
-		read_info("src/DicomStream.cfg", pTree);
+		boost::property_tree::read_info("src/DicomStream.cfg", pTree);
 	}
 	catch (boost::property_tree::info_parser_error &e) {
 		std::cout << "error" << std::endl;
@@ -84,13 +84,8 @@ void DicomStream::start()
 		std::cout << "error" << std::endl;
 	}
 
-    //start prefetch thread
-    boost::thread workerThread(preFetch);
-
     // initialize EIO
     if (eio_init (want_poll, done_poll)) abort ();
-
-
 
     //start client test thread
 #ifdef CLIENT_TEST
@@ -492,12 +487,11 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 								  + "/" + frameGroupRequest->studyuid()
 								  + "/" + frameGroupRequest->seriesuid()
 								  + "/" + frameGroupRequest->instanceuidprefix();
-	    vector< SimpleIterator<string>*  >* prefetchIterators = new vector< SimpleIterator<string>*  >();
+
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator framesIter = frameGroupRequest->frames().begin();
         if (frameGroupRequest->frames().size() == 0)
         	return;
 
-	    //prefetch
 	    vector<TFrameInfo> frameInfo;
 	    while (framesIter != frameGroupRequest->frames().end())
 		{
@@ -507,20 +501,9 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			info.frameRequest = *framesIter;
 			frameInfo.push_back(info);
 
-			printf("[server] FrameGroupRequest for file: %s\n",fileName.c_str());
-			prefetchIterators->push_back(new SimpleIterator<string>(fileName));
-
 			framesIter++;
 		}
 
-	    /*
-	    if ( !prefetchIterators->empty())
-	    {
-	    	UpDownIterator< string, SimpleIterator<string> >* iter = new UpDownIterator< string, SimpleIterator<string> >();
-	    	iter->setChildIterators(prefetchIterators, prefetchIterators->size()/2);
-	    	precacheQueue.push(iter);
-	    }
-*/
 	    if (frameGroupRequest->multiframe())
 	    {
 
@@ -554,24 +537,6 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	delete msg.message;
 
 }
-
-void DicomStream::preFetch_()
-{
-
-	printf("[server] starting prefetch thread\n");
-	string file;
-	while(!stopPrecache)
-	{
-		if (precacheQueue.wait_and_pop(file))
-		    printf("[server] prefetching file %s\n",file.c_str());
-		//posix_fadvise();
-
-	}
-
-	printf("[server] exiting prefetch thread\n");
-
-}
-
 
 
 void DicomStream::clientTest_()
@@ -644,11 +609,10 @@ void DicomStream::clientTest_()
 		Protocol::FrameResponse* frameResponse;
 		Protocol::FrameFragment* frameFragment;
 
-		bool finished = false;
-
 		int totalBytes = -1;
 		int totalCount = 0;
-		while (!finished)
+		int frameCount = 0;
+		while(frameCount < 3)
 		{
 
 			//read message
@@ -694,9 +658,10 @@ void DicomStream::clientTest_()
 				{
 					delete frameResponse;
 					delete frameFragment;
-					finished = true;
+					frameCount++;
 				}
 				}
+
 				break;
 			case MessageFramer::None:
 			case MessageFramer::FrameGroupRequest:
@@ -800,11 +765,6 @@ void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 	Instance()->accept_cb_(loop, w, revents);
 }
 
-void DicomStream::preFetch()
-{
-   Instance()->preFetch_();
-
-}
 void DicomStream::clientTest()
 {
 

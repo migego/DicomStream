@@ -17,7 +17,6 @@ using namespace std;
 #include <ev.h>
 #include "eio.h"
 
-#include "Iterators/concurrent_queue.h"
 #include "Iterators/UpDownIterator.h"
 #include "Iterators/SimpleIterator.h"
 #include "Iterators/FragmentIterator.h"
@@ -105,12 +104,7 @@ private:
 	ParseListenManager listenManager;
     void triggerNextEvent(TClient* cli, FrameIterator* frameIter);
 
-	//precache
-	concurrent_queue< string, UpDownIterator< string, SimpleIterator<string> > > precacheQueue;
-	bool stopPrecache;
 	string path;
-	static void preFetch();
-	void preFetch_();
 	void clientTest_();
 	static void clientTest();
 
