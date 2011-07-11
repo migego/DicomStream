@@ -74,12 +74,14 @@ private:
 
     void finish()
 	{
+    	/*
     	if (!doneReleased())
     	{
 			if (parseListenManager)
 				parseListenManager->removeListener(frameInfo.fileName, this);
 			release();
     	}
+    	*/
 	}
 };
 

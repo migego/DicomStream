@@ -18,10 +18,10 @@ private:
 public:
 	virtual ~SequentialIterator()
 	{
-       childIterators = NULL;
+		childIterators = NULL;
 	}
 
-	SequentialIterator(void) : position(0)
+	SequentialIterator(void)
 	{
 		setChildIterators(NULL);
 	}
@@ -29,6 +29,7 @@ public:
 	void setChildIterators(vector<Iterator*>* childIters)
 	{
 		childIterators = childIters;
+		position = 0;
 	}
 
 	bool next(Data& item)
@@ -38,27 +39,27 @@ public:
         while (!childIterators->operator[](position)->next(item))
         {
         	position++;
-            if (isDone())
-            {
-            	finish();
-            	return false;
-            }
+			if (isDone())
+			{
+				printf("[Server] SequentialIterator: done \n");
+				finish();
+				return false;
+			}
         }
-
         return true;
 	}
-	bool hasNext()
+
+	void completeNext()
 	{
-		if (!isValid())
-			return false;
-		size_t pos = position;
-		while (!childIterators->operator[](pos)->hasNext() )
-		{
-			pos++;
-			if (pos == childIterators->size())
-				return false;
-		}
-		return true;
+		 if (!isValid() )
+			   return;
+		 if  (isInitialized() && !hasNext())
+		 {
+			 position = childIterators->size();
+             finish();
+			 printf("[Server] SequentialIterator: no next fragment: completed; done = %d, initialized = %d\n", isDone(), isInitialized());
+
+		 }
 	}
 
     bool isInitialized()
@@ -66,9 +67,10 @@ public:
     	return (childIterators != NULL);
     }
     bool isDone()
-     {
-     	return (position == childIterators->size());
-     }
+	 {
+		return (position == childIterators->size());
+	 }
+
 
 private:
 	virtual void finish()
@@ -81,6 +83,23 @@ private:
 		return ( isInitialized() && !isDone() && !childIterators->empty());
 	}
 
+	bool hasNext()
+	{
+		//uninitialized iterater
+		if (!isInitialized())
+			return true;
+
+		if (!isValid())
+			return false;
+		size_t pos = position;
+		while (!childIterators->operator[](pos)->hasNext() )
+		{
+			pos++;
+			if (pos == childIterators->size())
+				return false;
+		}
+		return true;
+	}
 };
 
 #endif /* SEQUENTIALITERATOR_H_ */

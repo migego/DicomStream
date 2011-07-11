@@ -23,9 +23,12 @@ B) Install boost
 
 C) Install libev
 
-D) Install libevio
+D) Install libeio
 
-E) 
+Prefetch:
+1) create up-down iterator for list of image files
+2) once 
+
 
 
 

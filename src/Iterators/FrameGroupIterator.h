@@ -27,30 +27,18 @@ class FrameGroupIterator : public tFrameGroupIterator, RefCounter{
 public:
 
 	// series of images
-	FrameGroupIterator(IFileRefCounter* refCounter, ParseListenManager* listenManager, vector<TFrameInfo> fNames)
+	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd) : tFrameGroupIterator(childIters, primaryInd)
 	{
-		if (fNames.empty() || !refCounter || !listenManager)
-			return;
-
-		vector<TFrameInfo>::iterator iter;
-		vector<FrameIterator*>* itms = new vector<FrameIterator*>();
-		for (iter = fNames.begin(); iter != fNames.end(); ++iter)
-		{
-			itms->push_back(new FrameIterator(refCounter, listenManager, *iter));
-		}
-		setChildIterators(itms,0);
 
 	}
 	virtual ~FrameGroupIterator()
 	{
-		release();
-
 	}
 
 private:
     void finish()
 	{
-         release();
+       //  release();
 	}
 };
 

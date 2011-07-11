@@ -14,7 +14,14 @@
 class ParseListenManager {
 public:
 	ParseListenManager(){}
-	virtual ~ParseListenManager(){}
+	virtual ~ParseListenManager(){
+
+		map<string, set<IParseListener*>* >::iterator iter = parseListeners.begin();
+		while (iter != parseListeners.end())
+		{
+			delete iter->second;
+		}
+	}
 
 	bool addListener(string fileName, IParseListener* listener)
 	{

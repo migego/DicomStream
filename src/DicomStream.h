@@ -105,8 +105,13 @@ private:
     void triggerNextEvent(TClient* cli, FrameIterator* frameIter);
 
 	string path;
+
+	int clientFd;
 	void clientTest_();
 	static void clientTest();
+	void clientTestRead_();
+	static void clientTestRead();
+
 
 	int setNonBlock(int fd);
 	int setCork(int clientFd, bool cork);

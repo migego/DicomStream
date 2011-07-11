@@ -134,20 +134,20 @@ private:
 
 			hasType = true;
 		}
-		if (sizeOffset != 4)
+		if (sizeOffset < 4)
 		{
 			n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
 			validateRead(n);
 			if (n == 0)
 				return false;
 			sizeOffset += n;
-			while (sizeOffset != 4 && n > 0)
+			while (sizeOffset < 4 && n > 0)
 			{
 				n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
 				validateRead(n);
 				sizeOffset += n;
 			}
-			if (sizeOffset != 4)
+			if (sizeOffset < 4)
 				return false;
 			size = ntohl( *((int*)rawSize));
 		}

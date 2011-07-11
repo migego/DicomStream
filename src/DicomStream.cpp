@@ -87,11 +87,6 @@ void DicomStream::start()
     // initialize EIO
     if (eio_init (want_poll, done_poll)) abort ();
 
-    //start client test thread
-#ifdef CLIENT_TEST
-    boost::thread clientTestThread(clientTest);
-#endif
-
 	//create listen socket
     sockaddr_in listen_addr;
     int reuseaddr_on = 1;
@@ -119,6 +114,12 @@ void DicomStream::start()
     //listen for eio events
     ev_async_init (&my_eio_sig, my_eio_sig_cb);
     ev_async_start(loop, &my_eio_sig);
+
+    //start client test thread
+#ifdef CLIENT_TEST
+    boost::thread clientTestThread(clientTest);
+#endif
+
 
 	ev_loop (loop, 0);
 }
@@ -214,14 +215,15 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
 
- 		// remove done queue items
- 		if ( frameQueue->front()->isInitialized() &&
- 				         frameQueue->front()->isDone())
+ 		// remove done iterator
+ 		if (frameQueue->front()->isDone())
  		{
- 			FrameGroupIterator* it = frameQueue->front();
- 			delete it;
+ 			printf("[server] popped queue\n");
+ 			delete frameQueue->front();
  			frameQueue->pop();
  		}
+
+
  		if (frameQueue->empty())
  		{
  			printf("[server] queue is empty\n");
@@ -277,6 +279,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				}
 				try
 				{
+					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->totalBytes);
 				    messageFramers[cli->fd]->write(&frameResponse);
 				}
 				catch (EAgainException& ee)
@@ -288,6 +291,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				}
 				catch (WriteException& we)
 				{
+					perror("[server] write exception\n");
 					cleanup(cli);
 					return;
 				}
@@ -521,7 +525,13 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	{
 	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
-	    	FrameGroupIterator* frameIter = new FrameGroupIterator(this, &listenManager, frameInfo);
+	    	vector<TFrameInfo>::iterator iter;
+			vector<FrameIterator*>* itms = new vector<FrameIterator*>();
+			for (iter = frameInfo.begin(); iter != frameInfo.end(); ++iter)
+			{
+				itms->push_back(new FrameIterator(this, &listenManager, *iter));
+			}
+	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
 	    	frameQueue->push(frameIter);
 
 	    	//trigger retrieve
@@ -539,10 +549,81 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 }
 
 
+void DicomStream::clientTestRead_()
+{
+	MessageFramer* framer = new MessageFramer(clientFd);
+
+	Protocol::FrameResponse* frameResponse;
+	Protocol::FrameFragment* frameFragment;
+
+	int totalBytes = -1;
+	int totalCount = 0;
+	while(true)
+	{
+
+		//read message
+		MessageFramer::MessageWrapper wrapper;
+		try
+		{
+			framer->read(wrapper);
+		}
+		catch (ReadException &r)
+		{
+			perror("[client] ERROR reading header from socket\n");
+			exit(0);
+		}
+		switch(wrapper.type)
+		{
+		case MessageFramer::FrameResponse:
+			frameResponse = (Protocol::FrameResponse*)wrapper.message;
+			totalBytes = frameResponse->frameheader().totalbytes();
+			printf("[client] received frame header: total bytes: %d\n",totalBytes);
+			break;
+		case MessageFramer::FrameFragment:
+			{
+			frameFragment = (Protocol::FrameFragment*)wrapper.message;
+			unsigned int size = frameFragment->size();
+			unsigned int offset = frameFragment->offset();
+			printf("[client] fragment header: offset %d, size %d\n",offset, size);
+			unsigned int count = 0;
+			char buffer[256];
+			//read pixels
+			while (count < size)
+			{
+				int n = ::read(clientFd, buffer, 256);
+				if (n < 0)
+				{
+					perror("[client] ERROR reading pixels from socket\n");
+					exit(0);
+					break;
+				}
+				count += n;
+			}
+			totalCount += count;
+			printf("[client] read pixels: offset %d, size %d, totalCount %d, totalBytes %d\n",offset, count, totalCount, totalBytes);
+			if (totalCount == totalBytes)
+			{
+				delete frameResponse;
+				frameResponse=NULL;
+				delete frameFragment;
+				frameFragment = NULL;
+				totalCount=0;
+				totalBytes=0;
+			}
+			}
+
+			break;
+		case MessageFramer::None:
+		case MessageFramer::FrameGroupRequest:
+			break;
+		}
+
+	}
+
+}
+
 void DicomStream::clientTest_()
 {
-
-
 	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
 	req->set_studyuid("study1");
 	req->set_studyuidnumber(0);
@@ -574,13 +655,13 @@ void DicomStream::clientTest_()
 
 	struct sockaddr_in serv_addr;
 
-	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
+	clientFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (clientFd < 0)
 		perror("ERROR opening socket");
 
 	/* Disable the Nagle (TCP No Delay) algorithm */
 	int flag = 1;
-	int ret = setsockopt( sockfd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
+	int ret = setsockopt( clientFd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
 	if (ret == -1) {
 	  printf("Couldn't setsockopt(TCP_NODELAY)\n");
 	  exit( EXIT_FAILURE );
@@ -598,80 +679,21 @@ void DicomStream::clientTest_()
 		 (char *)&serv_addr.sin_addr.s_addr,
 		 server->h_length);
 	serv_addr.sin_port = htons(port);
-	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+	if (connect(clientFd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
 		perror("ERROR connecting");
 
-	MessageFramer* framer = new MessageFramer(sockfd);
-	for (int i = 0; i < 50; ++i)
+	//launch socket read thread
+	    boost::thread clientTestThread(clientTestRead);
+
+    // send requests
+	MessageFramer* framer = new MessageFramer(clientFd);
+	for (int i = 0; i < 2; ++i)
 	{
 		framer->write(req);
-
-		Protocol::FrameResponse* frameResponse;
-		Protocol::FrameFragment* frameFragment;
-
-		int totalBytes = -1;
-		int totalCount = 0;
-		int frameCount = 0;
-		while(frameCount < 3)
-		{
-
-			//read message
-			MessageFramer::MessageWrapper wrapper;
-			try
-			{
-				framer->read(wrapper);
-			}
-			catch (ReadException &r)
-			{
-				perror("ERROR reading from socket");
-				exit(0);
-			}
-			switch(wrapper.type)
-			{
-			case MessageFramer::FrameResponse:
-				frameResponse = (Protocol::FrameResponse*)wrapper.message;
-				totalBytes = frameResponse->frameheader().totalbytes();
-				printf("[client] received frame header: total bytes: %d\n",totalBytes);
-				break;
-			case MessageFramer::FrameFragment:
-				{
-				frameFragment = (Protocol::FrameFragment*)wrapper.message;
-				unsigned int size = frameFragment->size();
-				unsigned int offset = frameFragment->offset();
-				printf("[client] fragment header: offset %d, size %d\n",offset, size);
-				unsigned int count = 0;
-				char buffer[256];
-				//read pixels
-				while (count < size)
-				{
-					int n = ::read(sockfd, buffer, 256);
-					if (n < 0)
-					{
-						exit(0);
-						break;
-					}
-					count += n;
-				}
-				totalCount += count;
-				printf("[client] read pixels: offset %d, size %d, totalCount %d, totalBytes %d\n",offset, count, totalCount, totalBytes);
-				if (totalCount == totalBytes)
-				{
-					delete frameResponse;
-					delete frameFragment;
-					frameCount++;
-				}
-				}
-
-				break;
-			case MessageFramer::None:
-			case MessageFramer::FrameGroupRequest:
-				break;
-			}
-
-	    }
 	}
 
-	::close(sockfd);
+
+
 	delete framer;
 
 }
@@ -770,7 +792,11 @@ void DicomStream::clientTest()
 
    Instance()->clientTest_();
 }
+void DicomStream::clientTestRead()
+{
 
+   Instance()->clientTestRead_();
+}
 
 /////////////////////////////////////////////
 

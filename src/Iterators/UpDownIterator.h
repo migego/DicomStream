@@ -15,6 +15,11 @@ using namespace std;
 template <typename Data, typename Iterator> class UpDownIterator {
 
 public:
+	UpDownIterator(vector<Iterator*>* childIters, size_t primaryInd) : childIterators(childIters), primaryIndex(primaryInd), currentIndex(primaryInd), count(0), completedIterators(0)
+	{
+
+	}
+
 	virtual ~UpDownIterator()
 	{
       if (childIterators != NULL)
@@ -26,15 +31,10 @@ public:
     		  iter++;
     	  }
     	  delete childIterators;
+    	  childIterators = NULL;
       }
 	}
 
-	void setChildIterators(vector<Iterator*>* childIters, size_t primaryInd)
-	{
-		childIterators = childIters;
-		primaryIndex = primaryInd;
-		currentIndex = primaryInd;
-	}
 
 	// get next fragment; return false if parent iterator is not valid,
 	// or we hit an uninitialized child iterator
@@ -44,48 +44,29 @@ public:
 		 if (!isValid() )
 			   return false;
 
-		//delete iterators that are initialized and done
-		while (!isDone() )
-		{
-			Iterator* iter  = childIterators->operator[](currentIndex);
-			bool rc =  iter->next(item);
-			if (rc)
-				return true;
-			else if (iter->isInitialized())
-			{
-				delete iter;
-				childIterators->operator[](currentIndex) = NULL;
-				completedIterators++;
-				advanceCurrentIndex();
-			}
-			else
-				//return false for uninitialized child iterator
-				return false;
-		}
-		return false;
-
-
+        return currentIterator()->next(item);
 	}
 
-	// remove current iterator that has no next fragment
+	// remove initialized current iterator that has no next fragment
 	void completeNext()
 	{
-
 		 if (!isValid() )
 			   return;
-
-		 if (!currentIterator()->hasNext())
+		 Iterator* iter = currentIterator();
+		 iter->completeNext();
+		 if (iter->isInitialized() && iter->isDone())
 		 {
-			 Data dummy;
-			 next(dummy);
-			 printf("[Server] remove iterator with no next fragment\n");
-
+			printf("[Server] UpDownIterator: completed next\n");
+			delete iter;
+			childIterators->operator[](currentIndex) = NULL;
+			completedIterators++;
+			advanceCurrentIndex();
 		 }
+
 	}
-    bool isInitialized()
-    {
-    	return (childIterators != NULL);
-    }
+
+
+
     bool isDone()
     {
     	return (completedIterators == childIterators->size());
@@ -135,7 +116,7 @@ private:
 
     bool isValid()
     {
-		 return (isInitialized() && !childIterators->empty() && !isDone() &&
+		 return (!childIterators->empty() && !isDone() &&
 				          currentIndex >= 0 &&  currentIndex < childIterators->size() );
     }
 
