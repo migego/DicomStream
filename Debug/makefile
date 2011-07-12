@@ -61,7 +61,7 @@ clean:
 	-@echo ' '
 
 pre-build:
-	-/usr/local/bin/protoc  --cpp_out=../src/Protocol   --proto_path=/home/aaron/src/DicomStream/src/Protocol/  /home/aaron/src/DicomStream/src/Protocol/stream.proto
+	-../src/Protocol/stream.sh
 	-@echo ' '
 
 .PHONY: all clean dependents

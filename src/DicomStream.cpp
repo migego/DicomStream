@@ -569,7 +569,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
 
-	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 2);
+	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
 	    	frameQueue->push(frameIter);
 
 	    	//trigger retrieve
