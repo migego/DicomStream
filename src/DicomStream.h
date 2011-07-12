@@ -78,6 +78,8 @@ private:
 	{
 		TClient* cli;
 		TFileInfo* fileInfo;
+		unsigned int offset;
+		unsigned int size;
 	};
 
 	ev_io ev_accept;
@@ -116,6 +118,7 @@ private:
 	int setNonBlock(int fd);
 	int setCork(int clientFd, bool cork);
 
+	Protocol::FrameFragment currentFragment;
 	static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void read_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void accept_cb(struct ev_loop *loop, struct ev_io *w, int revents);

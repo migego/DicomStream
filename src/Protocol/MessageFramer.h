@@ -20,9 +20,10 @@
 
 class MessageFramer {
 public:
-	MessageFramer(int fd) : fd(fd), hasType(false), sizeOffset(0),data(NULL),offset(0)
+	MessageFramer(int fd) : fd(fd), readBuffer(NULL), writeBuffer(NULL)
 	{
-
+       initRead();
+       initWrite();
 	}
 	virtual ~MessageFramer()
 	{
@@ -50,27 +51,49 @@ public:
 
 	};
 
-	void write(Protocol::FrameGroupRequest* frameGroupRequest)
+	bool write(Protocol::FrameGroupRequest* frameGroupRequest)
 	{
-		write(FrameGroupRequest, frameGroupRequest);
+		return write(FrameGroupRequest, frameGroupRequest);
 	}
-	void write(Protocol::FrameResponse* frameResponse)
+	bool write(Protocol::FrameResponse* frameResponse)
 	{
-		write(FrameResponse, frameResponse);
+		return write(FrameResponse, frameResponse);
 	}
-	void write(Protocol::FrameFragment* frameFragment)
+	bool write(Protocol::FrameFragment* frameFragment)
 	{
-		write(FrameFragment, frameFragment);
+		return write(FrameFragment, frameFragment);
 	}
+    bool IsReadInProgress()
+    {
+    	return readInProgress;
+    }
 
+    bool IsWriteInProgress()
+    {
+    	return writeInProgress;
+    }
 	void initRead()
 	{
-		hasType = false;
-		sizeOffset = 0;
-		if (data)
-			delete[] data;
-		data = NULL;
-		offset = 0;
+		readInProgress = false;
+		readHasType = false;
+		readSizeOffset = 0;
+		if (readBuffer)
+			delete[] readBuffer;
+		readBuffer = NULL;
+		readOffset = 0;
+		readSize=0;
+	}
+
+	void initWrite()
+	{
+		writeInProgress = false;
+		writeSentType = false;
+		writeSizeOffset = 0;
+		if (writeBuffer)
+			delete[] writeBuffer;
+		writeBuffer = NULL;
+		writeOffset = 0;
+		writeSize=0;
 	}
 
 	void validateRead(int n)
@@ -102,121 +125,151 @@ public:
 		}
 	}
 
-    void read(MessageWrapper& wrapper)
-    {
-    	while(!read_(wrapper))
-    	{
-    	}
-    }
+
+	bool read(MessageWrapper& wrapper)
+	{
+		readInProgress = true;
+		if (!readHasType)
+		{
+			int n = ::read(fd, &readType, 1);
+			validateRead(n);
+			if (n == 0)
+				return false;
+
+			readHasType = true;
+		}
+
+		while (readSizeOffset < 4)
+		{
+			int n = ::read(fd, ((unsigned char*)readRawSize)+readSizeOffset, 4-readSizeOffset);
+			validateRead(n);
+			if (n == 0)
+				return false;
+			readSizeOffset += n;
+		}
+		readSize = *((unsigned int*)readRawSize);
+		readSize = ntohl(readSize);
+
+		try
+		{
+			if (!readBuffer)
+				readBuffer = new unsigned char[readSize];
+		}
+		catch (std::bad_alloc& ba)
+		{
+			printf("MessageFramer:read caught bad alloc\n");
+			return false;
+		}
+
+		while ( readOffset < readSize)
+		{
+			int n = ::read(fd, readBuffer+readOffset, readSize-readOffset);
+			validateRead(n);
+			if (n == 0)
+				return false;
+			readOffset += n;
+		}
+
+
+		::google::protobuf::Message* msg = NULL;
+		switch(readType)
+		{
+		case FrameGroupRequest:
+			msg = new Protocol::FrameGroupRequest();
+			break;
+		case FrameResponse:
+			  msg = new Protocol::FrameResponse();
+			break;
+		case FrameFragment:
+			  msg = new Protocol::FrameFragment();
+			break;
+		default:
+			printf("MessageFramer: unidentified message\n");
+			break;
+		}
+		if (msg != NULL)
+		{
+			msg->ParseFromArray(readBuffer, readSize);
+			wrapper.message = msg;
+			wrapper.type = (MessageType)readType;
+
+		}
+		//prepare for next message
+		initRead();
+
+		return (msg != NULL);
+
+	}
 
 private:
 
 	int fd;
 
-	bool hasType;
-	char type;
-	char rawSize[4];
-	int size;
-	int sizeOffset;
-	char* data;
-	int offset;
+	bool readInProgress;
+	bool readHasType;
+	unsigned char readType;
+	unsigned int readSizeOffset;
+	unsigned char readRawSize[4];
+	unsigned int readSize;
+	unsigned int readOffset;
+	unsigned char* readBuffer;
 
-	bool read_(MessageWrapper& wrapper)
+
+	bool writeInProgress;
+	bool writeSentType;
+	unsigned char writeType;
+	unsigned int writeSizeOffset;
+	unsigned char writeRawSize[4];
+	unsigned int writeSize;
+	unsigned int writeOffset;
+	unsigned char* writeBuffer;
+
+
+
+
+
+	// todo: make this method handle case where 0 bytes get written
+	bool write(char type, ::google::protobuf::Message* msg)
 	{
-		int n = 0;
-
-		if (!hasType)
+		writeInProgress = true;
+		if (!writeSentType)
 		{
-			n = ::read(fd, &type, 1);
-			validateRead(n);
+			int n = ::write(fd, &type,1);
+			validateWrite(n);
 			if (n == 0)
 				return false;
-
-			hasType = true;
+			writeSentType = true;
 		}
-		if (sizeOffset < 4)
-		{
-			n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
-			validateRead(n);
+
+
+        while (writeSizeOffset < sizeof(int))
+        {
+			writeSize = msg->ByteSize();
+			unsigned int sizeBE = htonl(writeSize);
+			int n = ::write(fd, ((unsigned char*)&sizeBE) + writeSizeOffset, sizeof(int)-writeSizeOffset);
+			validateWrite(n);
 			if (n == 0)
 				return false;
-			sizeOffset += n;
-			while (sizeOffset < 4 && n > 0)
-			{
-				n = ::read(fd, rawSize+sizeOffset, 4-sizeOffset);
-				validateRead(n);
-				sizeOffset += n;
-			}
-			if (sizeOffset < 4)
-				return false;
-			size = ntohl( *((int*)rawSize));
-		}
-		if (!data)
-		    data = new char[size];
+			writeSizeOffset +=n;
+        }
 
-		if (offset != size)
+        if (!writeBuffer)
+        {
+			writeBuffer = new unsigned char[writeSize];
+
+        }
+		msg->SerializeToArray(writeBuffer, writeSize);
+		while (writeOffset < writeSize)
 		{
-			n = ::read(fd, data+offset, size-offset);
-			validateRead(n);
+			int n = ::write(fd, writeBuffer+writeOffset, writeSize-writeOffset );
+			validateWrite(n);
 			if (n == 0)
 				return false;
-
-			offset += n;
-			while ( offset != size && n > 0)
-			{
-				n = ::read(fd, data+offset, size-offset);
-				validateRead(n);
-				offset += n;
-			}
+			writeOffset += n;
 		}
 
-
-		if (offset == size)
-		{
-			::google::protobuf::Message* msg = NULL;
-			switch(type)
-			{
-			case FrameGroupRequest:
-				msg = new Protocol::FrameGroupRequest();
-				break;
-			case FrameResponse:
-				  msg = new Protocol::FrameResponse();
-				break;
-			case FrameFragment:
-				  msg = new Protocol::FrameFragment();
-				break;
-			default:
-				break;
-			}
-			if (msg != NULL)
-			{
-				msg->ParseFromArray(data, size);
-				wrapper.message = msg;
-				wrapper.type = (MessageType)type;
-
-				//prepare for next message
-				initRead();
-
-				return true;
-			}
-
-		}
-		return false;
-	}
-
-	void write(char type, ::google::protobuf::Message* msg)
-	{
-		int n = ::write(fd, &type,1);
-		validateWrite(n);
-		int size = msg->ByteSize();
-		int sizeBE = htonl(size);
-		n = ::write(fd, &sizeBE, sizeof(size));
-		validateWrite(n);
-		char* data = new char[size];
-		msg->SerializeToArray(data, size);
-		n = ::write(fd, data, size );
-		delete[] data;
-		validateWrite(n);
+		initWrite();
+		return true;
 
 	}
 

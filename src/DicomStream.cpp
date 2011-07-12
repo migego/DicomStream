@@ -47,7 +47,7 @@ void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
 
 DicomStream* DicomStream::instance=NULL;
 
-DicomStream::DicomStream()
+DicomStream::DicomStream() : path("")
 {
 }
 
@@ -205,8 +205,20 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	if (req->result < 0)
 	  abort ();
 
-	printf("[server] sent pixels\n");
-	TClient* cli = (TClient*)req->data;
+	printf("[server] sent pixels %d\n", req->result);
+	TEio* data = (TEio*)req->data;
+	TClient* cli = data->cli;
+	if (req->result < data->size)
+	{
+		data->offset += req->result;
+		data->size -= req->result;
+		printf("[server] sending pixels: offset %d, size %d\n", data->offset, data->size);
+		eio_sendfile (cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+		return 0;
+	}
+	//clean up memory
+	delete data;
+
 	//trigger write on next fragment
 	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
  	{
@@ -227,7 +239,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		if (frameQueue->empty())
  		{
  			printf("[server] queue is empty\n");
- 			cleanup(cli);
+ 			//cleanup(cli);
 			return 0;
  		}
 
@@ -277,17 +289,16 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 					frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
 
 				}
+				bool needsAnotherWrite = false;
 				try
 				{
 					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->totalBytes);
-				    messageFramers[cli->fd]->write(&frameResponse);
+				    needsAnotherWrite = !messageFramers[cli->fd]->write(&frameResponse);
 				}
 				catch (EAgainException& ee)
 				{
-					//trigger another write
-					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-					ev_io_start(loop,&cli->ev_write);
-					return;
+					needsAnotherWrite = true;
+
 				}
 				catch (WriteException& we)
 				{
@@ -295,35 +306,57 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 					cleanup(cli);
 					return;
 				}
+				//trigger another write
+				if (needsAnotherWrite)
+				{
+					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+					ev_io_start(loop,&cli->ev_write);
+					return;
+				}
+
 				frameInfo->sentFrameHeader = true;
 
 			}
 
 			//2. write fragment header and trigger fragment sendfile
 			// next must return true, since we do not trigger write on completed FrameGroupIterator??
-			Protocol::FrameFragment item;
-			if (frameQueue->front()->next(item))
+
+			if (messageFramers[cli->fd]->IsWriteInProgress() || frameQueue->front()->next(currentFragment))
 			{
+				bool needsAnotherWrite = false;
                 try
                 {
-				   messageFramers[cli->fd]->write(&item);
+				   needsAnotherWrite = !messageFramers[cli->fd]->write(&currentFragment);
                 }
                 catch (EAgainException& ee)
+				{
+                	needsAnotherWrite = true;
+
+				}
+				catch (WriteException& we)
+				{
+					perror("[server] write exception\n");
+					cleanup(cli);
+					return;
+				}
+
+				if (needsAnotherWrite)
 				{
 					//trigger another write
 					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
 					ev_io_start(loop,&cli->ev_write);
 					return;
-				}
-				catch (WriteException& we)
-				{
-					cleanup(cli);
-					return;
+
 				}
 
+				TEio* data = new TEio();
+				data->cli = cli;
+				data->fileInfo = fileInfo;
+				data->offset = currentFragment.offset();
+				data->size = currentFragment.size();
 				//3. trigger eio sendfile on fragment
-				printf("[server] sending pixels: offset %d, size %d\n", item.offset(), item.size());
-				eio_sendfile (cli->fd, fileInfo->fd, item.offset(), item.size(), 0, sendfile_cb, (void*)cli);
+				printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
+				eio_sendfile (data->cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 			}
 			else
 			{
@@ -341,13 +374,18 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	if (revents & EV_READ){
 		// parse message
 		MessageFramer::MessageWrapper wrapper;
+		bool needsAnotherRead = false;
 		try
 		{
-			messageFramers[cli->fd]->read(wrapper);
-
-			//process message
-			processIncomingMessage(cli, wrapper);
-
+			if (messageFramers[cli->fd]->read(wrapper))
+			{
+				//process message
+				processIncomingMessage(cli, wrapper);
+			}
+			else
+			{
+				needsAnotherRead = true;
+			}
 		}
 		catch (ReadException& re)
 		{
@@ -355,7 +393,12 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		}
 		catch (EAgainException& ee)
 		{
-            //trigger another read
+          needsAnotherRead = true;
+		}
+
+		if (needsAnotherRead)
+		{
+			//trigger another read
 			ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
 			ev_io_start(loop,&cli->ev_read);
 		}
@@ -496,14 +539,14 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
         if (frameGroupRequest->frames().size() == 0)
         	return;
 
-	    vector<TFrameInfo> frameInfo;
+	    vector<FrameIterator*>* itms = new vector<FrameIterator*>();
 	    while (framesIter != frameGroupRequest->frames().end())
 		{
 			string fileName = fileRoot + framesIter->instanceuid() + ".dcm";
 			TFrameInfo info;
 			info.fileName = fileName;
 			info.frameRequest = *framesIter;
-			frameInfo.push_back(info);
+			itms->push_back(new FrameIterator(this, &listenManager, info));
 
 			framesIter++;
 		}
@@ -525,13 +568,8 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	{
 	    		frameQueue = frameGroupIterators[cli->fd];
 	    	}
-	    	vector<TFrameInfo>::iterator iter;
-			vector<FrameIterator*>* itms = new vector<FrameIterator*>();
-			for (iter = frameInfo.begin(); iter != frameInfo.end(); ++iter)
-			{
-				itms->push_back(new FrameIterator(this, &listenManager, *iter));
-			}
-	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
+
+	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 2);
 	    	frameQueue->push(frameIter);
 
 	    	//trigger retrieve
@@ -565,12 +603,13 @@ void DicomStream::clientTestRead_()
 		MessageFramer::MessageWrapper wrapper;
 		try
 		{
-			framer->read(wrapper);
+			if (!framer->read(wrapper))
+				continue;
 		}
 		catch (ReadException &r)
 		{
 			perror("[client] ERROR reading header from socket\n");
-			exit(0);
+			return;
 		}
 		switch(wrapper.type)
 		{
@@ -590,12 +629,12 @@ void DicomStream::clientTestRead_()
 			//read pixels
 			while (count < size)
 			{
-				int n = ::read(clientFd, buffer, 256);
+				int maxBytes = MIN(256, size-count);
+				int n = ::read(clientFd, buffer, maxBytes);
 				if (n < 0)
 				{
 					perror("[client] ERROR reading pixels from socket\n");
-					exit(0);
-					break;
+					return;
 				}
 				count += n;
 			}
@@ -689,7 +728,10 @@ void DicomStream::clientTest_()
 	MessageFramer* framer = new MessageFramer(clientFd);
 	for (int i = 0; i < 2; ++i)
 	{
-		framer->write(req);
+		while (!framer->write(req))
+		{
+
+		}
 	}
 
 
