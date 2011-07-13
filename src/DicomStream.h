@@ -48,6 +48,7 @@ private:
 			fd = -1;
 			parser = NULL;
 			fileName="";
+			refCount = 0;
 		}
 		~TFileInfo()
 		{

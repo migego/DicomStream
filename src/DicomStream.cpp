@@ -458,8 +458,6 @@ void DicomStream::cleanup(string fileName)
 		   if (info->fd != -1)
 				::close(info->fd);
 		   info->fd = -1;
-		   if (info->parser)
-			   info->parser->reset();
 	   }
    }
 }
@@ -745,6 +743,7 @@ int DicomStream::acquire(string fileName)
 {
 	TFileInfo* info = getFileInfo(fileName);
 	info->refCount++;
+	printf("[server] acquired file %s; ref count = %d\n", fileName.c_str(), info->refCount);
 	return info->refCount;
 }
 int DicomStream::release(string fileName)
@@ -755,6 +754,9 @@ int DicomStream::release(string fileName)
 	}
 	TFileInfo* info = fileInfo[fileName];
 	info->refCount--;
+	if (info->parser)
+	   info->parser->reset();
+	printf("[server] released file %s; ref count = %d\n", fileName.c_str(), info->refCount);
 	if (info->refCount == 0)
 	{
 		cleanup(info->fileName);

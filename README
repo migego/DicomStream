@@ -29,12 +29,10 @@ D) Install libeio
 
 ToDo:
 - increment file refcount when calling readahead, prefetch
-- fix ref count cleanup
 - add prefetch using custom EIO, and fadvise(SEQUENTIAL....)
 - fix error handling, check for leaks, decide when to close connection with client
 - handle EFIN, etc.
 - c# client
-- why aren't there two frame group iterators in queue?
 - handle change of primary index message
 
 
