@@ -208,7 +208,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	printf("[server] sent pixels %d\n", req->result);
 	TEio* data = (TEio*)req->data;
 	TClient* cli = data->cli;
-	if (req->result < data->size)
+	if ( ((unsigned int)req->result) < data->size)
 	{
 		data->offset += req->result;
 		data->size -= req->result;
@@ -243,7 +243,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 			return 0;
  		}
 
- 		triggerNextEvent(cli, frameQueue->front()->currentIterator());
+ 		triggerNextEvent(cli);
  	}
 	return 0;
 }
@@ -372,9 +372,9 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 	ev_io_stop(EV_A_ w);
     TClient *cli= ((TClient*) (((char*)w) - offsetof(TClient,ev_read)));
 	if (revents & EV_READ){
+		printf("[server] read\n");
 		// parse message
 		MessageFramer::MessageWrapper wrapper;
-		bool needsAnotherRead = false;
 		try
 		{
 			if (messageFramers[cli->fd]->read(wrapper))
@@ -382,26 +382,19 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				//process message
 				processIncomingMessage(cli, wrapper);
 			}
-			else
-			{
-				needsAnotherRead = true;
-			}
 		}
 		catch (ReadException& re)
 		{
 			cleanup(cli);
+			return;
 		}
 		catch (EAgainException& ee)
 		{
-          needsAnotherRead = true;
 		}
 
-		if (needsAnotherRead)
-		{
-			//trigger another read
-			ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
-			ev_io_start(loop,&cli->ev_read);
-		}
+		//trigger another read
+		ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
+		ev_io_start(loop,&cli->ev_read);
 
 	}
 
@@ -477,11 +470,19 @@ void DicomStream::cleanup(string fileName)
 
 }
 
-void DicomStream::triggerNextEvent(TClient* cli, FrameIterator* frameIter )
+void DicomStream::triggerNextEvent(TClient* cli)
 {
+
+	if (frameGroupIterators.find(cli->fd) == frameGroupIterators.end())
+		return;
+    queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+    if (frameQueue->empty())
+    	return;
+    FrameIterator* frameIter  = frameQueue->front()->currentIterator();
+
 	string fileName = frameIter->getFrameInfo()->fileName;
 	TFileInfo* info = getFileInfo(fileName);
-	// trigger open file (which will initialize the FrameIterator
+	// trigger open file (which will initialize the FrameIterator)
 	if (info->fd == -1)
 	{
 		TEio* eioData = new TEio();
@@ -537,8 +538,12 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 
 	    ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >::const_iterator framesIter = frameGroupRequest->frames().begin();
         if (frameGroupRequest->frames().size() == 0)
+        {
+        	printf("[server] tried to process incoming message with zero frames\n");
         	return;
+        }
 
+        printf("[server] processed incoming message \n");
 	    vector<FrameIterator*>* itms = new vector<FrameIterator*>();
 	    while (framesIter != frameGroupRequest->frames().end())
 		{
@@ -547,7 +552,6 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			info.fileName = fileName;
 			info.frameRequest = *framesIter;
 			itms->push_back(new FrameIterator(this, &listenManager, info));
-
 			framesIter++;
 		}
 
@@ -570,10 +574,12 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    	}
 
 	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
+	    	bool needsTrigger = frameQueue->empty();
 	    	frameQueue->push(frameIter);
 
-	    	//trigger retrieve
-		    triggerNextEvent(cli, frameIter->currentIterator());
+	    	//trigger retrieve, if the queue is empty
+	    	if (needsTrigger)
+		        triggerNextEvent(cli);
 	    }
 
 	    }
@@ -732,6 +738,7 @@ void DicomStream::clientTest_()
 		{
 
 		}
+		printf("[client] sent frame group request\n");
 	}
 
 

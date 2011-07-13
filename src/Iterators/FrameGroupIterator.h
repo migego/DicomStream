@@ -38,7 +38,7 @@ public:
 private:
     void finish()
 	{
-        //release();
+        release();
 	}
 };
 

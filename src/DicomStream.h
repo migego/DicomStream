@@ -104,7 +104,7 @@ private:
 	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
-    void triggerNextEvent(TClient* cli, FrameIterator* frameIter);
+    void triggerNextEvent(TClient* cli);
 
 	string path;
 
