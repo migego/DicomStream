@@ -79,7 +79,7 @@ private:
     	{
 			if (parseListenManager)
 				parseListenManager->removeListener(frameInfo.fileName, this);
-			//release();
+			release();
     	}
 
 	}

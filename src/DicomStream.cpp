@@ -171,7 +171,12 @@ int DicomStream::open_cb_(eio_req *req)
 		data->fileInfo->fd = fd;
 
 		//trigger readahead
-		eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
+		if (!data->fileInfo->parser)
+			eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
+		else
+		{
+			triggerNextEvent(data->cli);
+		}
 	}
 
    return 0;
@@ -194,9 +199,7 @@ int DicomStream::readahead_cb_(eio_req *req)
 
 	//trigger write on next fragment
 	struct ev_loop *loop = ev_default_loop (0);
-	ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-	ev_io_start(loop,&cli->ev_write);
-
+	triggerWrite(loop, cli);
 	return 0;
 }
 
@@ -230,9 +233,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		// remove done iterator
  		if (frameQueue->front()->isDone())
  		{
- 			printf("[server] popped queue\n");
  			delete frameQueue->front();
  			frameQueue->pop();
+ 			printf("[server] popped queue; queue size is %d\n",frameQueue->size());
  		}
 
 
@@ -309,8 +312,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				//trigger another write
 				if (needsAnotherWrite)
 				{
-					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-					ev_io_start(loop,&cli->ev_write);
+					triggerWrite(loop, cli);
 					return;
 				}
 
@@ -343,8 +345,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				if (needsAnotherWrite)
 				{
 					//trigger another write
-					ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
-					ev_io_start(loop,&cli->ev_write);
+					triggerWrite(loop,cli);
 					return;
 
 				}
@@ -393,8 +394,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		}
 
 		//trigger another read
-		ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
-		ev_io_start(loop,&cli->ev_read);
+		triggerRead(loop,cli);
 
 	}
 
@@ -418,8 +418,7 @@ void DicomStream::accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
          return;
 	}
 	createMessageFramer(client_fd);
-	ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
-	ev_io_start(loop,&cli->ev_read);
+	triggerRead(loop,cli);
 }
 
 void DicomStream::cleanup(TClient* cli)
@@ -458,16 +457,11 @@ void DicomStream::cleanup(string fileName)
 	   {
 		   if (info->fd != -1)
 				::close(info->fd);
-		   delete info;
+		   info->fd = -1;
+		   if (info->parser)
+			   info->parser->reset();
 	   }
-
-	   fileInfo.erase(fileName);
    }
-   else
-   {
-	   printf("[server] attempt at cleaning up unopened file %s", fileName.c_str());
-   }
-
 }
 
 void DicomStream::triggerNextEvent(TClient* cli)
@@ -500,10 +494,9 @@ void DicomStream::triggerNextEvent(TClient* cli)
 			info->parser->notify(frameIter);
 		}
 
-		struct ev_loop *loop = ev_default_loop (0);
-		ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
 		printf("[Server] trigger write on file %s\n", fileName.c_str());
-		ev_io_start(loop,&cli->ev_write);
+		struct ev_loop *loop = ev_default_loop (0);
+		triggerWrite(loop,cli);
 
 	}
 }
@@ -795,6 +788,18 @@ int DicomStream::refCount(string fileName)
 	}
 	return info;
 }
+
+void DicomStream::triggerWrite(struct ev_loop *loop, TClient* cli)
+{
+	ev_io_init(&cli->ev_write,write_cb,cli->fd,EV_WRITE);
+	ev_io_start(loop,&cli->ev_write);
+}
+void DicomStream::triggerRead(struct ev_loop *loop, TClient* cli)
+{
+	ev_io_init(&cli->ev_read,read_cb,cli->fd,EV_READ);
+	ev_io_start(loop,&cli->ev_read);
+}
+
 
 
 

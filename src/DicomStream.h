@@ -127,6 +127,9 @@ private:
 	void read_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 	void accept_cb_(struct ev_loop *loop, struct ev_io *w, int revents);
 
+	void triggerWrite(struct ev_loop *loop, TClient* cli);
+	void triggerRead(struct ev_loop *loop, TClient* cli);
+
 	static void want_poll();
 	static void done_poll();
 	static int open_cb (eio_req *req);

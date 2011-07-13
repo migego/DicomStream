@@ -26,6 +26,8 @@ public:
 	DicomPixels(){}
 	virtual ~DicomPixels();
 
+	void reset();
+
 	void notify(IParseListener* listener);
 
 	void parse(int imageFileDescriptor, string fileName, ParseListenManager* listenManager);

@@ -23,12 +23,16 @@ private:
 
 public:
 
-	FragmentIterator(size_t offset, size_t size, size_t chunk) : done(false), offset(offset), size(size), chunk(chunk), offsetIncrement(0)
+	FragmentIterator(size_t offset, size_t size, size_t chunk) : offset(offset), size(size), chunk(chunk), offsetIncrement(0)
 	{
+	}
+	void reset()
+	{
+		offsetIncrement = 0;
 	}
     bool next( Protocol::FrameFragment& fragment)
 	{
-    	if (done)
+    	if (offsetIncrement == size)
     		return false;
 		size_t block;
 		if (chunk <=0)
@@ -37,16 +41,12 @@ public:
 		   block = min(chunk, size-offsetIncrement);
 		fragment.set_offset( offset + offsetIncrement);
 		fragment.set_size(block);
-		offsetIncrement += fragment.size();
-		if (offsetIncrement == size)
-		{
-			done = true;
-		}
+		offsetIncrement += block;
 		return true;
 	}
     bool hasNext()
     {
-    	return !done;
+    	return offsetIncrement < size;
     }
 
 };
