@@ -220,12 +220,23 @@ int DicomStream::readahead_cb_(eio_req *req)
 
 int DicomStream::sendfile_cb_(eio_req *req)
 {
-	if (req->result < 0)
-	  abort ();
-
-	printf("[server] sent pixels %d\n", req->result);
 	TEio* data = (TEio*)req->data;
 	TClient* cli = data->cli;
+
+	if (req->result == -1)
+	{
+		if (errno == EAGAIN)
+		{
+			printf("[server] sendfile return EAGAIN\n");
+			eio_sendfile (cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+			return 0;
+		}
+		perror("[server] sendfile error\n");
+		abort ();
+	}
+
+	printf("[server] sent pixels %d\n", req->result);
+
 	if ( ((unsigned int)req->result) < data->size)
 	{
 		data->offset += req->result;
