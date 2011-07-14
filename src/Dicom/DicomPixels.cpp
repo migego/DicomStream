@@ -16,24 +16,6 @@ void  DicomPixels::notify(IParseListener* listener)
 		listener->parsed(frameFragments);
 }
 
-void DicomPixels::reset()
-{
-	vector< TParsedFrame* > ::iterator parsedFrameIter = frameFragments.begin();
-	while (parsedFrameIter != frameFragments.end())
-	{
-		TParsedFrame* parsedFrame = *parsedFrameIter;
-		tFragVec::iterator fragVecIterator = parsedFrame->fragVec->begin();
-		while (fragVecIterator != parsedFrame->fragVec->end())
-		{
-			FragmentIterator* fragIter = *fragVecIterator;
-            fragIter->reset();
-			fragVecIterator++;
-		}
-		parsedFrameIter++;
-	}
-
-}
-
 void DicomPixels::parse(int imageFileDescriptor, string fileName, ParseListenManager* listenManager)
 {
 	if (frameFragments.empty())

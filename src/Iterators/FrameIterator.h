@@ -56,7 +56,21 @@ public:
 	{
        if (!isInitialized() && !frameFragments.empty())
        {
-    	   setChildIterators(frameFragments[0]->fragVec);
+
+    	   tFragVec* childIters = new tFragVec();
+    	   tFragVec* fragVec = frameFragments[0]->fragVec;
+    	   if (fragVec && !fragVec->empty())
+    	   {
+			   tFragVec::iterator fragVecIterator = fragVec->begin();
+			   while (fragVecIterator != fragVec->end())
+			   {
+				   FragmentIterator* f = *fragVecIterator;
+				   childIters->push_back(f->copy());
+				   fragVecIterator++;
+			   }
+
+    	   }
+    	   setChildIterators(childIters);
     	   frameInfo.totalBytes = frameFragments[0]->totalBytes;
 
        }

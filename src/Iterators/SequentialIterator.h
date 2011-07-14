@@ -18,6 +18,17 @@ private:
 public:
 	virtual ~SequentialIterator()
 	{
+		if (childIterators)
+		{
+		   typename vector<Iterator*>::iterator iter = childIterators->begin();
+		   while (iter != childIterators->end())
+		   {
+			   delete *iter;
+			   iter++;
+		   }
+		   delete childIterators;
+
+		}
 		childIterators = NULL;
 	}
 

@@ -754,8 +754,6 @@ int DicomStream::release(string fileName)
 	}
 	TFileInfo* info = fileInfo[fileName];
 	info->refCount--;
-	if (info->parser)
-	   info->parser->reset();
 	printf("[server] released file %s; ref count = %d\n", fileName.c_str(), info->refCount);
 	if (info->refCount == 0)
 	{

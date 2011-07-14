@@ -26,9 +26,9 @@ public:
 	FragmentIterator(size_t offset, size_t size, size_t chunk) : offset(offset), size(size), chunk(chunk), offsetIncrement(0)
 	{
 	}
-	void reset()
+	FragmentIterator* copy()
 	{
-		offsetIncrement = 0;
+		return new FragmentIterator(offset, size, chunk);
 	}
     bool next( Protocol::FrameFragment& fragment)
 	{
