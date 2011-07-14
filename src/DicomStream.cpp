@@ -162,6 +162,18 @@ int DicomStream::setCork(int clientFd, bool cork)
     return rc;
 }
 
+void DicomStream::eio_fadvise_(eio_req *req)
+{
+	TFadvise* info  = (TFadvise*)req->data;
+    posix_fadvise(info->fd, info->offset, info->len, info->advice);
+	delete info;
+}
+int DicomStream::eio_fadvise_cb_(eio_req *req)
+{
+	return 0;
+}
+
+
 int DicomStream::open_cb_(eio_req *req)
 {
 	int fd = EIO_RESULT (req);
@@ -196,6 +208,9 @@ int DicomStream::readahead_cb_(eio_req *req)
 	printf("[Server] readahead triggered write on file %s\n", data->fileInfo->fileName.c_str());
 	TClient* cli = data->cli;
 	delete(data);
+
+	//trigger posix_fadvise(....SEQUENTIAL) on entire file
+	eio_custom(eio_fadvise, 0, eio_fadvise_cb, new TFadvise(data->fileInfo->fd, 0, 0, POSIX_FADV_SEQUENTIAL));
 
 	//trigger write on next fragment
 	struct ev_loop *loop = ev_default_loop (0);
@@ -731,9 +746,6 @@ void DicomStream::clientTest_()
 		}
 		printf("[client] sent frame group request\n");
 	}
-
-
-
 	delete framer;
 
 }
@@ -805,6 +817,8 @@ void DicomStream::triggerRead(struct ev_loop *loop, TClient* cli)
 
 //// STATIC WRAPPER METHODS/////////////////
 
+
+
 void DicomStream::want_poll()
 {
 	Instance()->want_poll_();
@@ -850,6 +864,14 @@ void DicomStream::clientTestRead()
 {
 
    Instance()->clientTestRead_();
+}
+ void DicomStream::eio_fadvise(eio_req *req)
+{
+	Instance()->eio_fadvise_(req);
+}
+ int DicomStream::eio_fadvise_cb(eio_req *req)
+{
+	return Instance()->eio_fadvise_cb_(req);
 }
 
 /////////////////////////////////////////////

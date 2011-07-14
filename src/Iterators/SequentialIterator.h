@@ -29,7 +29,6 @@ public:
 		   delete childIterators;
 
 		}
-		childIterators = NULL;
 	}
 
 	SequentialIterator(void)

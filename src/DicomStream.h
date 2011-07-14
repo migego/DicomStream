@@ -18,7 +18,6 @@ using namespace std;
 #include "eio.h"
 
 #include "Iterators/UpDownIterator.h"
-#include "Iterators/SimpleIterator.h"
 #include "Iterators/FragmentIterator.h"
 #include "Iterators/FrameGroupIterator.h"
 #include "Iterators/SequentialIterator.h"
@@ -41,7 +40,20 @@ private:
 	DicomStream();
 	virtual ~DicomStream();
 
+	struct TFadvise
+	{
+		TFadvise(int fd, off_t offset, off_t len, int advice) : fd(fd), offset(offset), len(len), advice(advice)
+		{
+
+		}
+ 		int fd;
+		off_t offset;
+		off_t len;
+		int advice;
+	};
+
 	struct TFileInfo
+
 	{
 		TFileInfo()
 		{
@@ -136,12 +148,16 @@ private:
 	static int open_cb (eio_req *req);
 	static int readahead_cb (eio_req *req);
 	static int sendfile_cb (eio_req *req);
+	static void eio_fadvise(eio_req *req);
+	static int eio_fadvise_cb(eio_req *req);
 
     void want_poll_();
 	void done_poll_();
     int open_cb_ (eio_req *req);
     int readahead_cb_ (eio_req *req);
     int sendfile_cb_ (eio_req *req);
+    void eio_fadvise_(eio_req *req);
+    int eio_fadvise_cb_(eio_req *req);
 
 	void unitTest();
 
