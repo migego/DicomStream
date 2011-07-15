@@ -25,13 +25,10 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameGroupRequest_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* FrameGroupRequest_RequestType_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* FrameGroupRequest_Priority_descriptor_ = NULL;
-const ::google::protobuf::Descriptor* FrameHeader_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  FrameHeader_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* FrameHeader_bitDepth_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* FrameResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameResponse_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* FrameResponse_bitDepth_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* FrameFragmentHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameFragmentHeader_reflection_ = NULL;
@@ -46,9 +43,8 @@ void protobuf_AssignDesc_stream_2eproto() {
       "stream.proto");
   GOOGLE_CHECK(file != NULL);
   FrameRequest_descriptor_ = file->message_type(0);
-  static const int FrameRequest_offsets_[3] = {
+  static const int FrameRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameRequest, instanceuid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameRequest, instanceuidnumber_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameRequest, framenumber_),
   };
   FrameRequest_reflection_ =
@@ -63,12 +59,10 @@ void protobuf_AssignDesc_stream_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FrameRequest));
   FrameGroupRequest_descriptor_ = file->message_type(1);
-  static const int FrameGroupRequest_offsets_[9] = {
+  static const int FrameGroupRequest_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, studyuid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, studyuidnumber_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, seriesuid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, seriesuidnumber_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, priority_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, instanceuidprefix_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameGroupRequest, frames_),
@@ -87,38 +81,22 @@ void protobuf_AssignDesc_stream_2eproto() {
       sizeof(FrameGroupRequest));
   FrameGroupRequest_RequestType_descriptor_ = FrameGroupRequest_descriptor_->enum_type(0);
   FrameGroupRequest_Priority_descriptor_ = FrameGroupRequest_descriptor_->enum_type(1);
-  FrameHeader_descriptor_ = file->message_type(2);
-  static const int FrameHeader_offsets_[12] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, totalbytes_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizex_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, imagesizey_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, depth_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, colorspace_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, transfersyntax_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, channelsnumber_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, binterleaved_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, b2complement_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, allocatedbits_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, storedbits_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, highbit_),
-  };
-  FrameHeader_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      FrameHeader_descriptor_,
-      FrameHeader::default_instance_,
-      FrameHeader_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameHeader, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(FrameHeader));
-  FrameHeader_bitDepth_descriptor_ = FrameHeader_descriptor_->enum_type(0);
-  FrameResponse_descriptor_ = file->message_type(3);
-  static const int FrameResponse_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, instanceuidnumber_),
+  FrameResponse_descriptor_ = file->message_type(2);
+  static const int FrameResponse_offsets_[14] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, totalbytes_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, imagesizex_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, imagesizey_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, depth_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, colorspace_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, transfersyntax_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, channelsnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, binterleaved_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, b2complement_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, allocatedbits_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, storedbits_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, highbit_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, instanceuid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, framenumber_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, frameheader_),
   };
   FrameResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -131,7 +109,8 @@ void protobuf_AssignDesc_stream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FrameResponse));
-  FrameFragmentHeader_descriptor_ = file->message_type(4);
+  FrameResponse_bitDepth_descriptor_ = FrameResponse_descriptor_->enum_type(0);
+  FrameFragmentHeader_descriptor_ = file->message_type(3);
   static const int FrameFragmentHeader_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, offset_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, size_),
@@ -164,8 +143,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameGroupRequest_descriptor_, &FrameGroupRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    FrameHeader_descriptor_, &FrameHeader::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameResponse_descriptor_, &FrameResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameFragmentHeader_descriptor_, &FrameFragmentHeader::default_instance());
@@ -178,8 +155,6 @@ void protobuf_ShutdownFile_stream_2eproto() {
   delete FrameRequest_reflection_;
   delete FrameGroupRequest::default_instance_;
   delete FrameGroupRequest_reflection_;
-  delete FrameHeader::default_instance_;
-  delete FrameHeader_reflection_;
   delete FrameResponse::default_instance_;
   delete FrameResponse_reflection_;
   delete FrameFragmentHeader::default_instance_;
@@ -193,44 +168,38 @@ void protobuf_AddDesc_stream_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014stream.proto\022\010Protocol\"S\n\014FrameRequest"
-    "\022\023\n\013instanceUid\030\001 \002(\t\022\031\n\021instanceUidNumb"
-    "er\030\002 \002(\r\022\023\n\013frameNumber\030\003 \002(\r\"\262\003\n\021FrameG"
-    "roupRequest\0225\n\004type\030\001 \002(\0162\'.Protocol.Fra"
-    "meGroupRequest.RequestType\022\020\n\010studyUid\030\002"
-    " \002(\t\022\026\n\016studyUidNumber\030\003 \002(\r\022\021\n\tseriesUi"
-    "d\030\004 \002(\t\022\027\n\017seriesUidNumber\030\005 \002(\r\0226\n\010prio"
-    "rity\030\006 \002(\0162$.Protocol.FrameGroupRequest."
-    "Priority\022\031\n\021instanceUidPrefix\030\007 \002(\t\022&\n\006f"
-    "rames\030\010 \003(\0132\026.Protocol.FrameRequest\022\022\n\nm"
-    "ultiFrame\030\t \002(\010\"N\n\013RequestType\022\t\n\005Fetch\020"
-    "\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPrimaryFram"
-    "e\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010Selected\020"
-    "\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\202\003\n\013FrameHead"
-    "er\022\022\n\ntotalBytes\030\001 \002(\r\022\022\n\nimageSizeX\030\002 \002"
-    "(\r\022\022\n\nimageSizeY\030\003 \002(\r\022-\n\005depth\030\004 \002(\0162\036."
-    "Protocol.FrameHeader.bitDepth\022\022\n\ncolorSp"
-    "ace\030\005 \002(\t\022\026\n\016transferSyntax\030\006 \002(\t\022\026\n\016cha"
-    "nnelsNumber\030\007 \002(\r\022\024\n\014bInterleaved\030\010 \002(\010\022"
-    "\024\n\014b2Complement\030\t \002(\010\022\025\n\rallocatedBits\030\n"
-    " \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007highBit\030\014 \002("
-    "\r\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007depthS8\020\001\022"
-    "\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n\010depthU32\020"
-    "\004\022\014\n\010depthS32\020\005\"k\n\rFrameResponse\022\031\n\021inst"
-    "anceUidNumber\030\001 \002(\r\022\023\n\013frameNumber\030\002 \002(\r"
-    "\022*\n\013frameHeader\030\003 \002(\0132\025.Protocol.FrameHe"
-    "ader\"3\n\023FrameFragmentHeader\022\016\n\006offset\030\001 "
-    "\002(\r\022\014\n\004size\030\002 \002(\r", 1097);
+    "\n\014stream.proto\022\010Protocol\"8\n\014FrameRequest"
+    "\022\023\n\013instanceUid\030\001 \002(\t\022\023\n\013frameNumber\030\002 \002"
+    "(\r\"\201\003\n\021FrameGroupRequest\0225\n\004type\030\001 \002(\0162\'"
+    ".Protocol.FrameGroupRequest.RequestType\022"
+    "\020\n\010studyUid\030\002 \002(\t\022\021\n\tseriesUid\030\003 \002(\t\0226\n\010"
+    "priority\030\004 \002(\0162$.Protocol.FrameGroupRequ"
+    "est.Priority\022\031\n\021instanceUidPrefix\030\005 \002(\t\022"
+    "&\n\006frames\030\006 \003(\0132\026.Protocol.FrameRequest\022"
+    "\022\n\nmultiFrame\030\007 \002(\010\"N\n\013RequestType\022\t\n\005Fe"
+    "tch\020\000\022\023\n\017PriorityChanged\020\001\022\023\n\017SetPrimary"
+    "Frame\020\002\022\n\n\006Cancel\020\003\"1\n\010Priority\022\014\n\010Selec"
+    "ted\020\000\022\013\n\007Visible\020\001\022\n\n\006Hidden\020\002\"\260\003\n\rFrame"
+    "Response\022\022\n\ntotalBytes\030\001 \002(\r\022\022\n\nimageSiz"
+    "eX\030\002 \002(\r\022\022\n\nimageSizeY\030\003 \002(\r\022/\n\005depth\030\004 "
+    "\002(\0162 .Protocol.FrameResponse.bitDepth\022\022\n"
+    "\ncolorSpace\030\005 \002(\t\022\026\n\016transferSyntax\030\006 \002("
+    "\t\022\026\n\016channelsNumber\030\007 \002(\r\022\024\n\014bInterleave"
+    "d\030\010 \002(\010\022\024\n\014b2Complement\030\t \002(\010\022\025\n\rallocat"
+    "edBits\030\n \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007high"
+    "Bit\030\014 \002(\r\022\023\n\013instanceUid\030\r \002(\t\022\023\n\013frameN"
+    "umber\030\016 \002(\r\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007"
+    "depthS8\020\001\022\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n"
+    "\010depthU32\020\004\022\014\n\010depthS32\020\005\"3\n\023FrameFragme"
+    "ntHeader\022\016\n\006offset\030\001 \002(\r\022\014\n\004size\030\002 \002(\r", 958);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
   FrameGroupRequest::default_instance_ = new FrameGroupRequest();
-  FrameHeader::default_instance_ = new FrameHeader();
   FrameResponse::default_instance_ = new FrameResponse();
   FrameFragmentHeader::default_instance_ = new FrameFragmentHeader();
   FrameRequest::default_instance_->InitAsDefaultInstance();
   FrameGroupRequest::default_instance_->InitAsDefaultInstance();
-  FrameHeader::default_instance_->InitAsDefaultInstance();
   FrameResponse::default_instance_->InitAsDefaultInstance();
   FrameFragmentHeader::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_stream_2eproto);
@@ -248,7 +217,6 @@ struct StaticDescriptorInitializer_stream_2eproto {
 
 #ifndef _MSC_VER
 const int FrameRequest::kInstanceUidFieldNumber;
-const int FrameRequest::kInstanceUidNumberFieldNumber;
 const int FrameRequest::kFrameNumberFieldNumber;
 #endif  // !_MSC_VER
 
@@ -269,7 +237,6 @@ FrameRequest::FrameRequest(const FrameRequest& from)
 void FrameRequest::SharedCtor() {
   _cached_size_ = 0;
   instanceuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  instanceuidnumber_ = 0u;
   framenumber_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -313,7 +280,6 @@ void FrameRequest::Clear() {
         instanceuid_->clear();
       }
     }
-    instanceuidnumber_ = 0u;
     framenumber_ = 0u;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -338,28 +304,12 @@ bool FrameRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_instanceUidNumber;
+        if (input->ExpectTag(16)) goto parse_frameNumber;
         break;
       }
       
-      // required uint32 instanceUidNumber = 2;
+      // required uint32 frameNumber = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_instanceUidNumber:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &instanceuidnumber_)));
-          set_has_instanceuidnumber();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(24)) goto parse_frameNumber;
-        break;
-      }
-      
-      // required uint32 frameNumber = 3;
-      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_frameNumber:
@@ -401,14 +351,9 @@ void FrameRequest::SerializeWithCachedSizes(
       1, this->instanceuid(), output);
   }
   
-  // required uint32 instanceUidNumber = 2;
-  if (has_instanceuidnumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->instanceuidnumber(), output);
-  }
-  
-  // required uint32 frameNumber = 3;
+  // required uint32 frameNumber = 2;
   if (has_framenumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->framenumber(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->framenumber(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -429,14 +374,9 @@ void FrameRequest::SerializeWithCachedSizes(
         1, this->instanceuid(), target);
   }
   
-  // required uint32 instanceUidNumber = 2;
-  if (has_instanceuidnumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->instanceuidnumber(), target);
-  }
-  
-  // required uint32 frameNumber = 3;
+  // required uint32 frameNumber = 2;
   if (has_framenumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->framenumber(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->framenumber(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -457,14 +397,7 @@ int FrameRequest::ByteSize() const {
           this->instanceuid());
     }
     
-    // required uint32 instanceUidNumber = 2;
-    if (has_instanceuidnumber()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->instanceuidnumber());
-    }
-    
-    // required uint32 frameNumber = 3;
+    // required uint32 frameNumber = 2;
     if (has_framenumber()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -501,9 +434,6 @@ void FrameRequest::MergeFrom(const FrameRequest& from) {
     if (from.has_instanceuid()) {
       set_instanceuid(from.instanceuid());
     }
-    if (from.has_instanceuidnumber()) {
-      set_instanceuidnumber(from.instanceuidnumber());
-    }
     if (from.has_framenumber()) {
       set_framenumber(from.framenumber());
     }
@@ -524,7 +454,7 @@ void FrameRequest::CopyFrom(const FrameRequest& from) {
 }
 
 bool FrameRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
   
   return true;
 }
@@ -532,7 +462,6 @@ bool FrameRequest::IsInitialized() const {
 void FrameRequest::Swap(FrameRequest* other) {
   if (other != this) {
     std::swap(instanceuid_, other->instanceuid_);
-    std::swap(instanceuidnumber_, other->instanceuidnumber_);
     std::swap(framenumber_, other->framenumber_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -602,9 +531,7 @@ const int FrameGroupRequest::Priority_ARRAYSIZE;
 #ifndef _MSC_VER
 const int FrameGroupRequest::kTypeFieldNumber;
 const int FrameGroupRequest::kStudyUidFieldNumber;
-const int FrameGroupRequest::kStudyUidNumberFieldNumber;
 const int FrameGroupRequest::kSeriesUidFieldNumber;
-const int FrameGroupRequest::kSeriesUidNumberFieldNumber;
 const int FrameGroupRequest::kPriorityFieldNumber;
 const int FrameGroupRequest::kInstanceUidPrefixFieldNumber;
 const int FrameGroupRequest::kFramesFieldNumber;
@@ -629,9 +556,7 @@ void FrameGroupRequest::SharedCtor() {
   _cached_size_ = 0;
   type_ = 0;
   studyuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  studyuidnumber_ = 0u;
   seriesuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  seriesuidnumber_ = 0u;
   priority_ = 0;
   instanceuidprefix_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   multiframe_ = false;
@@ -684,21 +609,17 @@ void FrameGroupRequest::Clear() {
         studyuid_->clear();
       }
     }
-    studyuidnumber_ = 0u;
     if (has_seriesuid()) {
       if (seriesuid_ != &::google::protobuf::internal::kEmptyString) {
         seriesuid_->clear();
       }
     }
-    seriesuidnumber_ = 0u;
     priority_ = 0;
     if (has_instanceuidprefix()) {
       if (instanceuidprefix_ != &::google::protobuf::internal::kEmptyString) {
         instanceuidprefix_->clear();
       }
     }
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     multiframe_ = false;
   }
   frames_.Clear();
@@ -745,28 +666,12 @@ bool FrameGroupRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(24)) goto parse_studyUidNumber;
+        if (input->ExpectTag(26)) goto parse_seriesUid;
         break;
       }
       
-      // required uint32 studyUidNumber = 3;
+      // required string seriesUid = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_studyUidNumber:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &studyuidnumber_)));
-          set_has_studyuidnumber();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(34)) goto parse_seriesUid;
-        break;
-      }
-      
-      // required string seriesUid = 4;
-      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_seriesUid:
@@ -778,28 +683,12 @@ bool FrameGroupRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(40)) goto parse_seriesUidNumber;
+        if (input->ExpectTag(32)) goto parse_priority;
         break;
       }
       
-      // required uint32 seriesUidNumber = 5;
-      case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_seriesUidNumber:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &seriesuidnumber_)));
-          set_has_seriesuidnumber();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(48)) goto parse_priority;
-        break;
-      }
-      
-      // required .Protocol.FrameGroupRequest.Priority priority = 6;
-      case 6: {
+      // required .Protocol.FrameGroupRequest.Priority priority = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_priority:
@@ -810,17 +699,17 @@ bool FrameGroupRequest::MergePartialFromCodedStream(
           if (::Protocol::FrameGroupRequest_Priority_IsValid(value)) {
             set_priority(static_cast< ::Protocol::FrameGroupRequest_Priority >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(6, value);
+            mutable_unknown_fields()->AddVarint(4, value);
           }
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(58)) goto parse_instanceUidPrefix;
+        if (input->ExpectTag(42)) goto parse_instanceUidPrefix;
         break;
       }
       
-      // required string instanceUidPrefix = 7;
-      case 7: {
+      // required string instanceUidPrefix = 5;
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_instanceUidPrefix:
@@ -832,12 +721,12 @@ bool FrameGroupRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(66)) goto parse_frames;
+        if (input->ExpectTag(50)) goto parse_frames;
         break;
       }
       
-      // repeated .Protocol.FrameRequest frames = 8;
-      case 8: {
+      // repeated .Protocol.FrameRequest frames = 6;
+      case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_frames:
@@ -846,13 +735,13 @@ bool FrameGroupRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(66)) goto parse_frames;
-        if (input->ExpectTag(72)) goto parse_multiFrame;
+        if (input->ExpectTag(50)) goto parse_frames;
+        if (input->ExpectTag(56)) goto parse_multiFrame;
         break;
       }
       
-      // required bool multiFrame = 9;
-      case 9: {
+      // required bool multiFrame = 7;
+      case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_multiFrame:
@@ -900,49 +789,39 @@ void FrameGroupRequest::SerializeWithCachedSizes(
       2, this->studyuid(), output);
   }
   
-  // required uint32 studyUidNumber = 3;
-  if (has_studyuidnumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->studyuidnumber(), output);
-  }
-  
-  // required string seriesUid = 4;
+  // required string seriesUid = 3;
   if (has_seriesuid()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->seriesuid().data(), this->seriesuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      4, this->seriesuid(), output);
+      3, this->seriesuid(), output);
   }
   
-  // required uint32 seriesUidNumber = 5;
-  if (has_seriesuidnumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->seriesuidnumber(), output);
-  }
-  
-  // required .Protocol.FrameGroupRequest.Priority priority = 6;
+  // required .Protocol.FrameGroupRequest.Priority priority = 4;
   if (has_priority()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      6, this->priority(), output);
+      4, this->priority(), output);
   }
   
-  // required string instanceUidPrefix = 7;
+  // required string instanceUidPrefix = 5;
   if (has_instanceuidprefix()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->instanceuidprefix().data(), this->instanceuidprefix().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      7, this->instanceuidprefix(), output);
+      5, this->instanceuidprefix(), output);
   }
   
-  // repeated .Protocol.FrameRequest frames = 8;
+  // repeated .Protocol.FrameRequest frames = 6;
   for (int i = 0; i < this->frames_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      8, this->frames(i), output);
+      6, this->frames(i), output);
   }
   
-  // required bool multiFrame = 9;
+  // required bool multiFrame = 7;
   if (has_multiframe()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(9, this->multiframe(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(7, this->multiframe(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -969,52 +848,42 @@ void FrameGroupRequest::SerializeWithCachedSizes(
         2, this->studyuid(), target);
   }
   
-  // required uint32 studyUidNumber = 3;
-  if (has_studyuidnumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->studyuidnumber(), target);
-  }
-  
-  // required string seriesUid = 4;
+  // required string seriesUid = 3;
   if (has_seriesuid()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->seriesuid().data(), this->seriesuid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        4, this->seriesuid(), target);
+        3, this->seriesuid(), target);
   }
   
-  // required uint32 seriesUidNumber = 5;
-  if (has_seriesuidnumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->seriesuidnumber(), target);
-  }
-  
-  // required .Protocol.FrameGroupRequest.Priority priority = 6;
+  // required .Protocol.FrameGroupRequest.Priority priority = 4;
   if (has_priority()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      6, this->priority(), target);
+      4, this->priority(), target);
   }
   
-  // required string instanceUidPrefix = 7;
+  // required string instanceUidPrefix = 5;
   if (has_instanceuidprefix()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->instanceuidprefix().data(), this->instanceuidprefix().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        7, this->instanceuidprefix(), target);
+        5, this->instanceuidprefix(), target);
   }
   
-  // repeated .Protocol.FrameRequest frames = 8;
+  // repeated .Protocol.FrameRequest frames = 6;
   for (int i = 0; i < this->frames_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        8, this->frames(i), target);
+        6, this->frames(i), target);
   }
   
-  // required bool multiFrame = 9;
+  // required bool multiFrame = 7;
   if (has_multiframe()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(9, this->multiframe(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(7, this->multiframe(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1041,49 +910,33 @@ int FrameGroupRequest::ByteSize() const {
           this->studyuid());
     }
     
-    // required uint32 studyUidNumber = 3;
-    if (has_studyuidnumber()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->studyuidnumber());
-    }
-    
-    // required string seriesUid = 4;
+    // required string seriesUid = 3;
     if (has_seriesuid()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->seriesuid());
     }
     
-    // required uint32 seriesUidNumber = 5;
-    if (has_seriesuidnumber()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->seriesuidnumber());
-    }
-    
-    // required .Protocol.FrameGroupRequest.Priority priority = 6;
+    // required .Protocol.FrameGroupRequest.Priority priority = 4;
     if (has_priority()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->priority());
     }
     
-    // required string instanceUidPrefix = 7;
+    // required string instanceUidPrefix = 5;
     if (has_instanceuidprefix()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->instanceuidprefix());
     }
     
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // required bool multiFrame = 9;
+    // required bool multiFrame = 7;
     if (has_multiframe()) {
       total_size += 1 + 1;
     }
     
   }
-  // repeated .Protocol.FrameRequest frames = 8;
+  // repeated .Protocol.FrameRequest frames = 6;
   total_size += 1 * this->frames_size();
   for (int i = 0; i < this->frames_size(); i++) {
     total_size +=
@@ -1124,14 +977,8 @@ void FrameGroupRequest::MergeFrom(const FrameGroupRequest& from) {
     if (from.has_studyuid()) {
       set_studyuid(from.studyuid());
     }
-    if (from.has_studyuidnumber()) {
-      set_studyuidnumber(from.studyuidnumber());
-    }
     if (from.has_seriesuid()) {
       set_seriesuid(from.seriesuid());
-    }
-    if (from.has_seriesuidnumber()) {
-      set_seriesuidnumber(from.seriesuidnumber());
     }
     if (from.has_priority()) {
       set_priority(from.priority());
@@ -1139,8 +986,6 @@ void FrameGroupRequest::MergeFrom(const FrameGroupRequest& from) {
     if (from.has_instanceuidprefix()) {
       set_instanceuidprefix(from.instanceuidprefix());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_multiframe()) {
       set_multiframe(from.multiframe());
     }
@@ -1161,7 +1006,7 @@ void FrameGroupRequest::CopyFrom(const FrameGroupRequest& from) {
 }
 
 bool FrameGroupRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000017f) != 0x0000017f) return false;
+  if ((_has_bits_[0] & 0x0000005f) != 0x0000005f) return false;
   
   for (int i = 0; i < frames_size(); i++) {
     if (!this->frames(i).IsInitialized()) return false;
@@ -1173,9 +1018,7 @@ void FrameGroupRequest::Swap(FrameGroupRequest* other) {
   if (other != this) {
     std::swap(type_, other->type_);
     std::swap(studyuid_, other->studyuid_);
-    std::swap(studyuidnumber_, other->studyuidnumber_);
     std::swap(seriesuid_, other->seriesuid_);
-    std::swap(seriesuidnumber_, other->seriesuidnumber_);
     std::swap(priority_, other->priority_);
     std::swap(instanceuidprefix_, other->instanceuidprefix_);
     frames_.Swap(&other->frames_);
@@ -1197,11 +1040,11 @@ void FrameGroupRequest::Swap(FrameGroupRequest* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* FrameHeader_bitDepth_descriptor() {
+const ::google::protobuf::EnumDescriptor* FrameResponse_bitDepth_descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return FrameHeader_bitDepth_descriptor_;
+  return FrameResponse_bitDepth_descriptor_;
 }
-bool FrameHeader_bitDepth_IsValid(int value) {
+bool FrameResponse_bitDepth_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
@@ -1216,46 +1059,48 @@ bool FrameHeader_bitDepth_IsValid(int value) {
 }
 
 #ifndef _MSC_VER
-const FrameHeader_bitDepth FrameHeader::depthU8;
-const FrameHeader_bitDepth FrameHeader::depthS8;
-const FrameHeader_bitDepth FrameHeader::depthU16;
-const FrameHeader_bitDepth FrameHeader::depthS16;
-const FrameHeader_bitDepth FrameHeader::depthU32;
-const FrameHeader_bitDepth FrameHeader::depthS32;
-const FrameHeader_bitDepth FrameHeader::bitDepth_MIN;
-const FrameHeader_bitDepth FrameHeader::bitDepth_MAX;
-const int FrameHeader::bitDepth_ARRAYSIZE;
+const FrameResponse_bitDepth FrameResponse::depthU8;
+const FrameResponse_bitDepth FrameResponse::depthS8;
+const FrameResponse_bitDepth FrameResponse::depthU16;
+const FrameResponse_bitDepth FrameResponse::depthS16;
+const FrameResponse_bitDepth FrameResponse::depthU32;
+const FrameResponse_bitDepth FrameResponse::depthS32;
+const FrameResponse_bitDepth FrameResponse::bitDepth_MIN;
+const FrameResponse_bitDepth FrameResponse::bitDepth_MAX;
+const int FrameResponse::bitDepth_ARRAYSIZE;
 #endif  // _MSC_VER
 #ifndef _MSC_VER
-const int FrameHeader::kTotalBytesFieldNumber;
-const int FrameHeader::kImageSizeXFieldNumber;
-const int FrameHeader::kImageSizeYFieldNumber;
-const int FrameHeader::kDepthFieldNumber;
-const int FrameHeader::kColorSpaceFieldNumber;
-const int FrameHeader::kTransferSyntaxFieldNumber;
-const int FrameHeader::kChannelsNumberFieldNumber;
-const int FrameHeader::kBInterleavedFieldNumber;
-const int FrameHeader::kB2ComplementFieldNumber;
-const int FrameHeader::kAllocatedBitsFieldNumber;
-const int FrameHeader::kStoredBitsFieldNumber;
-const int FrameHeader::kHighBitFieldNumber;
+const int FrameResponse::kTotalBytesFieldNumber;
+const int FrameResponse::kImageSizeXFieldNumber;
+const int FrameResponse::kImageSizeYFieldNumber;
+const int FrameResponse::kDepthFieldNumber;
+const int FrameResponse::kColorSpaceFieldNumber;
+const int FrameResponse::kTransferSyntaxFieldNumber;
+const int FrameResponse::kChannelsNumberFieldNumber;
+const int FrameResponse::kBInterleavedFieldNumber;
+const int FrameResponse::kB2ComplementFieldNumber;
+const int FrameResponse::kAllocatedBitsFieldNumber;
+const int FrameResponse::kStoredBitsFieldNumber;
+const int FrameResponse::kHighBitFieldNumber;
+const int FrameResponse::kInstanceUidFieldNumber;
+const int FrameResponse::kFrameNumberFieldNumber;
 #endif  // !_MSC_VER
 
-FrameHeader::FrameHeader()
+FrameResponse::FrameResponse()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void FrameHeader::InitAsDefaultInstance() {
+void FrameResponse::InitAsDefaultInstance() {
 }
 
-FrameHeader::FrameHeader(const FrameHeader& from)
+FrameResponse::FrameResponse(const FrameResponse& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void FrameHeader::SharedCtor() {
+void FrameResponse::SharedCtor() {
   _cached_size_ = 0;
   totalbytes_ = 0u;
   imagesizex_ = 0u;
@@ -1269,45 +1114,50 @@ void FrameHeader::SharedCtor() {
   allocatedbits_ = 0u;
   storedbits_ = 0u;
   highbit_ = 0u;
+  instanceuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  framenumber_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-FrameHeader::~FrameHeader() {
+FrameResponse::~FrameResponse() {
   SharedDtor();
 }
 
-void FrameHeader::SharedDtor() {
+void FrameResponse::SharedDtor() {
   if (colorspace_ != &::google::protobuf::internal::kEmptyString) {
     delete colorspace_;
   }
   if (transfersyntax_ != &::google::protobuf::internal::kEmptyString) {
     delete transfersyntax_;
   }
+  if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+    delete instanceuid_;
+  }
   if (this != default_instance_) {
   }
 }
 
-void FrameHeader::SetCachedSize(int size) const {
+void FrameResponse::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* FrameHeader::descriptor() {
+const ::google::protobuf::Descriptor* FrameResponse::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return FrameHeader_descriptor_;
+  return FrameResponse_descriptor_;
 }
 
-const FrameHeader& FrameHeader::default_instance() {
+const FrameResponse& FrameResponse::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_stream_2eproto();  return *default_instance_;
 }
 
-FrameHeader* FrameHeader::default_instance_ = NULL;
+FrameResponse* FrameResponse::default_instance_ = NULL;
 
-FrameHeader* FrameHeader::New() const {
-  return new FrameHeader;
+FrameResponse* FrameResponse::New() const {
+  return new FrameResponse;
 }
 
-void FrameHeader::Clear() {
+void FrameResponse::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     totalbytes_ = 0u;
     imagesizex_ = 0u;
@@ -1331,12 +1181,18 @@ void FrameHeader::Clear() {
     allocatedbits_ = 0u;
     storedbits_ = 0u;
     highbit_ = 0u;
+    if (has_instanceuid()) {
+      if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+        instanceuid_->clear();
+      }
+    }
+    framenumber_ = 0u;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool FrameHeader::MergePartialFromCodedStream(
+bool FrameResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -1389,7 +1245,7 @@ bool FrameHeader::MergePartialFromCodedStream(
         break;
       }
       
-      // required .Protocol.FrameHeader.bitDepth depth = 4;
+      // required .Protocol.FrameResponse.bitDepth depth = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -1398,8 +1254,8 @@ bool FrameHeader::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
                  input, &value)));
-          if (::Protocol::FrameHeader_bitDepth_IsValid(value)) {
-            set_depth(static_cast< ::Protocol::FrameHeader_bitDepth >(value));
+          if (::Protocol::FrameResponse_bitDepth_IsValid(value)) {
+            set_depth(static_cast< ::Protocol::FrameResponse_bitDepth >(value));
           } else {
             mutable_unknown_fields()->AddVarint(4, value);
           }
@@ -1536,6 +1392,39 @@ bool FrameHeader::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(106)) goto parse_instanceUid;
+        break;
+      }
+      
+      // required string instanceUid = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_instanceUid:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_instanceuid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->instanceuid().data(), this->instanceuid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(112)) goto parse_frameNumber;
+        break;
+      }
+      
+      // required uint32 frameNumber = 14;
+      case 14: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_frameNumber:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &framenumber_)));
+          set_has_framenumber();
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1556,7 +1445,7 @@ bool FrameHeader::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void FrameHeader::SerializeWithCachedSizes(
+void FrameResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // required uint32 totalBytes = 1;
   if (has_totalbytes()) {
@@ -1573,7 +1462,7 @@ void FrameHeader::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->imagesizey(), output);
   }
   
-  // required .Protocol.FrameHeader.bitDepth depth = 4;
+  // required .Protocol.FrameResponse.bitDepth depth = 4;
   if (has_depth()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       4, this->depth(), output);
@@ -1627,13 +1516,27 @@ void FrameHeader::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(12, this->highbit(), output);
   }
   
+  // required string instanceUid = 13;
+  if (has_instanceuid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->instanceuid().data(), this->instanceuid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      13, this->instanceuid(), output);
+  }
+  
+  // required uint32 frameNumber = 14;
+  if (has_framenumber()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(14, this->framenumber(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
 
-::google::protobuf::uint8* FrameHeader::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* FrameResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // required uint32 totalBytes = 1;
   if (has_totalbytes()) {
@@ -1650,7 +1553,7 @@ void FrameHeader::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->imagesizey(), target);
   }
   
-  // required .Protocol.FrameHeader.bitDepth depth = 4;
+  // required .Protocol.FrameResponse.bitDepth depth = 4;
   if (has_depth()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       4, this->depth(), target);
@@ -1706,6 +1609,21 @@ void FrameHeader::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(12, this->highbit(), target);
   }
   
+  // required string instanceUid = 13;
+  if (has_instanceuid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->instanceuid().data(), this->instanceuid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        13, this->instanceuid(), target);
+  }
+  
+  // required uint32 frameNumber = 14;
+  if (has_framenumber()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(14, this->framenumber(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1713,7 +1631,7 @@ void FrameHeader::SerializeWithCachedSizes(
   return target;
 }
 
-int FrameHeader::ByteSize() const {
+int FrameResponse::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
@@ -1738,7 +1656,7 @@ int FrameHeader::ByteSize() const {
           this->imagesizey());
     }
     
-    // required .Protocol.FrameHeader.bitDepth depth = 4;
+    // required .Protocol.FrameResponse.bitDepth depth = 4;
     if (has_depth()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->depth());
@@ -1798,6 +1716,20 @@ int FrameHeader::ByteSize() const {
           this->highbit());
     }
     
+    // required string instanceUid = 13;
+    if (has_instanceuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->instanceuid());
+    }
+    
+    // required uint32 frameNumber = 14;
+    if (has_framenumber()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->framenumber());
+    }
+    
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1810,10 +1742,10 @@ int FrameHeader::ByteSize() const {
   return total_size;
 }
 
-void FrameHeader::MergeFrom(const ::google::protobuf::Message& from) {
+void FrameResponse::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const FrameHeader* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const FrameHeader*>(
+  const FrameResponse* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const FrameResponse*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1822,7 +1754,7 @@ void FrameHeader::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void FrameHeader::MergeFrom(const FrameHeader& from) {
+void FrameResponse::MergeFrom(const FrameResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_totalbytes()) {
@@ -1863,307 +1795,11 @@ void FrameHeader::MergeFrom(const FrameHeader& from) {
     if (from.has_highbit()) {
       set_highbit(from.highbit());
     }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void FrameHeader::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void FrameHeader::CopyFrom(const FrameHeader& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool FrameHeader::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000fff) != 0x00000fff) return false;
-  
-  return true;
-}
-
-void FrameHeader::Swap(FrameHeader* other) {
-  if (other != this) {
-    std::swap(totalbytes_, other->totalbytes_);
-    std::swap(imagesizex_, other->imagesizex_);
-    std::swap(imagesizey_, other->imagesizey_);
-    std::swap(depth_, other->depth_);
-    std::swap(colorspace_, other->colorspace_);
-    std::swap(transfersyntax_, other->transfersyntax_);
-    std::swap(channelsnumber_, other->channelsnumber_);
-    std::swap(binterleaved_, other->binterleaved_);
-    std::swap(b2complement_, other->b2complement_);
-    std::swap(allocatedbits_, other->allocatedbits_);
-    std::swap(storedbits_, other->storedbits_);
-    std::swap(highbit_, other->highbit_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata FrameHeader::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = FrameHeader_descriptor_;
-  metadata.reflection = FrameHeader_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int FrameResponse::kInstanceUidNumberFieldNumber;
-const int FrameResponse::kFrameNumberFieldNumber;
-const int FrameResponse::kFrameHeaderFieldNumber;
-#endif  // !_MSC_VER
-
-FrameResponse::FrameResponse()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-}
-
-void FrameResponse::InitAsDefaultInstance() {
-  frameheader_ = const_cast< ::Protocol::FrameHeader*>(&::Protocol::FrameHeader::default_instance());
-}
-
-FrameResponse::FrameResponse(const FrameResponse& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-}
-
-void FrameResponse::SharedCtor() {
-  _cached_size_ = 0;
-  instanceuidnumber_ = 0u;
-  framenumber_ = 0u;
-  frameheader_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-FrameResponse::~FrameResponse() {
-  SharedDtor();
-}
-
-void FrameResponse::SharedDtor() {
-  if (this != default_instance_) {
-    delete frameheader_;
-  }
-}
-
-void FrameResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* FrameResponse::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return FrameResponse_descriptor_;
-}
-
-const FrameResponse& FrameResponse::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_stream_2eproto();  return *default_instance_;
-}
-
-FrameResponse* FrameResponse::default_instance_ = NULL;
-
-FrameResponse* FrameResponse::New() const {
-  return new FrameResponse;
-}
-
-void FrameResponse::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    instanceuidnumber_ = 0u;
-    framenumber_ = 0u;
-    if (has_frameheader()) {
-      if (frameheader_ != NULL) frameheader_->::Protocol::FrameHeader::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool FrameResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
-  ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required uint32 instanceUidNumber = 1;
-      case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &instanceuidnumber_)));
-          set_has_instanceuidnumber();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(16)) goto parse_frameNumber;
-        break;
-      }
-      
-      // required uint32 frameNumber = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_frameNumber:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &framenumber_)));
-          set_has_framenumber();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(26)) goto parse_frameHeader;
-        break;
-      }
-      
-      // required .Protocol.FrameHeader frameHeader = 3;
-      case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_frameHeader:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_frameheader()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectAtEnd()) return true;
-        break;
-      }
-      
-      default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-  return true;
-#undef DO_
-}
-
-void FrameResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // required uint32 instanceUidNumber = 1;
-  if (has_instanceuidnumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->instanceuidnumber(), output);
-  }
-  
-  // required uint32 frameNumber = 2;
-  if (has_framenumber()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->framenumber(), output);
-  }
-  
-  // required .Protocol.FrameHeader frameHeader = 3;
-  if (has_frameheader()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->frameheader(), output);
-  }
-  
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-}
-
-::google::protobuf::uint8* FrameResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // required uint32 instanceUidNumber = 1;
-  if (has_instanceuidnumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->instanceuidnumber(), target);
-  }
-  
-  // required uint32 frameNumber = 2;
-  if (has_framenumber()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->framenumber(), target);
-  }
-  
-  // required .Protocol.FrameHeader frameHeader = 3;
-  if (has_frameheader()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->frameheader(), target);
-  }
-  
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  return target;
-}
-
-int FrameResponse::ByteSize() const {
-  int total_size = 0;
-  
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required uint32 instanceUidNumber = 1;
-    if (has_instanceuidnumber()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->instanceuidnumber());
-    }
-    
-    // required uint32 frameNumber = 2;
-    if (has_framenumber()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->framenumber());
-    }
-    
-    // required .Protocol.FrameHeader frameHeader = 3;
-    if (has_frameheader()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->frameheader());
-    }
-    
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void FrameResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const FrameResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const FrameResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void FrameResponse::MergeFrom(const FrameResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_instanceuidnumber()) {
-      set_instanceuidnumber(from.instanceuidnumber());
+    if (from.has_instanceuid()) {
+      set_instanceuid(from.instanceuid());
     }
     if (from.has_framenumber()) {
       set_framenumber(from.framenumber());
-    }
-    if (from.has_frameheader()) {
-      mutable_frameheader()->::Protocol::FrameHeader::MergeFrom(from.frameheader());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -2182,19 +1818,27 @@ void FrameResponse::CopyFrom(const FrameResponse& from) {
 }
 
 bool FrameResponse::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00003fff) != 0x00003fff) return false;
   
-  if (has_frameheader()) {
-    if (!this->frameheader().IsInitialized()) return false;
-  }
   return true;
 }
 
 void FrameResponse::Swap(FrameResponse* other) {
   if (other != this) {
-    std::swap(instanceuidnumber_, other->instanceuidnumber_);
+    std::swap(totalbytes_, other->totalbytes_);
+    std::swap(imagesizex_, other->imagesizex_);
+    std::swap(imagesizey_, other->imagesizey_);
+    std::swap(depth_, other->depth_);
+    std::swap(colorspace_, other->colorspace_);
+    std::swap(transfersyntax_, other->transfersyntax_);
+    std::swap(channelsnumber_, other->channelsnumber_);
+    std::swap(binterleaved_, other->binterleaved_);
+    std::swap(b2complement_, other->b2complement_);
+    std::swap(allocatedbits_, other->allocatedbits_);
+    std::swap(storedbits_, other->storedbits_);
+    std::swap(highbit_, other->highbit_);
+    std::swap(instanceuid_, other->instanceuid_);
     std::swap(framenumber_, other->framenumber_);
-    std::swap(frameheader_, other->frameheader_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

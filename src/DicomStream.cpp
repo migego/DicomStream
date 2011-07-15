@@ -300,24 +300,24 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			if (!frameInfo->sentFrameHeader)
 			{
 				Protocol::FrameResponse frameResponse;
-				frameResponse.set_instanceuidnumber(0);
+				frameResponse.set_instanceuid("hihi");
 				frameResponse.set_framenumber(0);
 
 				DicomPixels* parser = fileInfo->parser;
 				if (parser)
 				{
-					frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->size);
-					frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
-					frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
-					frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
-					frameResponse.mutable_frameheader()->set_colorspace(parser->getcolorSpace());
-					frameResponse.mutable_frameheader()->set_transfersyntax(parser->gettransferSyntax());
-					frameResponse.mutable_frameheader()->set_channelsnumber(parser->getchannelsNumber());
-					frameResponse.mutable_frameheader()->set_binterleaved(parser->getbInterleaved());
-					frameResponse.mutable_frameheader()->set_b2complement(parser->getb2Complement());
-					frameResponse.mutable_frameheader()->set_allocatedbits(parser->getallocatedBits());
-					frameResponse.mutable_frameheader()->set_storedbits(parser->getstoredBits());
-					frameResponse.mutable_frameheader()->set_highbit(parser->gethighBit());
+					frameResponse.set_totalbytes(frameInfo->size);
+					frameResponse.set_imagesizex(parser->getimageSizeX());
+					frameResponse.set_imagesizey(parser->getimageSizeY());
+					frameResponse.set_depth((Protocol::FrameResponse_bitDepth)parser->getdepth());
+					frameResponse.set_colorspace(parser->getcolorSpace());
+					frameResponse.set_transfersyntax(parser->gettransferSyntax());
+					frameResponse.set_channelsnumber(parser->getchannelsNumber());
+					frameResponse.set_binterleaved(parser->getbInterleaved());
+					frameResponse.set_b2complement(parser->getb2Complement());
+					frameResponse.set_allocatedbits(parser->getallocatedBits());
+					frameResponse.set_storedbits(parser->getstoredBits());
+					frameResponse.set_highbit(parser->gethighBit());
 
 				}
 				bool needsAnotherWrite = false;
@@ -655,7 +655,7 @@ void DicomStream::clientTestRead_()
 		{
 		case MessageFramer::FrameResponse:
 			frameResponse = (Protocol::FrameResponse*)wrapper.message;
-			totalBytes = frameResponse->frameheader().totalbytes();
+			totalBytes = frameResponse->totalbytes();
 			printf("[client] received frame header: total bytes: %d\n",totalBytes);
 			break;
 		case MessageFramer::FrameFragmentHeader:
@@ -705,28 +705,23 @@ void DicomStream::clientTest_()
 {
 	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
 	req->set_studyuid("study1");
-	req->set_studyuidnumber(0);
 	req->set_seriesuid("series1");
-	req->set_seriesuidnumber(0);
 	req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
 	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
 	req->set_instanceuidprefix("");
 
 	Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
 	frameReq->set_instanceuid("instance1");
-	frameReq->set_instanceuidnumber(0);
 	frameReq->set_framenumber(1);
 	req->mutable_frames()->AddAllocated(frameReq);
 
 	frameReq = new Protocol::FrameRequest();
 	frameReq->set_instanceuid("instance2");
-	frameReq->set_instanceuidnumber(1);
 	frameReq->set_framenumber(1);
 	req->mutable_frames()->AddAllocated(frameReq);
 
 	frameReq = new Protocol::FrameRequest();
 	frameReq->set_instanceuid("instance3");
-	frameReq->set_instanceuidnumber(2);
 	frameReq->set_framenumber(1);
 	req->mutable_frames()->AddAllocated(frameReq);
 	req->set_multiframe(false);
