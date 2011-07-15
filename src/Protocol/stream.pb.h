@@ -36,7 +36,7 @@ class FrameRequest;
 class FrameGroupRequest;
 class FrameHeader;
 class FrameResponse;
-class FrameFragment;
+class FrameFragmentHeader;
 
 enum FrameGroupRequest_RequestType {
   FrameGroupRequest_RequestType_Fetch = 0,
@@ -720,36 +720,45 @@ class FrameResponse : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required .Protocol.FrameRequest frameRequest = 1;
-  inline bool has_framerequest() const;
-  inline void clear_framerequest();
-  static const int kFrameRequestFieldNumber = 1;
-  inline const ::Protocol::FrameRequest& framerequest() const;
-  inline ::Protocol::FrameRequest* mutable_framerequest();
-  inline ::Protocol::FrameRequest* release_framerequest();
+  // required uint32 instanceUidNumber = 1;
+  inline bool has_instanceuidnumber() const;
+  inline void clear_instanceuidnumber();
+  static const int kInstanceUidNumberFieldNumber = 1;
+  inline ::google::protobuf::uint32 instanceuidnumber() const;
+  inline void set_instanceuidnumber(::google::protobuf::uint32 value);
   
-  // required .Protocol.FrameHeader frameHeader = 2;
+  // required uint32 frameNumber = 2;
+  inline bool has_framenumber() const;
+  inline void clear_framenumber();
+  static const int kFrameNumberFieldNumber = 2;
+  inline ::google::protobuf::uint32 framenumber() const;
+  inline void set_framenumber(::google::protobuf::uint32 value);
+  
+  // required .Protocol.FrameHeader frameHeader = 3;
   inline bool has_frameheader() const;
   inline void clear_frameheader();
-  static const int kFrameHeaderFieldNumber = 2;
+  static const int kFrameHeaderFieldNumber = 3;
   inline const ::Protocol::FrameHeader& frameheader() const;
   inline ::Protocol::FrameHeader* mutable_frameheader();
   inline ::Protocol::FrameHeader* release_frameheader();
   
   // @@protoc_insertion_point(class_scope:Protocol.FrameResponse)
  private:
-  inline void set_has_framerequest();
-  inline void clear_has_framerequest();
+  inline void set_has_instanceuidnumber();
+  inline void clear_has_instanceuidnumber();
+  inline void set_has_framenumber();
+  inline void clear_has_framenumber();
   inline void set_has_frameheader();
   inline void clear_has_frameheader();
   
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
-  ::Protocol::FrameRequest* framerequest_;
+  ::google::protobuf::uint32 instanceuidnumber_;
+  ::google::protobuf::uint32 framenumber_;
   ::Protocol::FrameHeader* frameheader_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -760,14 +769,14 @@ class FrameResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class FrameFragment : public ::google::protobuf::Message {
+class FrameFragmentHeader : public ::google::protobuf::Message {
  public:
-  FrameFragment();
-  virtual ~FrameFragment();
+  FrameFragmentHeader();
+  virtual ~FrameFragmentHeader();
   
-  FrameFragment(const FrameFragment& from);
+  FrameFragmentHeader(const FrameFragmentHeader& from);
   
-  inline FrameFragment& operator=(const FrameFragment& from) {
+  inline FrameFragmentHeader& operator=(const FrameFragmentHeader& from) {
     CopyFrom(from);
     return *this;
   }
@@ -781,17 +790,17 @@ class FrameFragment : public ::google::protobuf::Message {
   }
   
   static const ::google::protobuf::Descriptor* descriptor();
-  static const FrameFragment& default_instance();
+  static const FrameFragmentHeader& default_instance();
   
-  void Swap(FrameFragment* other);
+  void Swap(FrameFragmentHeader* other);
   
   // implements Message ----------------------------------------------
   
-  FrameFragment* New() const;
+  FrameFragmentHeader* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const FrameFragment& from);
-  void MergeFrom(const FrameFragment& from);
+  void CopyFrom(const FrameFragmentHeader& from);
+  void MergeFrom(const FrameFragmentHeader& from);
   void Clear();
   bool IsInitialized() const;
   
@@ -828,7 +837,7 @@ class FrameFragment : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 size() const;
   inline void set_size(::google::protobuf::uint32 value);
   
-  // @@protoc_insertion_point(class_scope:Protocol.FrameFragment)
+  // @@protoc_insertion_point(class_scope:Protocol.FrameFragmentHeader)
  private:
   inline void set_has_offset();
   inline void clear_has_offset();
@@ -848,7 +857,7 @@ class FrameFragment : public ::google::protobuf::Message {
   friend void protobuf_ShutdownFile_stream_2eproto();
   
   void InitAsDefaultInstance();
-  static FrameFragment* default_instance_;
+  static FrameFragmentHeader* default_instance_;
 };
 // ===================================================================
 
@@ -1619,44 +1628,59 @@ inline void FrameHeader::set_highbit(::google::protobuf::uint32 value) {
 
 // FrameResponse
 
-// required .Protocol.FrameRequest frameRequest = 1;
-inline bool FrameResponse::has_framerequest() const {
+// required uint32 instanceUidNumber = 1;
+inline bool FrameResponse::has_instanceuidnumber() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void FrameResponse::set_has_framerequest() {
+inline void FrameResponse::set_has_instanceuidnumber() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void FrameResponse::clear_has_framerequest() {
+inline void FrameResponse::clear_has_instanceuidnumber() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void FrameResponse::clear_framerequest() {
-  if (framerequest_ != NULL) framerequest_->::Protocol::FrameRequest::Clear();
-  clear_has_framerequest();
+inline void FrameResponse::clear_instanceuidnumber() {
+  instanceuidnumber_ = 0u;
+  clear_has_instanceuidnumber();
 }
-inline const ::Protocol::FrameRequest& FrameResponse::framerequest() const {
-  return framerequest_ != NULL ? *framerequest_ : *default_instance_->framerequest_;
+inline ::google::protobuf::uint32 FrameResponse::instanceuidnumber() const {
+  return instanceuidnumber_;
 }
-inline ::Protocol::FrameRequest* FrameResponse::mutable_framerequest() {
-  set_has_framerequest();
-  if (framerequest_ == NULL) framerequest_ = new ::Protocol::FrameRequest;
-  return framerequest_;
-}
-inline ::Protocol::FrameRequest* FrameResponse::release_framerequest() {
-  clear_has_framerequest();
-  ::Protocol::FrameRequest* temp = framerequest_;
-  framerequest_ = NULL;
-  return temp;
+inline void FrameResponse::set_instanceuidnumber(::google::protobuf::uint32 value) {
+  set_has_instanceuidnumber();
+  instanceuidnumber_ = value;
 }
 
-// required .Protocol.FrameHeader frameHeader = 2;
-inline bool FrameResponse::has_frameheader() const {
+// required uint32 frameNumber = 2;
+inline bool FrameResponse::has_framenumber() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void FrameResponse::set_has_frameheader() {
+inline void FrameResponse::set_has_framenumber() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void FrameResponse::clear_has_frameheader() {
+inline void FrameResponse::clear_has_framenumber() {
   _has_bits_[0] &= ~0x00000002u;
+}
+inline void FrameResponse::clear_framenumber() {
+  framenumber_ = 0u;
+  clear_has_framenumber();
+}
+inline ::google::protobuf::uint32 FrameResponse::framenumber() const {
+  return framenumber_;
+}
+inline void FrameResponse::set_framenumber(::google::protobuf::uint32 value) {
+  set_has_framenumber();
+  framenumber_ = value;
+}
+
+// required .Protocol.FrameHeader frameHeader = 3;
+inline bool FrameResponse::has_frameheader() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void FrameResponse::set_has_frameheader() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void FrameResponse::clear_has_frameheader() {
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void FrameResponse::clear_frameheader() {
   if (frameheader_ != NULL) frameheader_->::Protocol::FrameHeader::Clear();
@@ -1679,48 +1703,48 @@ inline ::Protocol::FrameHeader* FrameResponse::release_frameheader() {
 
 // -------------------------------------------------------------------
 
-// FrameFragment
+// FrameFragmentHeader
 
 // required uint32 offset = 1;
-inline bool FrameFragment::has_offset() const {
+inline bool FrameFragmentHeader::has_offset() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void FrameFragment::set_has_offset() {
+inline void FrameFragmentHeader::set_has_offset() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void FrameFragment::clear_has_offset() {
+inline void FrameFragmentHeader::clear_has_offset() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void FrameFragment::clear_offset() {
+inline void FrameFragmentHeader::clear_offset() {
   offset_ = 0u;
   clear_has_offset();
 }
-inline ::google::protobuf::uint32 FrameFragment::offset() const {
+inline ::google::protobuf::uint32 FrameFragmentHeader::offset() const {
   return offset_;
 }
-inline void FrameFragment::set_offset(::google::protobuf::uint32 value) {
+inline void FrameFragmentHeader::set_offset(::google::protobuf::uint32 value) {
   set_has_offset();
   offset_ = value;
 }
 
 // required uint32 size = 2;
-inline bool FrameFragment::has_size() const {
+inline bool FrameFragmentHeader::has_size() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void FrameFragment::set_has_size() {
+inline void FrameFragmentHeader::set_has_size() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void FrameFragment::clear_has_size() {
+inline void FrameFragmentHeader::clear_has_size() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void FrameFragment::clear_size() {
+inline void FrameFragmentHeader::clear_size() {
   size_ = 0u;
   clear_has_size();
 }
-inline ::google::protobuf::uint32 FrameFragment::size() const {
+inline ::google::protobuf::uint32 FrameFragmentHeader::size() const {
   return size_;
 }
-inline void FrameFragment::set_size(::google::protobuf::uint32 value) {
+inline void FrameFragmentHeader::set_size(::google::protobuf::uint32 value) {
   set_has_size();
   size_ = value;
 }

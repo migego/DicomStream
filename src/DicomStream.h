@@ -40,6 +40,12 @@ private:
 	DicomStream();
 	virtual ~DicomStream();
 
+	struct TQueueInfo
+	{
+		queue<FrameGroupIterator*> frameGroupQueue;
+		Protocol::FrameFragmentHeader currentFragment;
+	};
+
 	struct TFadvise
 	{
 		TFadvise(int fd, off_t offset, off_t len, int advice) : fd(fd), offset(offset), len(len), advice(advice)
@@ -91,6 +97,7 @@ private:
 	{
 		TClient* cli;
 		TFileInfo* fileInfo;
+		TFrameInfo* frameInfo;
 		unsigned int offset;
 		unsigned int size;
 	};
@@ -114,7 +121,7 @@ private:
 	void processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg);
 
 	// parsing
-	map<int, queue<FrameGroupIterator*>*  > frameGroupIterators; //key is client fd
+	map<int, TQueueInfo*  > queueInfoMap; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
     void triggerNextEvent(TClient* cli);
@@ -131,7 +138,6 @@ private:
 	int setNonBlock(int fd);
 	int setCork(int clientFd, bool cork);
 
-	Protocol::FrameFragment currentFragment;
 	static void write_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void read_cb(struct ev_loop *loop, struct ev_io *w, int revents);
 	static void accept_cb(struct ev_loop *loop, struct ev_io *w, int revents);

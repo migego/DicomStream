@@ -18,14 +18,15 @@
 #include "../Dicom/ParseListenManager.h"
 
 // iterator for image frame
-typedef SequentialIterator<Protocol::FrameFragment, FragmentIterator> tFrameIterator;
+typedef SequentialIterator<TFrameFragment, FragmentIterator> tFrameIterator;
 
 struct TFrameInfo
 {
-	TFrameInfo() : totalBytes(0), sentFrameHeader(false){}
+	TFrameInfo() : offset(0), size(0), sentFrameHeader(false){}
 	string fileName;
 	Protocol::FrameRequest frameRequest;
-	int totalBytes;
+	int offset;
+	int size;
 	bool sentFrameHeader;
 
 };
@@ -71,11 +72,11 @@ public:
 
     	   }
     	   setChildIterators(childIters);
-    	   frameInfo.totalBytes = frameFragments[0]->totalBytes;
+    	   frameInfo.size = frameFragments[0]->totalBytes;
 
        }
-
 	}
+
 	TFrameInfo* getFrameInfo()
 	{
 		return &frameInfo;

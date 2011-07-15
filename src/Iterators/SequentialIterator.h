@@ -42,7 +42,7 @@ public:
 		position = 0;
 	}
 
-	bool next(Data& item)
+	virtual bool next(Data& item)
 	{
 		if (!isValid())
 			return false;

@@ -12,25 +12,31 @@
 #include <string>
 #include "../Protocol/stream.pb.h"
 
+struct TFrameFragment
+{
+	size_t offset;
+	size_t size;  //size of fragment
+};
+
 class FragmentIterator  {
 
 private:
-	bool done;
-	size_t offset;
+	size_t offsetBase;
+	size_t offsetIncrement;
 	size_t size;
 	size_t chunk;
-	size_t offsetIncrement;
+
 
 public:
 
-	FragmentIterator(size_t offset, size_t size, size_t chunk) : offset(offset), size(size), chunk(chunk), offsetIncrement(0)
+	FragmentIterator(size_t offset, size_t size, size_t chunk) : offsetBase(offset), offsetIncrement(0), size(size), chunk(chunk)
 	{
 	}
 	FragmentIterator* copy()
 	{
-		return new FragmentIterator(offset, size, chunk);
+		return new FragmentIterator(offsetBase, size, chunk);
 	}
-    bool next( Protocol::FrameFragment& fragment)
+    bool next( TFrameFragment& fragment)
 	{
     	if (offsetIncrement == size)
     		return false;
@@ -39,8 +45,8 @@ public:
 			block = size;
 		else
 		   block = min(chunk, size-offsetIncrement);
-		fragment.set_offset( offset + offsetIncrement);
-		fragment.set_size(block);
+		fragment.offset =  offsetBase + offsetIncrement;
+		fragment.size =  block;
 		offsetIncrement += block;
 		return true;
 	}

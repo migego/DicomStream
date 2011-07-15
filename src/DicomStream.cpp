@@ -236,6 +236,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	}
 
 	printf("[server] sent pixels %d\n", req->result);
+	data->frameInfo->offset += req->result;
 
 	if ( ((unsigned int)req->result) < data->size)
 	{
@@ -249,9 +250,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	delete data;
 
 	//trigger write on next fragment
-	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+	if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
  	{
- 		queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+ 		queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
 
  		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
@@ -285,10 +286,10 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
  	if (revents & EV_WRITE)
  	{
- 		if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+ 		if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
  		{
  			// queue must not be empty, because we do not trigger a write on an empty queue
- 			queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+ 			queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
 
  			//frame info cannot be null, because we do not trigger a write on an
  			// uninitialized or completed FrameGroupIterator
@@ -299,12 +300,13 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			if (!frameInfo->sentFrameHeader)
 			{
 				Protocol::FrameResponse frameResponse;
-				frameResponse.mutable_framerequest()->Swap(&frameInfo->frameRequest);
+				frameResponse.set_instanceuidnumber(0);
+				frameResponse.set_framenumber(0);
 
 				DicomPixels* parser = fileInfo->parser;
 				if (parser)
 				{
-					frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->totalBytes);
+					frameResponse.mutable_frameheader()->set_totalbytes(frameInfo->size);
 					frameResponse.mutable_frameheader()->set_imagesizex(parser->getimageSizeX());
 					frameResponse.mutable_frameheader()->set_imagesizey(parser->getimageSizeY());
 					frameResponse.mutable_frameheader()->set_depth((Protocol::FrameHeader_bitDepth)parser->getdepth());
@@ -321,7 +323,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				bool needsAnotherWrite = false;
 				try
 				{
-					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->totalBytes);
+					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->size);
 				    needsAnotherWrite = !messageFramers[cli->fd]->write(&frameResponse);
 				}
 				catch (EAgainException& ee)
@@ -349,7 +351,19 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			//2. write fragment header and trigger fragment sendfile
 			// next must return true, since we do not trigger write on completed FrameGroupIterator??
 
-			if (messageFramers[cli->fd]->IsWriteInProgress() || frameQueue->front()->next(currentFragment))
+			Protocol::FrameFragmentHeader& currentFragment = queueInfoMap[cli->fd]->currentFragment;
+			TFrameFragment frameFragment;
+			bool needsWrite = messageFramers[cli->fd]->IsWriteInProgress();
+			if (!needsWrite)
+			{
+				needsWrite = frameQueue->front()->next(frameFragment);
+				if (needsWrite)
+				{
+                    currentFragment.set_offset(frameInfo->offset);
+                    currentFragment.set_size(frameFragment.size);
+				}
+			}
+			if (needsWrite)
 			{
 				bool needsAnotherWrite = false;
                 try
@@ -379,8 +393,9 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				TEio* data = new TEio();
 				data->cli = cli;
 				data->fileInfo = fileInfo;
-				data->offset = currentFragment.offset();
-				data->size = currentFragment.size();
+			    data->frameInfo = frameInfo;
+				data->offset = frameFragment.offset;
+				data->size = frameFragment.size;
 				//3. trigger eio sendfile on fragment
 				printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
 				eio_sendfile (data->cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
@@ -457,17 +472,18 @@ void DicomStream::cleanup(TClient* cli)
 	deleteMessageFramer(cli->fd);
 
 	//delete client queue
-	if (frameGroupIterators.find(cli->fd) != frameGroupIterators.end())
+	if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
 	{
-		queue<FrameGroupIterator*>*  frameQueue = frameGroupIterators[cli->fd];
+		TQueueInfo* queueInfo = queueInfoMap[cli->fd];
+		queue<FrameGroupIterator*>*  frameQueue = &queueInfo->frameGroupQueue;
 		while(!frameQueue->empty())
 		{
 			delete frameQueue->front();
 			frameQueue->pop();
 
 		}
-		delete frameQueue;
-		frameGroupIterators.erase(cli->fd);
+		delete queueInfo;
+		queueInfoMap.erase(cli->fd);
 
 	}
 
@@ -491,9 +507,9 @@ void DicomStream::cleanup(string fileName)
 void DicomStream::triggerNextEvent(TClient* cli)
 {
 
-	if (frameGroupIterators.find(cli->fd) == frameGroupIterators.end())
+	if (queueInfoMap.find(cli->fd) == queueInfoMap.end())
 		return;
-    queue<FrameGroupIterator*>* frameQueue = frameGroupIterators[cli->fd];
+    queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
     if (frameQueue->empty())
     	return;
     FrameIterator* frameIter  = frameQueue->front()->currentIterator();
@@ -580,14 +596,15 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    {
 	    	//queue new iterator
 	    	queue<FrameGroupIterator*>* frameQueue = NULL;
-	    	if (frameGroupIterators.find(cli->fd) == frameGroupIterators.end())
+	    	if (queueInfoMap.find(cli->fd) == queueInfoMap.end())
 	    	{
-	    		frameQueue = new queue<FrameGroupIterator*>();
-	    		frameGroupIterators[cli->fd] = frameQueue;
+	    		TQueueInfo* queueInfo = new TQueueInfo();
+	    		queueInfoMap[cli->fd] = queueInfo;
+	    		frameQueue = &queueInfo->frameGroupQueue;
 	    	}
 	    	else
 	    	{
-	    		frameQueue = frameGroupIterators[cli->fd];
+	    		frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
 	    	}
 
 	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
@@ -615,7 +632,7 @@ void DicomStream::clientTestRead_()
 	MessageFramer* framer = new MessageFramer(clientFd);
 
 	Protocol::FrameResponse* frameResponse;
-	Protocol::FrameFragment* frameFragment;
+	Protocol::FrameFragmentHeader* frameFragment;
 
 	int totalBytes = -1;
 	int totalCount = 0;
@@ -641,9 +658,9 @@ void DicomStream::clientTestRead_()
 			totalBytes = frameResponse->frameheader().totalbytes();
 			printf("[client] received frame header: total bytes: %d\n",totalBytes);
 			break;
-		case MessageFramer::FrameFragment:
+		case MessageFramer::FrameFragmentHeader:
 			{
-			frameFragment = (Protocol::FrameFragment*)wrapper.message;
+			frameFragment = (Protocol::FrameFragmentHeader*)wrapper.message;
 			unsigned int size = frameFragment->size();
 			unsigned int offset = frameFragment->offset();
 			printf("[client] fragment header: offset %d, size %d\n",offset, size);

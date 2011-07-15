@@ -32,9 +32,9 @@ const ::google::protobuf::EnumDescriptor* FrameHeader_bitDepth_descriptor_ = NUL
 const ::google::protobuf::Descriptor* FrameResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FrameResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* FrameFragment_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* FrameFragmentHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  FrameFragment_reflection_ = NULL;
+  FrameFragmentHeader_reflection_ = NULL;
 
 }  // namespace
 
@@ -115,8 +115,9 @@ void protobuf_AssignDesc_stream_2eproto() {
       sizeof(FrameHeader));
   FrameHeader_bitDepth_descriptor_ = FrameHeader_descriptor_->enum_type(0);
   FrameResponse_descriptor_ = file->message_type(3);
-  static const int FrameResponse_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, framerequest_),
+  static const int FrameResponse_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, instanceuidnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, framenumber_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameResponse, frameheader_),
   };
   FrameResponse_reflection_ =
@@ -130,22 +131,22 @@ void protobuf_AssignDesc_stream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FrameResponse));
-  FrameFragment_descriptor_ = file->message_type(4);
-  static const int FrameFragment_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragment, offset_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragment, size_),
+  FrameFragmentHeader_descriptor_ = file->message_type(4);
+  static const int FrameFragmentHeader_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, offset_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, size_),
   };
-  FrameFragment_reflection_ =
+  FrameFragmentHeader_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      FrameFragment_descriptor_,
-      FrameFragment::default_instance_,
-      FrameFragment_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragment, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragment, _unknown_fields_),
+      FrameFragmentHeader_descriptor_,
+      FrameFragmentHeader::default_instance_,
+      FrameFragmentHeader_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(FrameFragment));
+      sizeof(FrameFragmentHeader));
 }
 
 namespace {
@@ -167,7 +168,7 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FrameResponse_descriptor_, &FrameResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    FrameFragment_descriptor_, &FrameFragment::default_instance());
+    FrameFragmentHeader_descriptor_, &FrameFragmentHeader::default_instance());
 }
 
 }  // namespace
@@ -181,8 +182,8 @@ void protobuf_ShutdownFile_stream_2eproto() {
   delete FrameHeader_reflection_;
   delete FrameResponse::default_instance_;
   delete FrameResponse_reflection_;
-  delete FrameFragment::default_instance_;
-  delete FrameFragment_reflection_;
+  delete FrameFragmentHeader::default_instance_;
+  delete FrameFragmentHeader_reflection_;
 }
 
 void protobuf_AddDesc_stream_2eproto() {
@@ -215,23 +216,23 @@ void protobuf_AddDesc_stream_2eproto() {
     " \002(\r\022\022\n\nstoredBits\030\013 \002(\r\022\017\n\007highBit\030\014 \002("
     "\r\"\\\n\010bitDepth\022\013\n\007depthU8\020\000\022\013\n\007depthS8\020\001\022"
     "\014\n\010depthU16\020\002\022\014\n\010depthS16\020\003\022\014\n\010depthU32\020"
-    "\004\022\014\n\010depthS32\020\005\"i\n\rFrameResponse\022,\n\014fram"
-    "eRequest\030\001 \002(\0132\026.Protocol.FrameRequest\022*"
-    "\n\013frameHeader\030\002 \002(\0132\025.Protocol.FrameHead"
-    "er\"-\n\rFrameFragment\022\016\n\006offset\030\001 \002(\r\022\014\n\004s"
-    "ize\030\002 \002(\r", 1089);
+    "\004\022\014\n\010depthS32\020\005\"k\n\rFrameResponse\022\031\n\021inst"
+    "anceUidNumber\030\001 \002(\r\022\023\n\013frameNumber\030\002 \002(\r"
+    "\022*\n\013frameHeader\030\003 \002(\0132\025.Protocol.FrameHe"
+    "ader\"3\n\023FrameFragmentHeader\022\016\n\006offset\030\001 "
+    "\002(\r\022\014\n\004size\030\002 \002(\r", 1097);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   FrameRequest::default_instance_ = new FrameRequest();
   FrameGroupRequest::default_instance_ = new FrameGroupRequest();
   FrameHeader::default_instance_ = new FrameHeader();
   FrameResponse::default_instance_ = new FrameResponse();
-  FrameFragment::default_instance_ = new FrameFragment();
+  FrameFragmentHeader::default_instance_ = new FrameFragmentHeader();
   FrameRequest::default_instance_->InitAsDefaultInstance();
   FrameGroupRequest::default_instance_->InitAsDefaultInstance();
   FrameHeader::default_instance_->InitAsDefaultInstance();
   FrameResponse::default_instance_->InitAsDefaultInstance();
-  FrameFragment::default_instance_->InitAsDefaultInstance();
+  FrameFragmentHeader::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_stream_2eproto);
 }
 
@@ -1916,7 +1917,8 @@ void FrameHeader::Swap(FrameHeader* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int FrameResponse::kFrameRequestFieldNumber;
+const int FrameResponse::kInstanceUidNumberFieldNumber;
+const int FrameResponse::kFrameNumberFieldNumber;
 const int FrameResponse::kFrameHeaderFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1926,7 +1928,6 @@ FrameResponse::FrameResponse()
 }
 
 void FrameResponse::InitAsDefaultInstance() {
-  framerequest_ = const_cast< ::Protocol::FrameRequest*>(&::Protocol::FrameRequest::default_instance());
   frameheader_ = const_cast< ::Protocol::FrameHeader*>(&::Protocol::FrameHeader::default_instance());
 }
 
@@ -1938,7 +1939,8 @@ FrameResponse::FrameResponse(const FrameResponse& from)
 
 void FrameResponse::SharedCtor() {
   _cached_size_ = 0;
-  framerequest_ = NULL;
+  instanceuidnumber_ = 0u;
+  framenumber_ = 0u;
   frameheader_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1949,7 +1951,6 @@ FrameResponse::~FrameResponse() {
 
 void FrameResponse::SharedDtor() {
   if (this != default_instance_) {
-    delete framerequest_;
     delete frameheader_;
   }
 }
@@ -1976,9 +1977,8 @@ FrameResponse* FrameResponse::New() const {
 
 void FrameResponse::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (has_framerequest()) {
-      if (framerequest_ != NULL) framerequest_->::Protocol::FrameRequest::Clear();
-    }
+    instanceuidnumber_ = 0u;
+    framenumber_ = 0u;
     if (has_frameheader()) {
       if (frameheader_ != NULL) frameheader_->::Protocol::FrameHeader::Clear();
     }
@@ -1993,21 +1993,39 @@ bool FrameResponse::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .Protocol.FrameRequest frameRequest = 1;
+      // required uint32 instanceUidNumber = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_framerequest()));
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &instanceuidnumber_)));
+          set_has_instanceuidnumber();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_frameHeader;
+        if (input->ExpectTag(16)) goto parse_frameNumber;
         break;
       }
       
-      // required .Protocol.FrameHeader frameHeader = 2;
+      // required uint32 frameNumber = 2;
       case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_frameNumber:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &framenumber_)));
+          set_has_framenumber();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_frameHeader;
+        break;
+      }
+      
+      // required .Protocol.FrameHeader frameHeader = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_frameHeader:
@@ -2038,16 +2056,20 @@ bool FrameResponse::MergePartialFromCodedStream(
 
 void FrameResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .Protocol.FrameRequest frameRequest = 1;
-  if (has_framerequest()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->framerequest(), output);
+  // required uint32 instanceUidNumber = 1;
+  if (has_instanceuidnumber()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->instanceuidnumber(), output);
   }
   
-  // required .Protocol.FrameHeader frameHeader = 2;
+  // required uint32 frameNumber = 2;
+  if (has_framenumber()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->framenumber(), output);
+  }
+  
+  // required .Protocol.FrameHeader frameHeader = 3;
   if (has_frameheader()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->frameheader(), output);
+      3, this->frameheader(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -2058,18 +2080,21 @@ void FrameResponse::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* FrameResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .Protocol.FrameRequest frameRequest = 1;
-  if (has_framerequest()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->framerequest(), target);
+  // required uint32 instanceUidNumber = 1;
+  if (has_instanceuidnumber()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->instanceuidnumber(), target);
   }
   
-  // required .Protocol.FrameHeader frameHeader = 2;
+  // required uint32 frameNumber = 2;
+  if (has_framenumber()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->framenumber(), target);
+  }
+  
+  // required .Protocol.FrameHeader frameHeader = 3;
   if (has_frameheader()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->frameheader(), target);
+        3, this->frameheader(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2083,14 +2108,21 @@ int FrameResponse::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .Protocol.FrameRequest frameRequest = 1;
-    if (has_framerequest()) {
+    // required uint32 instanceUidNumber = 1;
+    if (has_instanceuidnumber()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->framerequest());
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->instanceuidnumber());
     }
     
-    // required .Protocol.FrameHeader frameHeader = 2;
+    // required uint32 frameNumber = 2;
+    if (has_framenumber()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->framenumber());
+    }
+    
+    // required .Protocol.FrameHeader frameHeader = 3;
     if (has_frameheader()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -2124,8 +2156,11 @@ void FrameResponse::MergeFrom(const ::google::protobuf::Message& from) {
 void FrameResponse::MergeFrom(const FrameResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_framerequest()) {
-      mutable_framerequest()->::Protocol::FrameRequest::MergeFrom(from.framerequest());
+    if (from.has_instanceuidnumber()) {
+      set_instanceuidnumber(from.instanceuidnumber());
+    }
+    if (from.has_framenumber()) {
+      set_framenumber(from.framenumber());
     }
     if (from.has_frameheader()) {
       mutable_frameheader()->::Protocol::FrameHeader::MergeFrom(from.frameheader());
@@ -2147,11 +2182,8 @@ void FrameResponse::CopyFrom(const FrameResponse& from) {
 }
 
 bool FrameResponse::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
-  if (has_framerequest()) {
-    if (!this->framerequest().IsInitialized()) return false;
-  }
   if (has_frameheader()) {
     if (!this->frameheader().IsInitialized()) return false;
   }
@@ -2160,7 +2192,8 @@ bool FrameResponse::IsInitialized() const {
 
 void FrameResponse::Swap(FrameResponse* other) {
   if (other != this) {
-    std::swap(framerequest_, other->framerequest_);
+    std::swap(instanceuidnumber_, other->instanceuidnumber_);
+    std::swap(framenumber_, other->framenumber_);
     std::swap(frameheader_, other->frameheader_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -2180,61 +2213,61 @@ void FrameResponse::Swap(FrameResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int FrameFragment::kOffsetFieldNumber;
-const int FrameFragment::kSizeFieldNumber;
+const int FrameFragmentHeader::kOffsetFieldNumber;
+const int FrameFragmentHeader::kSizeFieldNumber;
 #endif  // !_MSC_VER
 
-FrameFragment::FrameFragment()
+FrameFragmentHeader::FrameFragmentHeader()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void FrameFragment::InitAsDefaultInstance() {
+void FrameFragmentHeader::InitAsDefaultInstance() {
 }
 
-FrameFragment::FrameFragment(const FrameFragment& from)
+FrameFragmentHeader::FrameFragmentHeader(const FrameFragmentHeader& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void FrameFragment::SharedCtor() {
+void FrameFragmentHeader::SharedCtor() {
   _cached_size_ = 0;
   offset_ = 0u;
   size_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-FrameFragment::~FrameFragment() {
+FrameFragmentHeader::~FrameFragmentHeader() {
   SharedDtor();
 }
 
-void FrameFragment::SharedDtor() {
+void FrameFragmentHeader::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void FrameFragment::SetCachedSize(int size) const {
+void FrameFragmentHeader::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* FrameFragment::descriptor() {
+const ::google::protobuf::Descriptor* FrameFragmentHeader::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return FrameFragment_descriptor_;
+  return FrameFragmentHeader_descriptor_;
 }
 
-const FrameFragment& FrameFragment::default_instance() {
+const FrameFragmentHeader& FrameFragmentHeader::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_stream_2eproto();  return *default_instance_;
 }
 
-FrameFragment* FrameFragment::default_instance_ = NULL;
+FrameFragmentHeader* FrameFragmentHeader::default_instance_ = NULL;
 
-FrameFragment* FrameFragment::New() const {
-  return new FrameFragment;
+FrameFragmentHeader* FrameFragmentHeader::New() const {
+  return new FrameFragmentHeader;
 }
 
-void FrameFragment::Clear() {
+void FrameFragmentHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     offset_ = 0u;
     size_ = 0u;
@@ -2243,7 +2276,7 @@ void FrameFragment::Clear() {
   mutable_unknown_fields()->Clear();
 }
 
-bool FrameFragment::MergePartialFromCodedStream(
+bool FrameFragmentHeader::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -2296,7 +2329,7 @@ bool FrameFragment::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void FrameFragment::SerializeWithCachedSizes(
+void FrameFragmentHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // required uint32 offset = 1;
   if (has_offset()) {
@@ -2314,7 +2347,7 @@ void FrameFragment::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* FrameFragment::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* FrameFragmentHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // required uint32 offset = 1;
   if (has_offset()) {
@@ -2333,7 +2366,7 @@ void FrameFragment::SerializeWithCachedSizes(
   return target;
 }
 
-int FrameFragment::ByteSize() const {
+int FrameFragmentHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
@@ -2363,10 +2396,10 @@ int FrameFragment::ByteSize() const {
   return total_size;
 }
 
-void FrameFragment::MergeFrom(const ::google::protobuf::Message& from) {
+void FrameFragmentHeader::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const FrameFragment* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const FrameFragment*>(
+  const FrameFragmentHeader* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const FrameFragmentHeader*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -2375,7 +2408,7 @@ void FrameFragment::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void FrameFragment::MergeFrom(const FrameFragment& from) {
+void FrameFragmentHeader::MergeFrom(const FrameFragmentHeader& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_offset()) {
@@ -2388,25 +2421,25 @@ void FrameFragment::MergeFrom(const FrameFragment& from) {
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void FrameFragment::CopyFrom(const ::google::protobuf::Message& from) {
+void FrameFragmentHeader::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void FrameFragment::CopyFrom(const FrameFragment& from) {
+void FrameFragmentHeader::CopyFrom(const FrameFragmentHeader& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool FrameFragment::IsInitialized() const {
+bool FrameFragmentHeader::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
   
   return true;
 }
 
-void FrameFragment::Swap(FrameFragment* other) {
+void FrameFragmentHeader::Swap(FrameFragmentHeader* other) {
   if (other != this) {
     std::swap(offset_, other->offset_);
     std::swap(size_, other->size_);
@@ -2416,11 +2449,11 @@ void FrameFragment::Swap(FrameFragment* other) {
   }
 }
 
-::google::protobuf::Metadata FrameFragment::GetMetadata() const {
+::google::protobuf::Metadata FrameFragmentHeader::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = FrameFragment_descriptor_;
-  metadata.reflection = FrameFragment_reflection_;
+  metadata.descriptor = FrameFragmentHeader_descriptor_;
+  metadata.reflection = FrameFragmentHeader_reflection_;
   return metadata;
 }
 

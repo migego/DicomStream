@@ -35,7 +35,7 @@ public:
 		None,
 		FrameGroupRequest,
 		FrameResponse,
-		FrameFragment
+		FrameFragmentHeader
 	};
 
 	struct MessageWrapper
@@ -59,9 +59,9 @@ public:
 	{
 		return write(FrameResponse, frameResponse);
 	}
-	bool write(Protocol::FrameFragment* frameFragment)
+	bool write(Protocol::FrameFragmentHeader* frameFragment)
 	{
-		return write(FrameFragment, frameFragment);
+		return write(FrameFragmentHeader, frameFragment);
 	}
     bool IsReadInProgress()
     {
@@ -180,8 +180,8 @@ public:
 		case FrameResponse:
 			  msg = new Protocol::FrameResponse();
 			break;
-		case FrameFragment:
-			  msg = new Protocol::FrameFragment();
+		case FrameFragmentHeader:
+			  msg = new Protocol::FrameFragmentHeader();
 			break;
 		default:
 			printf("MessageFramer: unidentified message\n");

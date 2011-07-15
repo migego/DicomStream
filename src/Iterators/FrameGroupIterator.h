@@ -18,7 +18,7 @@ using namespace std;
 #include "../Dicom/ParseListenManager.h"
 
 //iterator for either a series of single frame images, or a single multi-frame image
-typedef UpDownIterator<Protocol::FrameFragment, FrameIterator> tFrameGroupIterator;
+typedef UpDownIterator<TFrameFragment, FrameIterator> tFrameGroupIterator;
 
 
 
@@ -29,12 +29,7 @@ public:
 	// series of images
 	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd) : tFrameGroupIterator(childIters, primaryInd)
 	{
-
 	}
-	virtual ~FrameGroupIterator()
-	{
-	}
-
 private:
     void finish()
 	{

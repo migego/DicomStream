@@ -87,14 +87,13 @@ message FrameHeader
 // one FrameResponse is sent, followed by many FrameFragments
 message FrameResponse 
 {
-
-    required FrameRequest frameRequest=1;
-    required FrameHeader frameHeader=2;
-
+    required uint32 instanceUidNumber=1;  // used to avoid passing instance uid every time
+    required uint32 frameNumber=2;        // for multiframe
+    required FrameHeader frameHeader=3;
 };
 
 // raw pixels are streamed after FrameFragment
-message FrameFragment
+message FrameFragmentHeader
 {
     required uint32 offset=1;
     required uint32 size=2;
