@@ -40,7 +40,7 @@ private:
 	DicomStream();
 	virtual ~DicomStream();
 
-	struct TQueueInfo
+	struct TClientInfo
 	{
 		queue<FrameGroupIterator*> frameGroupQueue;
 		Protocol::FrameFragmentHeader currentFragment;
@@ -121,18 +121,20 @@ private:
 	void processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg);
 
 	// parsing
-	map<int, TQueueInfo*  > queueInfoMap; //key is client fd
+	map<int, TClientInfo*  > clientInfoMap; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
     void triggerNextEvent(TClient* cli);
 
 	string path;
 
+	/////////// Client Test //////////////////
 	int clientFd;
 	void clientTest_();
 	static void clientTest();
 	void clientTestRead_();
 	static void clientTestRead();
+	/////////////////////////////////////////////////
 
 
 	int setNonBlock(int fd);

@@ -25,16 +25,23 @@ C) Install libev
 
 D) Install libeio
 
+////////////////////////////////////////////////////////////////////////
 
 
 ToDo:
 
 - c# client
 
+- turn on TCP_CORK when frame group queue is pushed; turn off TCP_CORK
+when queue is empty (to flush partial network frame)
+
 - flesh out installation guide
+
 - in a branch, trim down Imebra to bare essentials, to avoid code bloat
+
 - increment file refcount when calling open, readahead, prefetch, etc. so that file is not
 closed while these operations are in progress
+
 - add prefetch using custom EIO, and fadvise(SEQUENTIAL....)
    a) open all files
    b) on open, do readahead if parser doesn't exist
@@ -42,9 +49,13 @@ closed while these operations are in progress
    d) on fadvise, exit
 
 - fix error handling, check for leaks, decide when to close connection with client
+
 - handle FIN, etc.
+
 - handle message for change of primary index (stacking)
+
 - implement weighted round-robin strategy on queue of frame groups
+
 - add Pantheios logging framework - replace printf statements
 
 

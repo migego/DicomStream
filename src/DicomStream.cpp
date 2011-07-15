@@ -148,17 +148,14 @@ int DicomStream::setNonBlock(int fd)
     return 0;
 }
 
-//TCP_CORK for low=latency sending of large amounts of data
+//TCP_CORK for efficient sending of small + large amounts of data
 int DicomStream::setCork(int clientFd, bool cork)
 {
     int rc = 0;
-#ifdef LINUX
-    int state = 0;
+    int state = cork ? 1 : 0;
     rc = setsockopt(clientFd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
-
-    state ~= state;
-    setsockopt(clientFd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
-#endif
+    if (rc  == -1)
+    	perror("[server] failed to set cork on socket for cork state");
     return rc;
 }
 
@@ -250,9 +247,9 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	delete data;
 
 	//trigger write on next fragment
-	if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
+	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
  	{
- 		queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
+ 		queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 
  		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
@@ -270,6 +267,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		{
  			printf("[server] queue is empty\n");
  			//cleanup(cli);
+ 			setCork(cli->fd, false);
 			return 0;
  		}
 
@@ -286,10 +284,10 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
  	if (revents & EV_WRITE)
  	{
- 		if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
+ 		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
  		{
  			// queue must not be empty, because we do not trigger a write on an empty queue
- 			queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
+ 			queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 
  			//frame info cannot be null, because we do not trigger a write on an
  			// uninitialized or completed FrameGroupIterator
@@ -351,7 +349,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			//2. write fragment header and trigger fragment sendfile
 			// next must return true, since we do not trigger write on completed FrameGroupIterator??
 
-			Protocol::FrameFragmentHeader& currentFragment = queueInfoMap[cli->fd]->currentFragment;
+			Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->fd]->currentFragment;
 			TFrameFragment frameFragment;
 			bool needsWrite = messageFramers[cli->fd]->IsWriteInProgress();
 			if (!needsWrite)
@@ -472,9 +470,9 @@ void DicomStream::cleanup(TClient* cli)
 	deleteMessageFramer(cli->fd);
 
 	//delete client queue
-	if (queueInfoMap.find(cli->fd) != queueInfoMap.end())
+	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
 	{
-		TQueueInfo* queueInfo = queueInfoMap[cli->fd];
+		TClientInfo* queueInfo = clientInfoMap[cli->fd];
 		queue<FrameGroupIterator*>*  frameQueue = &queueInfo->frameGroupQueue;
 		while(!frameQueue->empty())
 		{
@@ -483,7 +481,7 @@ void DicomStream::cleanup(TClient* cli)
 
 		}
 		delete queueInfo;
-		queueInfoMap.erase(cli->fd);
+		clientInfoMap.erase(cli->fd);
 
 	}
 
@@ -507,9 +505,9 @@ void DicomStream::cleanup(string fileName)
 void DicomStream::triggerNextEvent(TClient* cli)
 {
 
-	if (queueInfoMap.find(cli->fd) == queueInfoMap.end())
+	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
 		return;
-    queue<FrameGroupIterator*>* frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
+    queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
     if (frameQueue->empty())
     	return;
     FrameIterator* frameIter  = frameQueue->front()->currentIterator();
@@ -596,24 +594,28 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 	    {
 	    	//queue new iterator
 	    	queue<FrameGroupIterator*>* frameQueue = NULL;
-	    	if (queueInfoMap.find(cli->fd) == queueInfoMap.end())
+	    	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
 	    	{
-	    		TQueueInfo* queueInfo = new TQueueInfo();
-	    		queueInfoMap[cli->fd] = queueInfo;
+	    		TClientInfo* queueInfo = new TClientInfo();
+	    		clientInfoMap[cli->fd] = queueInfo;
 	    		frameQueue = &queueInfo->frameGroupQueue;
 	    	}
 	    	else
 	    	{
-	    		frameQueue = &queueInfoMap[cli->fd]->frameGroupQueue;
+	    		frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 	    	}
 
 	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
-	    	bool needsTrigger = frameQueue->empty();
+	    	bool emptyQueue = frameQueue->empty();
 	    	frameQueue->push(frameIter);
 
 	    	//trigger retrieve, if the queue is empty
-	    	if (needsTrigger)
+	    	if (emptyQueue)
+	    	{
+	    		setCork(cli->fd, true);
 		        triggerNextEvent(cli);
+
+	    	}
 	    }
 
 	    }
