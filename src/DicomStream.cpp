@@ -319,7 +319,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				try
 				{
 					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->size);
-				    needsAnotherWrite = !messageFramers[cli->fd]->write(MessageFramer::FrameResponse, &frameResponse);
+				    needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameResponse, &frameResponse);
 				}
 				catch (EAgainException& ee)
 				{
@@ -348,7 +348,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 			Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->fd]->currentFragment;
 			TFrameFragment frameFragment;
-			bool needsWrite = messageFramers[cli->fd]->IsWriteInProgress();
+			bool needsWrite = getMessageFramer(cli->fd)->IsWriteInProgress();
 			if (!needsWrite)
 			{
 				needsWrite = frameQueue->front()->next(frameFragment);
@@ -363,7 +363,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				bool needsAnotherWrite = false;
                 try
                 {
-				   needsAnotherWrite = !messageFramers[cli->fd]->write(MessageFramer::FrameFragmentHeader, &currentFragment);
+				   needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameFragmentHeader, &currentFragment);
                 }
                 catch (EAgainException& ee)
 				{
@@ -414,7 +414,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		MessageFramer::MessageWrapper wrapper;
 		try
 		{
-			if (messageFramers[cli->fd]->read(wrapper))
+			if (getMessageFramer(cli->fd)->read(wrapper))
 			{
 				//process message
 				processIncomingMessage(cli, wrapper);
@@ -536,17 +536,41 @@ void DicomStream::triggerNextEvent(TClient* cli)
 	}
 }
 
+MessageFramer* DicomStream::getMessageFramer(int fd)
+{
+	if ( clientInfoMap.find(fd) != clientInfoMap.end() )
+	{
+		return clientInfoMap[fd]->messageFramer;
+	}
+	return NULL;
+
+}
 void DicomStream::createMessageFramer(int fd)
 {
 	deleteMessageFramer(fd);
-	messageFramers[fd] = new MessageFramer(fd);
+	TClientInfo* info = NULL;
+	if (clientInfoMap.find(fd) == clientInfoMap.end())
+	{
+		info = new TClientInfo();
+		clientInfoMap[fd] = info;
+	}
+	else
+	{
+		info = clientInfoMap[fd];
+
+	}
+	info->messageFramer = new MessageFramer(fd);
 }
 void DicomStream::deleteMessageFramer(int fd)
 {
-	if ( messageFramers.find(fd) != messageFramers.end() )
+	if ( clientInfoMap.find(fd) != clientInfoMap.end() )
 	{
-		delete messageFramers[fd];
-		messageFramers.erase(fd);
+		TClientInfo* info = clientInfoMap[fd];
+		if (info->messageFramer != NULL)
+		{
+		    delete info->messageFramer;
+		    info->messageFramer = NULL;
+		}
 	}
 }
 

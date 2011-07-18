@@ -42,8 +42,10 @@ private:
 
 	struct TClientInfo
 	{
+		TClientInfo() : messageFramer(NULL){}
 		queue<FrameGroupIterator*> frameGroupQueue;
 		Protocol::FrameFragmentHeader currentFragment;
+		MessageFramer* messageFramer;
 	};
 
 	struct TFadvise
@@ -117,7 +119,7 @@ private:
 	// message processing
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
-	map<int, MessageFramer*> messageFramers;
+	MessageFramer* getMessageFramer(int fd);
 	void processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg);
 
 	// parsing
