@@ -83,10 +83,7 @@ public:
 
 
 private:
-	virtual void finish()
-	{
-
-	}
+	virtual void finish() =0;
 
 	bool isValid()
 	{

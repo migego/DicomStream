@@ -181,11 +181,9 @@ int DicomStream::open_cb_(eio_req *req)
 
 		//trigger readahead
 		if (!data->fileInfo->parser)
-			eio_readahead (fd, 0, 4096, 0, readahead_cb, req->data);
+			eio_readahead (fd, 0, 16448, 0, readahead_cb, req->data);
 		else
-		{
 			triggerNextEvent(data->cli);
-		}
 	}
 
    return 0;
@@ -232,14 +230,13 @@ int DicomStream::sendfile_cb_(eio_req *req)
 		abort ();
 	}
 
-	printf("[server] sent pixels %d\n", req->result);
+	printf("[server] sent %d pixels\n", req->result);
 	data->frameInfo->offset += req->result;
 
 	if ( ((unsigned int)req->result) < data->size)
 	{
 		data->offset += req->result;
 		data->size -= req->result;
-		printf("[server] sending pixels: offset %d, size %d\n", data->offset, data->size);
 		eio_sendfile (cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 		return 0;
 	}
