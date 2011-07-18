@@ -33,6 +33,7 @@ public:
 	enum MessageType
 	{
 		None,
+		SetPrimaryIndexRequest,
 		FrameGroupRequest,
 		FrameResponse,
 		FrameFragmentHeader
@@ -51,18 +52,6 @@ public:
 
 	};
 
-	bool write(Protocol::FrameGroupRequest* frameGroupRequest)
-	{
-		return write(FrameGroupRequest, frameGroupRequest);
-	}
-	bool write(Protocol::FrameResponse* frameResponse)
-	{
-		return write(FrameResponse, frameResponse);
-	}
-	bool write(Protocol::FrameFragmentHeader* frameFragment)
-	{
-		return write(FrameFragmentHeader, frameFragment);
-	}
     bool IsReadInProgress()
     {
     	return readInProgress;
@@ -174,6 +163,9 @@ public:
 		::google::protobuf::Message* msg = NULL;
 		switch(readType)
 		{
+		case SetPrimaryIndexRequest:
+			msg = new Protocol::SetPrimaryIndexRequest();
+			break;
 		case FrameGroupRequest:
 			msg = new Protocol::FrameGroupRequest();
 			break;
@@ -201,34 +193,6 @@ public:
 
 	}
 
-private:
-
-	int fd;
-
-	bool readInProgress;
-	bool readHasType;
-	unsigned char readType;
-	unsigned int readSizeOffset;
-	unsigned char readRawSize[4];
-	unsigned int readSize;
-	unsigned int readOffset;
-	unsigned char* readBuffer;
-
-
-	bool writeInProgress;
-	bool writeSentType;
-	unsigned char writeType;
-	unsigned int writeSizeOffset;
-	unsigned char writeRawSize[4];
-	unsigned int writeSize;
-	unsigned int writeOffset;
-	unsigned char* writeBuffer;
-
-
-
-
-
-	// todo: make this method handle case where 0 bytes get written
 	bool write(char type, ::google::protobuf::Message* msg)
 	{
 		writeInProgress = true;
@@ -272,6 +236,33 @@ private:
 		return true;
 
 	}
+
+private:
+
+	int fd;
+
+	bool readInProgress;
+	bool readHasType;
+	unsigned char readType;
+	unsigned int readSizeOffset;
+	unsigned char readRawSize[4];
+	unsigned int readSize;
+	unsigned int readOffset;
+	unsigned char* readBuffer;
+
+
+	bool writeInProgress;
+	bool writeSentType;
+	unsigned char writeType;
+	unsigned int writeSizeOffset;
+	unsigned char writeRawSize[4];
+	unsigned int writeSize;
+	unsigned int writeOffset;
+	unsigned char* writeBuffer;
+
+
+
+
 
 
 };

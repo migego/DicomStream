@@ -319,7 +319,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				try
 				{
 					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->size);
-				    needsAnotherWrite = !messageFramers[cli->fd]->write(&frameResponse);
+				    needsAnotherWrite = !messageFramers[cli->fd]->write(MessageFramer::FrameResponse, &frameResponse);
 				}
 				catch (EAgainException& ee)
 				{
@@ -363,7 +363,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 				bool needsAnotherWrite = false;
                 try
                 {
-				   needsAnotherWrite = !messageFramers[cli->fd]->write(&currentFragment);
+				   needsAnotherWrite = !messageFramers[cli->fd]->write(MessageFramer::FrameFragmentHeader, &currentFragment);
                 }
                 catch (EAgainException& ee)
 				{
@@ -556,6 +556,13 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 		return;
 	switch(msg.type)
 	{
+	case MessageFramer::SetPrimaryIndexRequest:
+		{
+		Protocol::SetPrimaryIndexRequest* indexRequest = static_cast<Protocol::SetPrimaryIndexRequest*>(msg.message);
+		//find matching series, and possibly instance (for multiframe)
+
+		}
+		break;
 	case MessageFramer::FrameGroupRequest:
 	    {
 	    Protocol::FrameGroupRequest* frameGroupRequest = static_cast<Protocol::FrameGroupRequest*>(msg.message);
@@ -583,37 +590,32 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			framesIter++;
 		}
 
-	    if (frameGroupRequest->multiframe())
-	    {
 
-	    }
-	    else
-	    {
-	    	//queue new iterator
-	    	queue<FrameGroupIterator*>* frameQueue = NULL;
-	    	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
-	    	{
-	    		TClientInfo* queueInfo = new TClientInfo();
-	    		clientInfoMap[cli->fd] = queueInfo;
-	    		frameQueue = &queueInfo->frameGroupQueue;
-	    	}
-	    	else
-	    	{
-	    		frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
-	    	}
+		//queue new iterator
+		queue<FrameGroupIterator*>* frameQueue = NULL;
+		if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
+		{
+			TClientInfo* queueInfo = new TClientInfo();
+			clientInfoMap[cli->fd] = queueInfo;
+			frameQueue = &queueInfo->frameGroupQueue;
+		}
+		else
+		{
+			frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+		}
 
-	    	FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
-	    	bool emptyQueue = frameQueue->empty();
-	    	frameQueue->push(frameIter);
+		FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
+		bool emptyQueue = frameQueue->empty();
+		frameQueue->push(frameIter);
 
-	    	//trigger retrieve, if the queue is empty
-	    	if (emptyQueue)
-	    	{
-	    		setCork(cli->fd, true);
-		        triggerNextEvent(cli);
+		//trigger retrieve, if the queue is empty
+		if (emptyQueue)
+		{
+			setCork(cli->fd, true);
+			triggerNextEvent(cli);
 
-	    	}
-	    }
+		}
+
 
 	    }
 
@@ -702,10 +704,11 @@ void DicomStream::clientTestRead_()
 
 void DicomStream::clientTest_()
 {
+	string series[2] = {"series1", "series2"};
+
 	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
 	req->set_studyuid("study1");
 	req->set_seriesuid("series1");
-	req->set_type(Protocol::FrameGroupRequest_RequestType_Fetch);
 	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
 	req->set_instanceuidprefix("");
 
@@ -723,7 +726,6 @@ void DicomStream::clientTest_()
 	frameReq->set_instanceuid("instance3");
 	frameReq->set_framenumber(1);
 	req->mutable_frames()->AddAllocated(frameReq);
-	req->set_multiframe(false);
 
 
 	struct sockaddr_in serv_addr;
@@ -762,7 +764,8 @@ void DicomStream::clientTest_()
 	MessageFramer* framer = new MessageFramer(clientFd);
 	for (int i = 0; i < 2; ++i)
 	{
-		while (!framer->write(req))
+		req->set_seriesuid(series[i].c_str());
+		while (!framer->write(MessageFramer::FrameGroupRequest, req))
 		{
 
 		}

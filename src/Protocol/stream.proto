@@ -5,6 +5,14 @@ package Protocol;
 // Request
 //////////////
 
+message SetPrimaryIndexRequest
+{
+    required string studyUid=1;
+	required string seriesUid=2;
+	required string instanceUid=3; //for multi-frame
+	required uint32 primaryIndex=4;
+}
+
 message FrameRequest 
 {
 	required string instanceUid=1;
@@ -15,35 +23,18 @@ message FrameRequest
 message FrameGroupRequest 
 {
 
-	enum RequestType
-	{
-
-		Fetch = 0;
-
-		PriorityChanged = 1;
-
-		//set series primary frame (default is 0)
-		SetPrimaryFrame = 2; 
-
-		// cancel
-		Cancel = 3;
-
-	}
-
 	enum Priority
 	{
 		Selected = 0;
 		Visible = 1;
 		Hidden = 2;
 	}
-	
-	required RequestType type = 1;
+
     required string studyUid=2;
 	required string seriesUid=3;
 	required Priority priority=4;
 	required string instanceUidPrefix=5;  //common part of sop instance uid string
     repeated FrameRequest frames=6;
-    required bool multiFrame=7;
   
 }
 

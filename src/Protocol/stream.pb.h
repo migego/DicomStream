@@ -32,32 +32,12 @@ void  protobuf_AddDesc_stream_2eproto();
 void protobuf_AssignDesc_stream_2eproto();
 void protobuf_ShutdownFile_stream_2eproto();
 
+class SetPrimaryIndexRequest;
 class FrameRequest;
 class FrameGroupRequest;
 class FrameResponse;
 class FrameFragmentHeader;
 
-enum FrameGroupRequest_RequestType {
-  FrameGroupRequest_RequestType_Fetch = 0,
-  FrameGroupRequest_RequestType_PriorityChanged = 1,
-  FrameGroupRequest_RequestType_SetPrimaryFrame = 2,
-  FrameGroupRequest_RequestType_Cancel = 3
-};
-bool FrameGroupRequest_RequestType_IsValid(int value);
-const FrameGroupRequest_RequestType FrameGroupRequest_RequestType_RequestType_MIN = FrameGroupRequest_RequestType_Fetch;
-const FrameGroupRequest_RequestType FrameGroupRequest_RequestType_RequestType_MAX = FrameGroupRequest_RequestType_Cancel;
-const int FrameGroupRequest_RequestType_RequestType_ARRAYSIZE = FrameGroupRequest_RequestType_RequestType_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* FrameGroupRequest_RequestType_descriptor();
-inline const ::std::string& FrameGroupRequest_RequestType_Name(FrameGroupRequest_RequestType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    FrameGroupRequest_RequestType_descriptor(), value);
-}
-inline bool FrameGroupRequest_RequestType_Parse(
-    const ::std::string& name, FrameGroupRequest_RequestType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<FrameGroupRequest_RequestType>(
-    FrameGroupRequest_RequestType_descriptor(), name, value);
-}
 enum FrameGroupRequest_Priority {
   FrameGroupRequest_Priority_Selected = 0,
   FrameGroupRequest_Priority_Visible = 1,
@@ -102,6 +82,130 @@ inline bool FrameResponse_bitDepth_Parse(
     FrameResponse_bitDepth_descriptor(), name, value);
 }
 // ===================================================================
+
+class SetPrimaryIndexRequest : public ::google::protobuf::Message {
+ public:
+  SetPrimaryIndexRequest();
+  virtual ~SetPrimaryIndexRequest();
+  
+  SetPrimaryIndexRequest(const SetPrimaryIndexRequest& from);
+  
+  inline SetPrimaryIndexRequest& operator=(const SetPrimaryIndexRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SetPrimaryIndexRequest& default_instance();
+  
+  void Swap(SetPrimaryIndexRequest* other);
+  
+  // implements Message ----------------------------------------------
+  
+  SetPrimaryIndexRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SetPrimaryIndexRequest& from);
+  void MergeFrom(const SetPrimaryIndexRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required string studyUid = 1;
+  inline bool has_studyuid() const;
+  inline void clear_studyuid();
+  static const int kStudyUidFieldNumber = 1;
+  inline const ::std::string& studyuid() const;
+  inline void set_studyuid(const ::std::string& value);
+  inline void set_studyuid(const char* value);
+  inline void set_studyuid(const char* value, size_t size);
+  inline ::std::string* mutable_studyuid();
+  inline ::std::string* release_studyuid();
+  
+  // required string seriesUid = 2;
+  inline bool has_seriesuid() const;
+  inline void clear_seriesuid();
+  static const int kSeriesUidFieldNumber = 2;
+  inline const ::std::string& seriesuid() const;
+  inline void set_seriesuid(const ::std::string& value);
+  inline void set_seriesuid(const char* value);
+  inline void set_seriesuid(const char* value, size_t size);
+  inline ::std::string* mutable_seriesuid();
+  inline ::std::string* release_seriesuid();
+  
+  // required string instanceUid = 3;
+  inline bool has_instanceuid() const;
+  inline void clear_instanceuid();
+  static const int kInstanceUidFieldNumber = 3;
+  inline const ::std::string& instanceuid() const;
+  inline void set_instanceuid(const ::std::string& value);
+  inline void set_instanceuid(const char* value);
+  inline void set_instanceuid(const char* value, size_t size);
+  inline ::std::string* mutable_instanceuid();
+  inline ::std::string* release_instanceuid();
+  
+  // required uint32 primaryIndex = 4;
+  inline bool has_primaryindex() const;
+  inline void clear_primaryindex();
+  static const int kPrimaryIndexFieldNumber = 4;
+  inline ::google::protobuf::uint32 primaryindex() const;
+  inline void set_primaryindex(::google::protobuf::uint32 value);
+  
+  // @@protoc_insertion_point(class_scope:Protocol.SetPrimaryIndexRequest)
+ private:
+  inline void set_has_studyuid();
+  inline void clear_has_studyuid();
+  inline void set_has_seriesuid();
+  inline void clear_has_seriesuid();
+  inline void set_has_instanceuid();
+  inline void clear_has_instanceuid();
+  inline void set_has_primaryindex();
+  inline void clear_has_primaryindex();
+  
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  
+  ::std::string* studyuid_;
+  ::std::string* seriesuid_;
+  ::std::string* instanceuid_;
+  ::google::protobuf::uint32 primaryindex_;
+  
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  
+  friend void  protobuf_AddDesc_stream_2eproto();
+  friend void protobuf_AssignDesc_stream_2eproto();
+  friend void protobuf_ShutdownFile_stream_2eproto();
+  
+  void InitAsDefaultInstance();
+  static SetPrimaryIndexRequest* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class FrameRequest : public ::google::protobuf::Message {
  public:
@@ -251,32 +355,6 @@ class FrameGroupRequest : public ::google::protobuf::Message {
   
   // nested types ----------------------------------------------------
   
-  typedef FrameGroupRequest_RequestType RequestType;
-  static const RequestType Fetch = FrameGroupRequest_RequestType_Fetch;
-  static const RequestType PriorityChanged = FrameGroupRequest_RequestType_PriorityChanged;
-  static const RequestType SetPrimaryFrame = FrameGroupRequest_RequestType_SetPrimaryFrame;
-  static const RequestType Cancel = FrameGroupRequest_RequestType_Cancel;
-  static inline bool RequestType_IsValid(int value) {
-    return FrameGroupRequest_RequestType_IsValid(value);
-  }
-  static const RequestType RequestType_MIN =
-    FrameGroupRequest_RequestType_RequestType_MIN;
-  static const RequestType RequestType_MAX =
-    FrameGroupRequest_RequestType_RequestType_MAX;
-  static const int RequestType_ARRAYSIZE =
-    FrameGroupRequest_RequestType_RequestType_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  RequestType_descriptor() {
-    return FrameGroupRequest_RequestType_descriptor();
-  }
-  static inline const ::std::string& RequestType_Name(RequestType value) {
-    return FrameGroupRequest_RequestType_Name(value);
-  }
-  static inline bool RequestType_Parse(const ::std::string& name,
-      RequestType* value) {
-    return FrameGroupRequest_RequestType_Parse(name, value);
-  }
-  
   typedef FrameGroupRequest_Priority Priority;
   static const Priority Selected = FrameGroupRequest_Priority_Selected;
   static const Priority Visible = FrameGroupRequest_Priority_Visible;
@@ -303,13 +381,6 @@ class FrameGroupRequest : public ::google::protobuf::Message {
   }
   
   // accessors -------------------------------------------------------
-  
-  // required .Protocol.FrameGroupRequest.RequestType type = 1;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 1;
-  inline ::Protocol::FrameGroupRequest_RequestType type() const;
-  inline void set_type(::Protocol::FrameGroupRequest_RequestType value);
   
   // required string studyUid = 2;
   inline bool has_studyuid() const;
@@ -363,17 +434,8 @@ class FrameGroupRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >*
       mutable_frames();
   
-  // required bool multiFrame = 7;
-  inline bool has_multiframe() const;
-  inline void clear_multiframe();
-  static const int kMultiFrameFieldNumber = 7;
-  inline bool multiframe() const;
-  inline void set_multiframe(bool value);
-  
   // @@protoc_insertion_point(class_scope:Protocol.FrameGroupRequest)
  private:
-  inline void set_has_type();
-  inline void clear_has_type();
   inline void set_has_studyuid();
   inline void clear_has_studyuid();
   inline void set_has_seriesuid();
@@ -382,21 +444,17 @@ class FrameGroupRequest : public ::google::protobuf::Message {
   inline void clear_has_priority();
   inline void set_has_instanceuidprefix();
   inline void clear_has_instanceuidprefix();
-  inline void set_has_multiframe();
-  inline void clear_has_multiframe();
   
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
   ::std::string* studyuid_;
-  int type_;
-  int priority_;
   ::std::string* seriesuid_;
   ::std::string* instanceuidprefix_;
   ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest > frames_;
-  bool multiframe_;
+  int priority_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -754,6 +812,206 @@ class FrameFragmentHeader : public ::google::protobuf::Message {
 
 // ===================================================================
 
+// SetPrimaryIndexRequest
+
+// required string studyUid = 1;
+inline bool SetPrimaryIndexRequest::has_studyuid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SetPrimaryIndexRequest::set_has_studyuid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SetPrimaryIndexRequest::clear_has_studyuid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SetPrimaryIndexRequest::clear_studyuid() {
+  if (studyuid_ != &::google::protobuf::internal::kEmptyString) {
+    studyuid_->clear();
+  }
+  clear_has_studyuid();
+}
+inline const ::std::string& SetPrimaryIndexRequest::studyuid() const {
+  return *studyuid_;
+}
+inline void SetPrimaryIndexRequest::set_studyuid(const ::std::string& value) {
+  set_has_studyuid();
+  if (studyuid_ == &::google::protobuf::internal::kEmptyString) {
+    studyuid_ = new ::std::string;
+  }
+  studyuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_studyuid(const char* value) {
+  set_has_studyuid();
+  if (studyuid_ == &::google::protobuf::internal::kEmptyString) {
+    studyuid_ = new ::std::string;
+  }
+  studyuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_studyuid(const char* value, size_t size) {
+  set_has_studyuid();
+  if (studyuid_ == &::google::protobuf::internal::kEmptyString) {
+    studyuid_ = new ::std::string;
+  }
+  studyuid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* SetPrimaryIndexRequest::mutable_studyuid() {
+  set_has_studyuid();
+  if (studyuid_ == &::google::protobuf::internal::kEmptyString) {
+    studyuid_ = new ::std::string;
+  }
+  return studyuid_;
+}
+inline ::std::string* SetPrimaryIndexRequest::release_studyuid() {
+  clear_has_studyuid();
+  if (studyuid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = studyuid_;
+    studyuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+
+// required string seriesUid = 2;
+inline bool SetPrimaryIndexRequest::has_seriesuid() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SetPrimaryIndexRequest::set_has_seriesuid() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SetPrimaryIndexRequest::clear_has_seriesuid() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SetPrimaryIndexRequest::clear_seriesuid() {
+  if (seriesuid_ != &::google::protobuf::internal::kEmptyString) {
+    seriesuid_->clear();
+  }
+  clear_has_seriesuid();
+}
+inline const ::std::string& SetPrimaryIndexRequest::seriesuid() const {
+  return *seriesuid_;
+}
+inline void SetPrimaryIndexRequest::set_seriesuid(const ::std::string& value) {
+  set_has_seriesuid();
+  if (seriesuid_ == &::google::protobuf::internal::kEmptyString) {
+    seriesuid_ = new ::std::string;
+  }
+  seriesuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_seriesuid(const char* value) {
+  set_has_seriesuid();
+  if (seriesuid_ == &::google::protobuf::internal::kEmptyString) {
+    seriesuid_ = new ::std::string;
+  }
+  seriesuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_seriesuid(const char* value, size_t size) {
+  set_has_seriesuid();
+  if (seriesuid_ == &::google::protobuf::internal::kEmptyString) {
+    seriesuid_ = new ::std::string;
+  }
+  seriesuid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* SetPrimaryIndexRequest::mutable_seriesuid() {
+  set_has_seriesuid();
+  if (seriesuid_ == &::google::protobuf::internal::kEmptyString) {
+    seriesuid_ = new ::std::string;
+  }
+  return seriesuid_;
+}
+inline ::std::string* SetPrimaryIndexRequest::release_seriesuid() {
+  clear_has_seriesuid();
+  if (seriesuid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = seriesuid_;
+    seriesuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+
+// required string instanceUid = 3;
+inline bool SetPrimaryIndexRequest::has_instanceuid() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SetPrimaryIndexRequest::set_has_instanceuid() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SetPrimaryIndexRequest::clear_has_instanceuid() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SetPrimaryIndexRequest::clear_instanceuid() {
+  if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+    instanceuid_->clear();
+  }
+  clear_has_instanceuid();
+}
+inline const ::std::string& SetPrimaryIndexRequest::instanceuid() const {
+  return *instanceuid_;
+}
+inline void SetPrimaryIndexRequest::set_instanceuid(const ::std::string& value) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_instanceuid(const char* value) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(value);
+}
+inline void SetPrimaryIndexRequest::set_instanceuid(const char* value, size_t size) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* SetPrimaryIndexRequest::mutable_instanceuid() {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  return instanceuid_;
+}
+inline ::std::string* SetPrimaryIndexRequest::release_instanceuid() {
+  clear_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = instanceuid_;
+    instanceuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+
+// required uint32 primaryIndex = 4;
+inline bool SetPrimaryIndexRequest::has_primaryindex() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SetPrimaryIndexRequest::set_has_primaryindex() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SetPrimaryIndexRequest::clear_has_primaryindex() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SetPrimaryIndexRequest::clear_primaryindex() {
+  primaryindex_ = 0u;
+  clear_has_primaryindex();
+}
+inline ::google::protobuf::uint32 SetPrimaryIndexRequest::primaryindex() const {
+  return primaryindex_;
+}
+inline void SetPrimaryIndexRequest::set_primaryindex(::google::protobuf::uint32 value) {
+  set_has_primaryindex();
+  primaryindex_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // FrameRequest
 
 // required string instanceUid = 1;
@@ -840,38 +1098,15 @@ inline void FrameRequest::set_framenumber(::google::protobuf::uint32 value) {
 
 // FrameGroupRequest
 
-// required .Protocol.FrameGroupRequest.RequestType type = 1;
-inline bool FrameGroupRequest::has_type() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void FrameGroupRequest::set_has_type() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void FrameGroupRequest::clear_has_type() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void FrameGroupRequest::clear_type() {
-  type_ = 0;
-  clear_has_type();
-}
-inline ::Protocol::FrameGroupRequest_RequestType FrameGroupRequest::type() const {
-  return static_cast< ::Protocol::FrameGroupRequest_RequestType >(type_);
-}
-inline void FrameGroupRequest::set_type(::Protocol::FrameGroupRequest_RequestType value) {
-  GOOGLE_DCHECK(::Protocol::FrameGroupRequest_RequestType_IsValid(value));
-  set_has_type();
-  type_ = value;
-}
-
 // required string studyUid = 2;
 inline bool FrameGroupRequest::has_studyuid() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void FrameGroupRequest::set_has_studyuid() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void FrameGroupRequest::clear_has_studyuid() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void FrameGroupRequest::clear_studyuid() {
   if (studyuid_ != &::google::protobuf::internal::kEmptyString) {
@@ -923,13 +1158,13 @@ inline ::std::string* FrameGroupRequest::release_studyuid() {
 
 // required string seriesUid = 3;
 inline bool FrameGroupRequest::has_seriesuid() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void FrameGroupRequest::set_has_seriesuid() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void FrameGroupRequest::clear_has_seriesuid() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void FrameGroupRequest::clear_seriesuid() {
   if (seriesuid_ != &::google::protobuf::internal::kEmptyString) {
@@ -981,13 +1216,13 @@ inline ::std::string* FrameGroupRequest::release_seriesuid() {
 
 // required .Protocol.FrameGroupRequest.Priority priority = 4;
 inline bool FrameGroupRequest::has_priority() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void FrameGroupRequest::set_has_priority() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void FrameGroupRequest::clear_has_priority() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void FrameGroupRequest::clear_priority() {
   priority_ = 0;
@@ -1004,13 +1239,13 @@ inline void FrameGroupRequest::set_priority(::Protocol::FrameGroupRequest_Priori
 
 // required string instanceUidPrefix = 5;
 inline bool FrameGroupRequest::has_instanceuidprefix() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void FrameGroupRequest::set_has_instanceuidprefix() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void FrameGroupRequest::clear_has_instanceuidprefix() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void FrameGroupRequest::clear_instanceuidprefix() {
   if (instanceuidprefix_ != &::google::protobuf::internal::kEmptyString) {
@@ -1083,28 +1318,6 @@ FrameGroupRequest::frames() const {
 inline ::google::protobuf::RepeatedPtrField< ::Protocol::FrameRequest >*
 FrameGroupRequest::mutable_frames() {
   return &frames_;
-}
-
-// required bool multiFrame = 7;
-inline bool FrameGroupRequest::has_multiframe() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
-}
-inline void FrameGroupRequest::set_has_multiframe() {
-  _has_bits_[0] |= 0x00000040u;
-}
-inline void FrameGroupRequest::clear_has_multiframe() {
-  _has_bits_[0] &= ~0x00000040u;
-}
-inline void FrameGroupRequest::clear_multiframe() {
-  multiframe_ = false;
-  clear_has_multiframe();
-}
-inline bool FrameGroupRequest::multiframe() const {
-  return multiframe_;
-}
-inline void FrameGroupRequest::set_multiframe(bool value) {
-  set_has_multiframe();
-  multiframe_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -1585,10 +1798,6 @@ inline void FrameFragmentHeader::set_size(::google::protobuf::uint32 value) {
 namespace google {
 namespace protobuf {
 
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::FrameGroupRequest_RequestType>() {
-  return ::Protocol::FrameGroupRequest_RequestType_descriptor();
-}
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::FrameGroupRequest_Priority>() {
   return ::Protocol::FrameGroupRequest_Priority_descriptor();
