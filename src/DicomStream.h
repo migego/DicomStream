@@ -43,7 +43,7 @@ private:
 	struct TClientInfo
 	{
 		TClientInfo() : messageFramer(NULL){}
-		queue<FrameGroupIterator*> frameGroupQueue;
+		vector<FrameGroupIterator*> frameGroupQueue;
 		Protocol::FrameFragmentHeader currentFragment;
 		MessageFramer* messageFramer;
 	};

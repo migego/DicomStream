@@ -33,6 +33,7 @@ public:
 	enum MessageType
 	{
 		None,
+		SetPriorityRequest,
 		SetPrimaryIndexRequest,
 		FrameGroupRequest,
 		FrameResponse,
@@ -163,6 +164,9 @@ public:
 		::google::protobuf::Message* msg = NULL;
 		switch(readType)
 		{
+		case SetPriorityRequest:
+			msg = new Protocol::SetPriorityRequest();
+			break;
 		case SetPrimaryIndexRequest:
 			msg = new Protocol::SetPrimaryIndexRequest();
 			break;

@@ -27,10 +27,25 @@ class FrameGroupIterator : public tFrameGroupIterator, RefCounter{
 public:
 
 	// series of images
-	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd) : tFrameGroupIterator(childIters, primaryInd)
+	FrameGroupIterator(vector<FrameIterator*>* childIters, size_t primaryInd, string studyInstUid, string seriesInstUid) :
+		     tFrameGroupIterator(childIters, primaryInd),
+		     studyInstanceUid(studyInstUid),
+		     seriesInstanceUid(seriesInstUid)
 	{
 	}
+
+	string  getStudyInstanceUid()
+	{
+		return studyInstanceUid;
+	}
+	string  getSeriesInstanceUid()
+	{
+		return seriesInstanceUid;
+	}
+
 private:
+	string studyInstanceUid;
+	string seriesInstanceUid;
     void finish()
 	{
         release();

@@ -56,6 +56,10 @@ HIGH
 - increment file refcount when calling open, readahead, prefetch, etc. so that file is not
 closed while these operations are in progress
 
+- use EIO to close file. prolly need a flag to indicate file slated for open/close.
+If we want to open a file that is slated for closing, we need to wait until close
+callback to open. Likewise for closing a file that is slated for opening. Should post
+on news group for this.
 
 - fix error handling, check for leaks, decide when to close connection with client
 

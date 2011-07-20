@@ -246,7 +246,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	//trigger write on next fragment
 	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
  	{
- 		queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+ 		vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 
  		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
@@ -255,7 +255,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		if (frameQueue->front()->isDone())
  		{
  			delete frameQueue->front();
- 			frameQueue->pop();
+ 			frameQueue->erase(frameQueue->begin());
  			printf("[server] popped queue; queue size is %d\n",frameQueue->size());
  		}
 
@@ -284,7 +284,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
  		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
  		{
  			// queue must not be empty, because we do not trigger a write on an empty queue
- 			queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+ 			vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 
  			//frame info cannot be null, because we do not trigger a write on an
  			// uninitialized or completed FrameGroupIterator
@@ -470,11 +470,11 @@ void DicomStream::cleanup(TClient* cli)
 	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
 	{
 		TClientInfo* queueInfo = clientInfoMap[cli->fd];
-		queue<FrameGroupIterator*>*  frameQueue = &queueInfo->frameGroupQueue;
+		vector<FrameGroupIterator*>*  frameQueue = &queueInfo->frameGroupQueue;
 		while(!frameQueue->empty())
 		{
 			delete frameQueue->front();
-			frameQueue->pop();
+			frameQueue->erase(frameQueue->begin() );
 
 		}
 		delete queueInfo;
@@ -504,7 +504,7 @@ void DicomStream::triggerNextEvent(TClient* cli)
 
 	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
 		return;
-    queue<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+    vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
     if (frameQueue->empty())
     	return;
     FrameIterator* frameIter  = frameQueue->front()->currentIterator();
@@ -580,10 +580,53 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 		return;
 	switch(msg.type)
 	{
+	case MessageFramer::SetPriorityRequest:
+		{
+		Protocol::SetPriorityRequest* priorityRequest = static_cast<Protocol::SetPriorityRequest*>(msg.message);
+
+
+		//find matching series, and possibly instance (for multiframe)
+		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
+		{
+			TClientInfo* clientInfo = clientInfoMap[cli->fd];
+
+			//assume that front of queue is the group that needs its index changed !!!
+			if (!clientInfo->frameGroupQueue.empty())
+			{
+				vector<FrameGroupIterator*>* frameQueue =  &clientInfoMap[cli->fd]->frameGroupQueue;
+				vector<FrameGroupIterator*>::iterator iter = frameQueue->begin();
+				while (iter != frameQueue->end())
+				{
+					if ((*iter)->getSeriesInstanceUid() == priorityRequest->seriesuid() && iter != frameQueue->begin())
+					{
+						frameQueue->erase(iter);
+						frameQueue->insert(frameQueue->begin(), *iter);
+						printf("[server] processed priority request\n");
+					}
+					iter++;
+				}
+			}
+		}
+
+		}
+
+		break;
 	case MessageFramer::SetPrimaryIndexRequest:
 		{
 		Protocol::SetPrimaryIndexRequest* indexRequest = static_cast<Protocol::SetPrimaryIndexRequest*>(msg.message);
+		printf("[server] received primary index request\n");
+
 		//find matching series, and possibly instance (for multiframe)
+		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
+		{
+			TClientInfo* clientInfo = clientInfoMap[cli->fd];
+
+			//assume that front of queue is the group that needs its index changed !!!
+			if (!clientInfo->frameGroupQueue.empty())
+			{
+				clientInfo->frameGroupQueue.front()->setPrimaryIndex(indexRequest->primaryindex());
+			}
+		}
 
 		}
 		break;
@@ -614,9 +657,8 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			framesIter++;
 		}
 
-
 		//queue new iterator
-		queue<FrameGroupIterator*>* frameQueue = NULL;
+		vector<FrameGroupIterator*>* frameQueue = NULL;
 		if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
 		{
 			TClientInfo* queueInfo = new TClientInfo();
@@ -628,21 +670,19 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 			frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 		}
 
-		FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0);
-		bool emptyQueue = frameQueue->empty();
-		frameQueue->push(frameIter);
+		FrameGroupIterator* frameIter = new FrameGroupIterator(itms, 0, frameGroupRequest->studyuid(), frameGroupRequest->seriesuid());
+		bool wasEmptyQueue = frameQueue->empty();
+		frameQueue->push_back(frameIter);
 
 		//trigger retrieve, if the queue is empty
-		if (emptyQueue)
+		if (wasEmptyQueue)
 		{
 			setCork(cli->fd, true);
 			triggerNextEvent(cli);
 
 		}
 
-
 	    }
-
 		break;
 	default:
 		break;
@@ -717,8 +757,7 @@ void DicomStream::clientTestRead_()
 			}
 
 			break;
-		case MessageFramer::None:
-		case MessageFramer::FrameGroupRequest:
+		default:
 			break;
 		}
 
@@ -733,8 +772,7 @@ void DicomStream::clientTest_()
 	Protocol::FrameGroupRequest* req = new Protocol::FrameGroupRequest();
 	req->set_studyuid("study1");
 	req->set_seriesuid("series1");
-	req->set_priority(Protocol::FrameGroupRequest_Priority_Selected);
-	req->set_instanceuidprefix("");
+
 
 	Protocol::FrameRequest* frameReq = new Protocol::FrameRequest();
 	frameReq->set_instanceuid("instance1");
@@ -789,11 +827,32 @@ void DicomStream::clientTest_()
 	for (int i = 0; i < 2; ++i)
 	{
 		req->set_seriesuid(series[i].c_str());
+		string prefix = "study1_" + series[i] + "_";
+		req->set_instanceuidprefix(prefix.c_str());
 		while (!framer->write(MessageFramer::FrameGroupRequest, req))
 		{
 
 		}
 		printf("[client] sent frame group request\n");
+
+		Protocol::SetPrimaryIndexRequest* indexReq = new Protocol::SetPrimaryIndexRequest();
+		indexReq->set_studyuid("study1");
+		indexReq->set_seriesuid(series[i].c_str());
+		indexReq->set_primaryindex(1);
+		while (!framer->write(MessageFramer::SetPrimaryIndexRequest, indexReq))
+		{
+
+		}
+
+		Protocol::SetPriorityRequest* priorityReq = new Protocol::SetPriorityRequest();
+		priorityReq->set_studyuid("study1");
+		priorityReq->set_seriesuid(series[i].c_str());
+		while (!framer->write(MessageFramer::SetPriorityRequest, priorityReq))
+		{
+
+		}
+		printf("[client] sent set priority request\n");
+
 	}
 	delete framer;
 
