@@ -34,6 +34,8 @@ public:
 	{
 	}
 
+	virtual ~FrameGroupIterator(){}
+
 	string  getStudyInstanceUid()
 	{
 		return studyInstanceUid;

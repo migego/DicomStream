@@ -42,10 +42,14 @@ private:
 
 	struct TClientInfo
 	{
-		TClientInfo() : messageFramer(NULL){}
+		TClientInfo() : messageFramer(NULL), pendingSeriesInstanceUid("")
+		{
+
+		}
 		vector<FrameGroupIterator*> frameGroupQueue;
 		Protocol::FrameFragmentHeader currentFragment;
 		MessageFramer* messageFramer;
+		string pendingSeriesInstanceUid;
 	};
 
 	struct TFadvise
@@ -87,7 +91,9 @@ private:
 	unsigned short port;
 
 	struct TClient {
+		    TClient() : fd(-1), frameGroup(NULL) {}
 	        int fd;
+			FrameGroupIterator* frameGroup;
 	        ev_io ev_write;
 			ev_io ev_read;
 	};
@@ -97,9 +103,9 @@ private:
 
 	struct TEio
 	{
+		TEio() : cli(NULL), fileInfo(NULL) {}
 		TClient* cli;
 		TFileInfo* fileInfo;
-		TFrameInfo* frameInfo;
 		unsigned int offset;
 		unsigned int size;
 	};
@@ -122,6 +128,7 @@ private:
 	MessageFramer* getMessageFramer(int fd);
 	void processIncomingMessage(DicomStream::TClient* cli, MessageFramer::MessageWrapper msg);
 
+	void processPendingSetPriorityRequest(int clientFd);
 	// parsing
 	map<int, TClientInfo*  > clientInfoMap; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
