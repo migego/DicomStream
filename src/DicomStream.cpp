@@ -177,13 +177,14 @@ int DicomStream::open_cb_(eio_req *req)
 	if (fd != -1)
 	{
 		TEio* data = (TEio*)req->data;
-		data->fileInfo->fd = fd;
+		TFileInfo* fileInfo = getFileInfo(data->cli->frameGroup);
+		fileInfo->fd = fd;
 
 		//trigger readahead
-		if (!data->fileInfo->parser)
+		if (!fileInfo->parser)
 			eio_readahead (fd, 0, 16448, 0, readahead_cb, req->data);
 		else
-			triggerNextEvent(data->cli);
+			triggerOpenOrWrite(data->cli);
 	}
 
    return 0;
@@ -197,19 +198,18 @@ int DicomStream::readahead_cb_(eio_req *req)
 
 	TEio* data = (TEio*)req->data;
 	//parse file
-	data->fileInfo->parser = new DicomPixels();
-	data->fileInfo->parser->parse(data->fileInfo->fd, data->fileInfo->fileName, &listenManager);
+	TFileInfo* fileInfo = getFileInfo(data->cli->frameGroup);
+	fileInfo->parser = new DicomPixels();
+	fileInfo->parser->parse(fileInfo->fd, fileInfo->fileName, &listenManager);
 
-	printf("[Server] readahead triggered write on file %s\n", data->fileInfo->fileName.c_str());
-	TClient* cli = data->cli;
-	delete(data);
-
+	printf("[Server] readahead triggered write on file %s\n", fileInfo->fileName.c_str());
 	//trigger posix_fadvise(....SEQUENTIAL) on entire file
-	eio_custom(eio_fadvise, 0, eio_fadvise_cb, new TFadvise(data->fileInfo->fd, 0, 0, POSIX_FADV_SEQUENTIAL));
+	eio_custom(eio_fadvise, 0, eio_fadvise_cb, new TFadvise(fileInfo->fd, 0, 0, POSIX_FADV_SEQUENTIAL));
 
 	//trigger write on next fragment
 	struct ev_loop *loop = ev_default_loop (0);
-	triggerWrite(loop, cli);
+	triggerWrite(loop,  data->cli);
+	delete(data);
 	return 0;
 }
 
@@ -217,13 +217,13 @@ int DicomStream::sendfile_cb_(eio_req *req)
 {
 	TEio* data = (TEio*)req->data;
 	TClient* cli = data->cli;
-
+    TFileInfo* fileInfo = getFileInfo(cli->frameGroup);
 	if (req->result == -1)
 	{
 		if (errno == EAGAIN)
 		{
 			printf("[server] sendfile return EAGAIN\n");
-			eio_sendfile (cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+			eio_sendfile (cli->fd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 			return 0;
 		}
 		perror("[server] sendfile error\n");
@@ -237,7 +237,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	{
 		data->offset += req->result;
 		data->size -= req->result;
-		eio_sendfile (cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+		eio_sendfile (cli->fd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 		return 0;
 	}
 	//clean up memory
@@ -250,9 +250,6 @@ int DicomStream::sendfile_cb_(eio_req *req)
 
  		//move front iterator to done state if it does not have a next fragment
  		frameQueue->front()->completeNext();
-
- 		//we wait until after next operation is completed before changing series priority
- 		processPendingSetPriorityRequest(cli->fd);
 
  		// remove done iterator
  		if (frameQueue->front()->isDone())
@@ -271,7 +268,8 @@ int DicomStream::sendfile_cb_(eio_req *req)
 			return 0;
  		}
 
- 		triggerNextEvent(cli);
+ 		// trigger next event
+ 		triggerOpenOrWrite(cli);
  	}
 	return 0;
 }
@@ -346,12 +344,23 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 			}
 
-			//2. write fragment header and trigger fragment sendfile
+			//2. if we are not in the middle of a write, and there is a pending priority change,
+			// then we need to triger a new open or write
+			processPendingSetPriorityRequest(cli->fd);
+			bool needsWrite = getMessageFramer(cli->fd)->IsWriteInProgress();
+			if (!needsWrite && cli->frameGroup != frameQueue->front())
+			{
+				//priority has changed: trigger
+				triggerOpenOrWrite(cli);
+				return;
+			}
+
+
+			//3. write fragment header and trigger fragment sendfile
 			// next must return true, since we do not trigger write on completed FrameGroupIterator??
 
 			Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->fd]->currentFragment;
 			TFrameFragment frameFragment;
-			bool needsWrite = getMessageFramer(cli->fd)->IsWriteInProgress();
 			if (!needsWrite)
 			{
 				needsWrite = frameQueue->front()->next(frameFragment);
@@ -388,16 +397,13 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 				}
 
-				cli->frameGroup = frameQueue->front();
-
 				TEio* data = new TEio();
 				data->cli = cli;
-				data->fileInfo = fileInfo;
 				data->offset = frameFragment.offset;
 				data->size = frameFragment.size;
 				//3. trigger eio sendfile on fragment
 				printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
-				eio_sendfile (data->cli->fd, data->fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+				eio_sendfile (data->cli->fd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 			}
 			else
 			{
@@ -503,16 +509,17 @@ void DicomStream::cleanup(string fileName)
    }
 }
 
-void DicomStream::triggerNextEvent(TClient* cli)
+void DicomStream::triggerOpenOrWrite(TClient* cli)
 {
-
 	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
 		return;
     vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
     if (frameQueue->empty())
     	return;
-    FrameIterator* frameIter  = frameQueue->front()->currentIterator();
+	//update client frame group
+	cli->frameGroup = frameQueue->front();
 
+    FrameIterator* frameIter  = cli->frameGroup->currentIterator();
 	string fileName = frameIter->getFrameInfo()->fileName;
 	TFileInfo* info = getFileInfo(fileName);
 	// trigger open file (which will initialize the FrameIterator)
@@ -520,7 +527,6 @@ void DicomStream::triggerNextEvent(TClient* cli)
 	{
 		TEio* eioData = new TEio();
 		eioData->cli = cli;
-		eioData->fileInfo = info;
 		printf("[Server] trigger open on file %s\n", fileName.c_str());
 		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
 	}
@@ -595,10 +601,13 @@ void DicomStream::processPendingSetPriorityRequest(int clientFd)
 			vector<FrameGroupIterator*>::iterator iter = frameQueue->begin();
 			while (iter != frameQueue->end())
 			{
-				if ((*iter)->getSeriesInstanceUid() == newSeries && iter != frameQueue->begin())
+				if ((*iter)->getSeriesInstanceUid() == newSeries)
 				{
-					frameQueue->erase(iter);
-					frameQueue->insert(frameQueue->begin(), *iter);
+					if (iter != frameQueue->begin())
+					{
+						frameQueue->erase(iter);
+						frameQueue->insert(frameQueue->begin(), *iter);
+					}
 					printf("[server] processed priority request\n");
 					break;
 				}
@@ -695,8 +704,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 		if (wasEmptyQueue)
 		{
 			setCork(cli->fd, true);
-			triggerNextEvent(cli);
-
+			triggerOpenOrWrite(cli);
 		}
 
 	    }
@@ -912,6 +920,13 @@ int DicomStream::refCount(string fileName)
 	return fileInfo[fileName]->refCount;
 }
 
+DicomStream::TFileInfo* DicomStream::getFileInfo(FrameGroupIterator* frameGroup)
+{
+   if (!frameGroup)
+	   return NULL;
+   string fileName = frameGroup->currentIterator()->getFrameInfo()->fileName;
+   return getFileInfo(fileName);
+}
 
  DicomStream::TFileInfo* DicomStream::getFileInfo(string fileName)
 {

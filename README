@@ -39,38 +39,32 @@ Init
 
 0) trigger accept  (TClient #1)
 1) accept callback: trigger read (TClient #1)
-2) read callback: process message (new TClient/TEio) + trigger new read (TClient #1)
+2) read callback: goto A (process message (new TClient/TEio)) + trigger new read (TClient #1)
 
 
-- check current iterator
-A) if not initialized
-     - trigger open file (TEio #2)
-     - on callback, trigger readahead (TEio #2)
-     - on callback, trigger write, if iterator is still at front of queue (TEio #2 => TClient #2)
- - otherwise
-      - trigger write, if iterator is still at front of queue (TClient #2)
+A) 
+	if not initialized
+	{
+	     - trigger open file (TEio #2)
+	     - on open callback, trigger readahead (TEio #2)
+	     - on readahead callback, parse file and....
+	}
 
-- do not write if iterator is not at front of queue !!!
+    - trigger write, if iterator is still at front of queue (TClient #2)
+    - need to indicate if we are in the midst of multiple writes 
+    
+    - (do not do first write if iterator is not at front of queue !!! )
       
 B) on write callback, trigger sendfile (TClient #2 => TEio #2)
 C) on sendfile callback, goto A 
 
-Now, change priority can happen at any time in between these steps.
+Change of priority can happen at any time in between these steps.
 So, we need to pass a new TClient and TEio struct with each event.
 Before we trigger a write or sendfile, we can check if the iterator
 we are triggered off of is the current front of the queue.
 
 If write is out of date, we still need to send the pixel data, because the client
 is expecting it. Then we need to stop.
-
-
-
-
-
-      
-      
-      
-
 
 
 /////////////////////////////////////////////////////////////////////////

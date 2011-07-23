@@ -103,9 +103,8 @@ private:
 
 	struct TEio
 	{
-		TEio() : cli(NULL), fileInfo(NULL) {}
+		TEio() : cli(NULL) {}
 		TClient* cli;
-		TFileInfo* fileInfo;
 		unsigned int offset;
 		unsigned int size;
 	};
@@ -121,7 +120,7 @@ private:
 	int refCount(string fileName);
 
     TFileInfo* getFileInfo(string fileName);
-
+    TFileInfo* getFileInfo(FrameGroupIterator* frameGroup);
 	// message processing
 	void createMessageFramer(int fd);
 	void deleteMessageFramer(int fd);
@@ -133,7 +132,7 @@ private:
 	map<int, TClientInfo*  > clientInfoMap; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
-    void triggerNextEvent(TClient* cli);
+    void triggerOpenOrWrite(TClient* cli);
 
 	string path;
 
