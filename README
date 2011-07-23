@@ -63,6 +63,13 @@ So, we need to pass a new TClient and TEio struct with each event.
 Before we trigger a write or sendfile, we can check if the iterator
 we are triggered off of is the current front of the queue.
 
+TEio references TClient, which references frame group. 
+So, change of frame group has impact on both structures.
+Also, deleting TClient has impact on TEio.
+
+
+
+
 If write is out of date, we still need to send the pixel data, because the client
 is expecting it. Then we need to stop.
 

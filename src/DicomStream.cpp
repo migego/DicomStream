@@ -184,7 +184,7 @@ int DicomStream::open_cb_(eio_req *req)
 		if (!fileInfo->parser)
 			eio_readahead (fd, 0, 16448, 0, readahead_cb, req->data);
 		else
-			triggerOpenOrWrite(data->cli);
+			triggerOpenOrWrite(data->cli->fd);
 	}
 
    return 0;
@@ -209,7 +209,7 @@ int DicomStream::readahead_cb_(eio_req *req)
 	//trigger write on next fragment
 	struct ev_loop *loop = ev_default_loop (0);
 	triggerWrite(loop,  data->cli);
-	delete(data);
+	//delete(data);
 	return 0;
 }
 
@@ -241,7 +241,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
 		return 0;
 	}
 	//clean up memory
-	delete data;
+	//delete data;
 
 	//trigger write on next fragment
 	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
@@ -254,7 +254,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		// remove done iterator
  		if (frameQueue->front()->isDone())
  		{
- 			delete frameQueue->front();
+ 			//delete frameQueue->front();
  			frameQueue->erase(frameQueue->begin());
  			printf("[server] popped queue; queue size is %d\n",frameQueue->size());
  		}
@@ -269,7 +269,7 @@ int DicomStream::sendfile_cb_(eio_req *req)
  		}
 
  		// trigger next event
- 		triggerOpenOrWrite(cli);
+ 		triggerOpenOrWrite(cli->fd);
  	}
 	return 0;
 }
@@ -282,133 +282,126 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
  	if (revents & EV_WRITE)
  	{
- 		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
- 		{
- 			// queue must not be empty, because we do not trigger a write on an empty queue
- 			vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
 
- 			//frame info cannot be null, because we do not trigger a write on an
- 			// uninitialized or completed FrameGroupIterator
-			TFrameInfo* frameInfo =  frameQueue->front()->currentIterator()->getFrameInfo();
+		TFrameInfo* frameInfo =  cli->frameGroup->currentIterator()->getFrameInfo();
 
-			//1. write frame header, if necessary
-			TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
-			if (!frameInfo->sentFrameHeader)
+		//1. write frame header, if necessary
+		TFileInfo* fileInfo = getFileInfo(frameInfo->fileName);
+		if (!frameInfo->sentFrameHeader)
+		{
+			Protocol::FrameResponse frameResponse;
+			frameResponse.set_instanceuid(frameInfo->frameRequest.instanceuid());
+			frameResponse.set_framenumber(0);
+
+			DicomPixels* parser = fileInfo->parser;
+			if (parser)
 			{
-				Protocol::FrameResponse frameResponse;
-				frameResponse.set_instanceuid(frameInfo->frameRequest.instanceuid());
-				frameResponse.set_framenumber(0);
-
-				DicomPixels* parser = fileInfo->parser;
-				if (parser)
-				{
-					frameResponse.set_totalbytes(frameInfo->size);
-					frameResponse.set_imagesizex(parser->getimageSizeX());
-					frameResponse.set_imagesizey(parser->getimageSizeY());
-					frameResponse.set_depth((Protocol::FrameResponse_bitDepth)parser->getdepth());
-					frameResponse.set_colorspace(parser->getcolorSpace());
-					frameResponse.set_transfersyntax(parser->gettransferSyntax());
-					frameResponse.set_channelsnumber(parser->getchannelsNumber());
-					frameResponse.set_binterleaved(parser->getbInterleaved());
-					frameResponse.set_b2complement(parser->getb2Complement());
-					frameResponse.set_allocatedbits(parser->getallocatedBits());
-					frameResponse.set_storedbits(parser->getstoredBits());
-					frameResponse.set_highbit(parser->gethighBit());
-
-				}
-				bool needsAnotherWrite = false;
-				try
-				{
-					printf("[server] sending frame header: totalBytes : %d\n",frameInfo->size);
-				    needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameResponse, &frameResponse);
-				}
-				catch (EAgainException& ee)
-				{
-					needsAnotherWrite = true;
-
-				}
-				catch (WriteException& we)
-				{
-					perror("[server] write exception\n");
-					cleanup(cli);
-					return;
-				}
-				//trigger another write
-				if (needsAnotherWrite)
-				{
-					triggerWrite(loop, cli);
-					return;
-				}
-
-				frameInfo->sentFrameHeader = true;
+				frameResponse.set_totalbytes(frameInfo->size);
+				frameResponse.set_imagesizex(parser->getimageSizeX());
+				frameResponse.set_imagesizey(parser->getimageSizeY());
+				frameResponse.set_depth((Protocol::FrameResponse_bitDepth)parser->getdepth());
+				frameResponse.set_colorspace(parser->getcolorSpace());
+				frameResponse.set_transfersyntax(parser->gettransferSyntax());
+				frameResponse.set_channelsnumber(parser->getchannelsNumber());
+				frameResponse.set_binterleaved(parser->getbInterleaved());
+				frameResponse.set_b2complement(parser->getb2Complement());
+				frameResponse.set_allocatedbits(parser->getallocatedBits());
+				frameResponse.set_storedbits(parser->getstoredBits());
+				frameResponse.set_highbit(parser->gethighBit());
 
 			}
-
-			//2. if we are not in the middle of a write, and there is a pending priority change,
-			// then we need to triger a new open or write
-			processPendingSetPriorityRequest(cli->fd);
-			bool needsWrite = getMessageFramer(cli->fd)->IsWriteInProgress();
-			if (!needsWrite && cli->frameGroup != frameQueue->front())
+			bool needsAnotherWrite = false;
+			try
 			{
-				//priority has changed: trigger
-				triggerOpenOrWrite(cli);
+				printf("[server] sending frame header: totalBytes : %d\n",frameInfo->size);
+				needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameResponse, &frameResponse);
+			}
+			catch (EAgainException& ee)
+			{
+				needsAnotherWrite = true;
+
+			}
+			catch (WriteException& we)
+			{
+				perror("[server] write exception\n");
+				cleanup(cli);
+				return;
+			}
+			//trigger another write
+			if (needsAnotherWrite)
+			{
+				triggerWrite(loop, cli);
 				return;
 			}
 
+			frameInfo->sentFrameHeader = true;
 
-			//3. write fragment header and trigger fragment sendfile
-			// next must return true, since we do not trigger write on completed FrameGroupIterator??
+		}
 
-			Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->fd]->currentFragment;
-			TFrameFragment frameFragment;
-			if (!needsWrite)
-			{
-				needsWrite = frameQueue->front()->next(frameFragment);
-				if (needsWrite)
-				{
-                    currentFragment.set_offset(frameInfo->offset);
-                    currentFragment.set_size(frameFragment.size);
-				}
-			}
+		//2. if we are not in the middle of a write, and there is a pending priority change,
+		// then we need to triger a new open or write
+		processPendingSetPriorityRequest(cli->fd);
+		bool needsWrite = getMessageFramer(cli->fd)->IsWriteInProgress();
+		if (!needsWrite && cli->frameGroup != clientInfoMap[cli->fd]->frameGroupQueue.front())
+		{
+			//priority has changed: trigger
+			triggerOpenOrWrite(cli->fd);
+			return;
+		}
+
+
+		//3. write fragment header and trigger fragment sendfile
+		// next must return true, since we do not trigger write on completed FrameGroupIterator??
+
+		Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->fd]->currentFragment;
+		TFrameFragment frameFragment;
+		if (!needsWrite)
+		{
+			needsWrite = cli->frameGroup->next(frameFragment);
 			if (needsWrite)
 			{
-				bool needsAnotherWrite = false;
-                try
-                {
-				   needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameFragmentHeader, &currentFragment);
-                }
-                catch (EAgainException& ee)
-				{
-                	needsAnotherWrite = true;
-
-				}
-				catch (WriteException& we)
-				{
-					perror("[server] write exception\n");
-					cleanup(cli);
-					return;
-				}
-
-				if (needsAnotherWrite)
-				{
-					//trigger another write
-					triggerWrite(loop,cli);
-					return;
-
-				}
-
-				TEio* data = new TEio();
-				data->cli = cli;
-				data->offset = frameFragment.offset;
-				data->size = frameFragment.size;
-				//3. trigger eio sendfile on fragment
-				printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
-				eio_sendfile (data->cli->fd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+				currentFragment.set_offset(frameInfo->offset);
+				currentFragment.set_size(frameFragment.size);
 			}
-			else
+		}
+		if (needsWrite)
+		{
+			bool needsAnotherWrite = false;
+			try
 			{
-                printf("[server] warning: front of frame queue has no next item\n");
+			   needsAnotherWrite = !getMessageFramer(cli->fd)->write(MessageFramer::FrameFragmentHeader, &currentFragment);
 			}
+			catch (EAgainException& ee)
+			{
+				needsAnotherWrite = true;
+
+			}
+			catch (WriteException& we)
+			{
+				perror("[server] write exception\n");
+				cleanup(cli);
+				return;
+			}
+
+			if (needsAnotherWrite)
+			{
+				//trigger another write
+				triggerWrite(loop,cli);
+				return;
+
+			}
+
+			TEio* data = new TEio();
+			data->cli = cli;
+			data->offset = frameFragment.offset;
+			data->size = frameFragment.size;
+			//3. trigger eio sendfile on fragment
+			printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
+			eio_sendfile (data->cli->fd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
+		}
+		else
+		{
+			printf("[server] warning: front of frame queue has no next item\n");
 		}
 	}
 }
@@ -509,19 +502,31 @@ void DicomStream::cleanup(string fileName)
    }
 }
 
-void DicomStream::triggerOpenOrWrite(TClient* cli)
+void DicomStream::triggerOpenOrWrite(int clientFd)
 {
-	if (clientInfoMap.find(cli->fd) == clientInfoMap.end())
+	if (clientInfoMap.find(clientFd) == clientInfoMap.end())
 		return;
-    vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+    vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[clientFd]->frameGroupQueue;
     if (frameQueue->empty())
     	return;
-	//update client frame group
-	cli->frameGroup = frameQueue->front();
 
+    TClient* cli = new TClient();
+    cli->fd = clientFd;
+    while (!frameQueue->empty() && frameQueue->front()->isDone())
+    {
+    	frameQueue->erase(frameQueue->begin());
+    }
+    if (frameQueue->empty())
+    	return;
+
+	cli->frameGroup = frameQueue->front();
     FrameIterator* frameIter  = cli->frameGroup->currentIterator();
+    if (!frameIter)
+    	return;
+
 	string fileName = frameIter->getFrameInfo()->fileName;
 	TFileInfo* info = getFileInfo(fileName);
+
 	// trigger open file (which will initialize the FrameIterator)
 	if (info->fd == -1)
 	{
@@ -631,7 +636,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 		if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
 		{
 			TClientInfo* clientInfo = clientInfoMap[cli->fd];
-			//clientInfo->pendingSeriesInstanceUid = priorityRequest->seriesuid();
+			clientInfo->pendingSeriesInstanceUid = priorityRequest->seriesuid();
 		}
 
 		}
@@ -704,7 +709,7 @@ void  DicomStream::processIncomingMessage(DicomStream::TClient* cli, MessageFram
 		if (wasEmptyQueue)
 		{
 			setCork(cli->fd, true);
-			triggerOpenOrWrite(cli);
+			triggerOpenOrWrite(cli->fd);
 		}
 
 	    }

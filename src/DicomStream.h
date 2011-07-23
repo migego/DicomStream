@@ -67,13 +67,7 @@ private:
 	struct TFileInfo
 
 	{
-		TFileInfo()
-		{
-			fd = -1;
-			parser = NULL;
-			fileName="";
-			refCount = 0;
-		}
+		TFileInfo() : fileName(""), fd(-1), refCount(0), parser(NULL) {}
 		~TFileInfo()
 		{
 			if (parser)
@@ -92,6 +86,11 @@ private:
 
 	struct TClient {
 		    TClient() : fd(-1), frameGroup(NULL) {}
+		    TClient(TClient* that)
+		    {
+		    	fd = that->fd;
+		    	frameGroup = that->frameGroup;
+		    }
 	        int fd;
 			FrameGroupIterator* frameGroup;
 	        ev_io ev_write;
@@ -103,7 +102,7 @@ private:
 
 	struct TEio
 	{
-		TEio() : cli(NULL) {}
+		TEio() : cli(NULL), offset(0), size(0) {}
 		TClient* cli;
 		unsigned int offset;
 		unsigned int size;
@@ -132,7 +131,7 @@ private:
 	map<int, TClientInfo*  > clientInfoMap; //key is client fd
 	map<string, TFileInfo*> fileInfo;  // key is file name
 	ParseListenManager listenManager;
-    void triggerOpenOrWrite(TClient* cli);
+    void triggerOpenOrWrite(int fd);
 
 	string path;
 
