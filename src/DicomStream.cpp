@@ -243,34 +243,12 @@ int DicomStream::sendfile_cb_(eio_req *req)
 	//clean up memory
 	//delete data;
 
-	//trigger write on next fragment
-	if (clientInfoMap.find(cli->fd) != clientInfoMap.end())
- 	{
- 		vector<FrameGroupIterator*>* frameQueue = &clientInfoMap[cli->fd]->frameGroupQueue;
+	//move front iterator to done state if it does not have a next fragment
+	cli->frameGroup->completeNext();
 
- 		//move front iterator to done state if it does not have a next fragment
- 		frameQueue->front()->completeNext();
+	// trigger next event
+	triggerOpenOrWrite(cli->fd);
 
- 		// remove done iterator
- 		if (frameQueue->front()->isDone())
- 		{
- 			//delete frameQueue->front();
- 			frameQueue->erase(frameQueue->begin());
- 			printf("[server] popped queue; queue size is %d\n",frameQueue->size());
- 		}
-
-
- 		if (frameQueue->empty())
- 		{
- 			printf("[server] queue is empty\n");
- 			//cleanup(cli);
- 			setCork(cli->fd, false);
-			return 0;
- 		}
-
- 		// trigger next event
- 		triggerOpenOrWrite(cli->fd);
- 	}
 	return 0;
 }
 
@@ -510,20 +488,24 @@ void DicomStream::triggerOpenOrWrite(int clientFd)
     if (frameQueue->empty())
     	return;
 
-    TClient* cli = new TClient();
-    cli->fd = clientFd;
     while (!frameQueue->empty() && frameQueue->front()->isDone())
     {
     	frameQueue->erase(frameQueue->begin());
+		printf("[server] popped queue; queue size is %d\n",frameQueue->size());
     }
-    if (frameQueue->empty())
-    	return;
 
+	if (frameQueue->empty())
+	{
+		printf("[server] queue is empty\n");
+		//cleanup(cli);
+		setCork(clientFd, false);
+		return;
+	}
+
+    TClient* cli = new TClient();
+    cli->fd = clientFd;
 	cli->frameGroup = frameQueue->front();
     FrameIterator* frameIter  = cli->frameGroup->currentIterator();
-    if (!frameIter)
-    	return;
-
 	string fileName = frameIter->getFrameInfo()->fileName;
 	TFileInfo* info = getFileInfo(fileName);
 
