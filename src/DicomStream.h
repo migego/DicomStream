@@ -27,6 +27,7 @@ using namespace std;
 #include "Dicom/ParseListenManager.h"
 
 #include "IFileRefCounter.h"
+#include "DataStructs.h"
 
 
 class DicomStream : public IFileRefCounter {
@@ -84,29 +85,15 @@ private:
 
 	unsigned short port;
 
-	struct TClient {
-		    TClient() : fd(-1), frameGroup(NULL) {}
-		    TClient(TClient* that)
-		    {
-		    	fd = that->fd;
-		    	frameGroup = that->frameGroup;
-		    }
-	        int fd;
-			FrameGroupIterator* frameGroup;
-	        ev_io ev_write;
-			ev_io ev_read;
+	struct TClient : public TClientData {
+		TClient(int sockFd) : TClientData(sockFd, NULL) {}
+		TClient(int sockFd, FrameGroupIterator* fGroup) : TClientData(sockFd, fGroup) {}
+		TClient(TClientData* data) : TClientData(data) {}
+		ev_io ev_write;
+		ev_io ev_read;
 	};
 
 	void cleanup(TClient* cli);
-
-
-	struct TEio
-	{
-		TEio() : cli(NULL), offset(0), size(0) {}
-		TClient* cli;
-		unsigned int offset;
-		unsigned int size;
-	};
 
 	ev_io ev_accept;
 
@@ -136,7 +123,7 @@ private:
 	string path;
 
 	/////////// Client Test //////////////////
-	int clientFd;
+	int testClientSocketFd;
 	void clientTest_();
 	static void clientTest();
 	void clientTestRead_();
