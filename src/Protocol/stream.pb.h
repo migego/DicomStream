@@ -817,22 +817,35 @@ class FrameFragmentHeader : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required uint32 offset = 1;
+  // required string instanceUid = 1;
+  inline bool has_instanceuid() const;
+  inline void clear_instanceuid();
+  static const int kInstanceUidFieldNumber = 1;
+  inline const ::std::string& instanceuid() const;
+  inline void set_instanceuid(const ::std::string& value);
+  inline void set_instanceuid(const char* value);
+  inline void set_instanceuid(const char* value, size_t size);
+  inline ::std::string* mutable_instanceuid();
+  inline ::std::string* release_instanceuid();
+  
+  // required uint32 offset = 2;
   inline bool has_offset() const;
   inline void clear_offset();
-  static const int kOffsetFieldNumber = 1;
+  static const int kOffsetFieldNumber = 2;
   inline ::google::protobuf::uint32 offset() const;
   inline void set_offset(::google::protobuf::uint32 value);
   
-  // required uint32 size = 2;
+  // required uint32 size = 3;
   inline bool has_size() const;
   inline void clear_size();
-  static const int kSizeFieldNumber = 2;
+  static const int kSizeFieldNumber = 3;
   inline ::google::protobuf::uint32 size() const;
   inline void set_size(::google::protobuf::uint32 value);
   
   // @@protoc_insertion_point(class_scope:Protocol.FrameFragmentHeader)
  private:
+  inline void set_has_instanceuid();
+  inline void clear_has_instanceuid();
   inline void set_has_offset();
   inline void clear_has_offset();
   inline void set_has_size();
@@ -840,11 +853,12 @@ class FrameFragmentHeader : public ::google::protobuf::Message {
   
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   
+  ::std::string* instanceuid_;
   ::google::protobuf::uint32 offset_;
   ::google::protobuf::uint32 size_;
   
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   friend void  protobuf_AddDesc_stream_2eproto();
   friend void protobuf_AssignDesc_stream_2eproto();
@@ -1888,15 +1902,73 @@ inline void FrameResponse::set_framenumber(::google::protobuf::uint32 value) {
 
 // FrameFragmentHeader
 
-// required uint32 offset = 1;
-inline bool FrameFragmentHeader::has_offset() const {
+// required string instanceUid = 1;
+inline bool FrameFragmentHeader::has_instanceuid() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void FrameFragmentHeader::set_has_offset() {
+inline void FrameFragmentHeader::set_has_instanceuid() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void FrameFragmentHeader::clear_has_offset() {
+inline void FrameFragmentHeader::clear_has_instanceuid() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void FrameFragmentHeader::clear_instanceuid() {
+  if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+    instanceuid_->clear();
+  }
+  clear_has_instanceuid();
+}
+inline const ::std::string& FrameFragmentHeader::instanceuid() const {
+  return *instanceuid_;
+}
+inline void FrameFragmentHeader::set_instanceuid(const ::std::string& value) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(value);
+}
+inline void FrameFragmentHeader::set_instanceuid(const char* value) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(value);
+}
+inline void FrameFragmentHeader::set_instanceuid(const char* value, size_t size) {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  instanceuid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FrameFragmentHeader::mutable_instanceuid() {
+  set_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    instanceuid_ = new ::std::string;
+  }
+  return instanceuid_;
+}
+inline ::std::string* FrameFragmentHeader::release_instanceuid() {
+  clear_has_instanceuid();
+  if (instanceuid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = instanceuid_;
+    instanceuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+
+// required uint32 offset = 2;
+inline bool FrameFragmentHeader::has_offset() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void FrameFragmentHeader::set_has_offset() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void FrameFragmentHeader::clear_has_offset() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void FrameFragmentHeader::clear_offset() {
   offset_ = 0u;
@@ -1910,15 +1982,15 @@ inline void FrameFragmentHeader::set_offset(::google::protobuf::uint32 value) {
   offset_ = value;
 }
 
-// required uint32 size = 2;
+// required uint32 size = 3;
 inline bool FrameFragmentHeader::has_size() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void FrameFragmentHeader::set_has_size() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void FrameFragmentHeader::clear_has_size() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void FrameFragmentHeader::clear_size() {
   size_ = 0u;

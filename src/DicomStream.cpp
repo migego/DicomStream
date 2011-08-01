@@ -333,15 +333,16 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 		//3. write fragment header and trigger fragment sendfile
 		// next must return true, since we do not trigger write on completed FrameGroupIterator??
 
-		Protocol::FrameFragmentHeader& currentFragment = clientInfoMap[cli->socketFd]->currentFragment;
+		Protocol::FrameFragmentHeader& fragmentHeader = clientInfoMap[cli->socketFd]->currentFragment;
 		TFrameFragment frameFragment;
 		if (!needsWrite)
 		{
 			needsWrite = cli->frameGroup->next(frameFragment);
 			if (needsWrite)
 			{
-				currentFragment.set_offset(frameInfo->offset);
-				currentFragment.set_size(frameFragment.size);
+				fragmentHeader.set_instanceuid(frameInfo->frameRequest.instanceuid());
+				fragmentHeader.set_offset(frameInfo->offset);
+				fragmentHeader.set_size(frameFragment.size);
 			}
 		}
 		if (needsWrite)
@@ -349,7 +350,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 			bool needsAnotherWrite = false;
 			try
 			{
-			   needsAnotherWrite = !getMessageFramer(cli->socketFd)->write(MessageFramer::FrameFragmentHeader, &currentFragment);
+			   needsAnotherWrite = !getMessageFramer(cli->socketFd)->write(MessageFramer::FrameFragmentHeader, &fragmentHeader);
 			}
 			catch (EAgainException& ee)
 			{
@@ -373,7 +374,7 @@ void DicomStream::write_cb_(struct ev_loop *loop, struct ev_io *w, int revents)
 
 			TEioData* data = new TEioData(cli, frameFragment.offset, frameFragment.size);
 			//3. trigger eio sendfile on fragment
-			printf("[server] sending pixels: offset %d, size %d\n", currentFragment.offset(), currentFragment.size());
+			printf("[server] sending pixels: offset %d, size %d\n", fragmentHeader.offset(), fragmentHeader.size());
 			eio_sendfile (data->socketFd, fileInfo->fd, data->offset, data->size, 0, sendfile_cb, (void*)data);
 		}
 		else
@@ -705,9 +706,6 @@ void DicomStream::clientTestRead_()
 
 	Protocol::FrameResponse* frameResponse;
 	Protocol::FrameFragmentHeader* frameFragment;
-
-	int totalBytes = -1;
-	int totalCount = 0;
 	while(true)
 	{
 
@@ -727,12 +725,26 @@ void DicomStream::clientTestRead_()
 		{
 		case MessageFramer::FrameResponse:
 			frameResponse = (Protocol::FrameResponse*)wrapper.message;
-			totalBytes = frameResponse->totalbytes();
-			printf("[client] received frame header: total bytes: %d\n",totalBytes);
+			printf("[client] received frame header: total bytes: %d\n",frameResponse->totalbytes());
 			break;
 		case MessageFramer::FrameFragmentHeader:
 			{
+			TClientResponseInfo* responseInfo = NULL;
 			frameFragment = (Protocol::FrameFragmentHeader*)wrapper.message;
+			string instanceUid = frameFragment->instanceuid();
+			if (clientResponseInfoMap.find(instanceUid) != clientResponseInfoMap.end())
+			{
+				responseInfo = clientResponseInfoMap[instanceUid];
+			}
+			else
+			{
+				responseInfo = new TClientResponseInfo();
+				responseInfo->frameFragment = frameFragment;
+				responseInfo->frameResponse = frameResponse;
+				clientResponseInfoMap[instanceUid] = responseInfo;
+
+			}
+
 			unsigned int size = frameFragment->size();
 			unsigned int offset = frameFragment->offset();
 			printf("[client] fragment header: offset %d, size %d\n",offset, size);
@@ -750,17 +762,8 @@ void DicomStream::clientTestRead_()
 				}
 				count += n;
 			}
-			totalCount += count;
-			printf("[client] read pixels: offset %d, size %d, totalCount %d, totalBytes %d\n",offset, count, totalCount, totalBytes);
-			if (totalCount == totalBytes)
-			{
-				delete frameResponse;
-				frameResponse=NULL;
-				delete frameFragment;
-				frameFragment = NULL;
-				totalCount=0;
-				totalBytes=0;
-			}
+			responseInfo->totalCount += count;
+			printf("[client] read pixels: offset %d, size %d, totalCount %d, totalBytes %d\n",offset, count, responseInfo->totalCount, frameResponse->totalbytes());
 			}
 
 			break;

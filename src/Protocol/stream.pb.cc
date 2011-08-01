@@ -144,7 +144,8 @@ void protobuf_AssignDesc_stream_2eproto() {
       sizeof(FrameResponse));
   FrameResponse_bitDepth_descriptor_ = FrameResponse_descriptor_->enum_type(0);
   FrameFragmentHeader_descriptor_ = file->message_type(5);
-  static const int FrameFragmentHeader_offsets_[2] = {
+  static const int FrameFragmentHeader_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, instanceuid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, offset_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FrameFragmentHeader, size_),
   };
@@ -229,8 +230,9 @@ void protobuf_AddDesc_stream_2eproto() {
     "nceUid\030\r \002(\t\022\023\n\013frameNumber\030\016 \002(\r\"\\\n\010bit"
     "Depth\022\013\n\007depthU8\020\000\022\013\n\007depthS8\020\001\022\014\n\010depth"
     "U16\020\002\022\014\n\010depthS16\020\003\022\014\n\010depthU32\020\004\022\014\n\010dep"
-    "thS32\020\005\"3\n\023FrameFragmentHeader\022\016\n\006offset"
-    "\030\001 \002(\r\022\014\n\004size\030\002 \002(\r", 860);
+    "thS32\020\005\"H\n\023FrameFragmentHeader\022\023\n\013instan"
+    "ceUid\030\001 \002(\t\022\016\n\006offset\030\002 \002(\r\022\014\n\004size\030\003 \002("
+    "\r", 881);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "stream.proto", &protobuf_RegisterTypes);
   SetPriorityRequest::default_instance_ = new SetPriorityRequest();
@@ -2383,6 +2385,7 @@ void FrameResponse::Swap(FrameResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int FrameFragmentHeader::kInstanceUidFieldNumber;
 const int FrameFragmentHeader::kOffsetFieldNumber;
 const int FrameFragmentHeader::kSizeFieldNumber;
 #endif  // !_MSC_VER
@@ -2403,6 +2406,7 @@ FrameFragmentHeader::FrameFragmentHeader(const FrameFragmentHeader& from)
 
 void FrameFragmentHeader::SharedCtor() {
   _cached_size_ = 0;
+  instanceuid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   offset_ = 0u;
   size_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -2413,6 +2417,9 @@ FrameFragmentHeader::~FrameFragmentHeader() {
 }
 
 void FrameFragmentHeader::SharedDtor() {
+  if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+    delete instanceuid_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -2439,6 +2446,11 @@ FrameFragmentHeader* FrameFragmentHeader::New() const {
 
 void FrameFragmentHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_instanceuid()) {
+      if (instanceuid_ != &::google::protobuf::internal::kEmptyString) {
+        instanceuid_->clear();
+      }
+    }
     offset_ = 0u;
     size_ = 0u;
   }
@@ -2452,10 +2464,27 @@ bool FrameFragmentHeader::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required uint32 offset = 1;
+      // required string instanceUid = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_instanceuid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->instanceuid().data(), this->instanceuid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_offset;
+        break;
+      }
+      
+      // required uint32 offset = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_offset:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &offset_)));
@@ -2463,12 +2492,12 @@ bool FrameFragmentHeader::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_size;
+        if (input->ExpectTag(24)) goto parse_size;
         break;
       }
       
-      // required uint32 size = 2;
-      case 2: {
+      // required uint32 size = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_size:
@@ -2501,14 +2530,23 @@ bool FrameFragmentHeader::MergePartialFromCodedStream(
 
 void FrameFragmentHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required uint32 offset = 1;
-  if (has_offset()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->offset(), output);
+  // required string instanceUid = 1;
+  if (has_instanceuid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->instanceuid().data(), this->instanceuid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->instanceuid(), output);
   }
   
-  // required uint32 size = 2;
+  // required uint32 offset = 2;
+  if (has_offset()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->offset(), output);
+  }
+  
+  // required uint32 size = 3;
   if (has_size()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->size(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->size(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -2519,14 +2557,24 @@ void FrameFragmentHeader::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* FrameFragmentHeader::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required uint32 offset = 1;
-  if (has_offset()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->offset(), target);
+  // required string instanceUid = 1;
+  if (has_instanceuid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->instanceuid().data(), this->instanceuid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->instanceuid(), target);
   }
   
-  // required uint32 size = 2;
+  // required uint32 offset = 2;
+  if (has_offset()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->offset(), target);
+  }
+  
+  // required uint32 size = 3;
   if (has_size()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->size(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->size(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2540,14 +2588,21 @@ int FrameFragmentHeader::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required uint32 offset = 1;
+    // required string instanceUid = 1;
+    if (has_instanceuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->instanceuid());
+    }
+    
+    // required uint32 offset = 2;
     if (has_offset()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->offset());
     }
     
-    // required uint32 size = 2;
+    // required uint32 size = 3;
     if (has_size()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -2581,6 +2636,9 @@ void FrameFragmentHeader::MergeFrom(const ::google::protobuf::Message& from) {
 void FrameFragmentHeader::MergeFrom(const FrameFragmentHeader& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_instanceuid()) {
+      set_instanceuid(from.instanceuid());
+    }
     if (from.has_offset()) {
       set_offset(from.offset());
     }
@@ -2604,13 +2662,14 @@ void FrameFragmentHeader::CopyFrom(const FrameFragmentHeader& from) {
 }
 
 bool FrameFragmentHeader::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   return true;
 }
 
 void FrameFragmentHeader::Swap(FrameFragmentHeader* other) {
   if (other != this) {
+    std::swap(instanceuid_, other->instanceuid_);
     std::swap(offset_, other->offset_);
     std::swap(size_, other->size_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);

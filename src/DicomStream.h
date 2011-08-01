@@ -10,7 +10,6 @@
 
 #include <map>
 #include <vector>
-#include <queue>
 using namespace std;
 
 
@@ -128,6 +127,16 @@ private:
 	static void clientTest();
 	void clientTestRead_();
 	static void clientTestRead();
+
+	struct TClientResponseInfo
+	{
+		TClientResponseInfo() : frameResponse(NULL), frameFragment(NULL), totalCount(0){}
+
+		Protocol::FrameResponse* frameResponse;
+		Protocol::FrameFragmentHeader* frameFragment;
+		int totalCount;
+	};
+	map<string, TClientResponseInfo*> clientResponseInfoMap;
 	/////////////////////////////////////////////////
 
 
