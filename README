@@ -1,12 +1,12 @@
 This project provides a Linux streaming server for full-resolution Dicom
-image data. 
+pixel data. 
 
 The code has been designed for speed and scalability.
 
 Dependencies:
-0) Boost threads
-1) libev
-2) libeio
+0) boost thread library (http://www.boost.org/)
+1) libev - high perf event loop (http://software.schmorp.de/pkg/libev.html)
+2) libeio - event based, fully asynchronous IO library (http://software.schmorp.de/pkg/libeio.html)
 3) Imebra Dicom toolkit: I have forked a version of this excellent toolkit
 and put it on Github. It is included as a submodule of DicomStream. 
 
@@ -19,7 +19,7 @@ $ git submodule init
 $ git submodule update
 
 
-B) Install boost
+B) Install boost thread library
 
 C) Install libev
 
@@ -27,65 +27,14 @@ D) Install libeio
 
 ////////////////////////////////////////////////////////////////////////
 
-Analysis:
-- Init can re-use the same TClient struct.
-- process message must create a new TClient struct
 
-
-
-Flow:
-
-Init
-
-0) trigger accept  (TClient #1)
-1) accept callback: trigger read (TClient #1)
-2) read callback: goto A (process message (new TClient/TEio)) + trigger new read (TClient #1)
-
-
-A) 
-	if not initialized
-	{
-	     - trigger open file (TEio #2)
-	     - on open callback, trigger readahead (TEio #2)
-	     - on readahead callback, parse file and....
-	}
-
-    - trigger write, if iterator is still at front of queue (TClient #2)
-    - need to indicate if we are in the midst of multiple writes 
-    
-    - (do not do first write if iterator is not at front of queue !!! )
-      
-B) on write callback, trigger sendfile (TClient #2 => TEio #2)
-C) on sendfile callback, goto A 
-
-Change of priority can happen at any time in between these steps.
-So, we need to pass a new TClient and TEio struct with each event.
-Before we trigger a write or sendfile, we can check if the iterator
-we are triggered off of is the current front of the queue.
-
-TEio references TClient, which references frame group. 
-So, change of frame group has impact on both structures.
-Also, deleting TClient has impact on TEio.
-
-
-
-
-If write is out of date, we still need to send the pixel data, because the client
-is expecting it. Then we need to stop.
-
-
-/////////////////////////////////////////////////////////////////////////
 ToDo:
 
 HIGH
 
 - c# client 
-- Viewer: a) use prefetch strategy for both synchronous and nonsynchronous fetch
-          b) then, convert prefetch to DicomStreamer
 
-
-
-- ipmprove prefetch
+- improve prefetch
    a) open all files
    b) on open, do readahead if parser doesn't exist
    c) on readahead, do fadvise 
