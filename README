@@ -3,12 +3,20 @@ pixel data.
 
 The code has been designed for speed and scalability.
 
+Currently, it only supports single frame images.
+
 Dependencies:
+
 0) boost thread library (http://www.boost.org/)
 1) libev - high perf event loop (http://software.schmorp.de/pkg/libev.html)
 2) libeio - event based, fully asynchronous IO library (http://software.schmorp.de/pkg/libeio.html)
 3) Imebra Dicom toolkit: I have forked a version of this excellent toolkit
 and put it on Github. It is included as a submodule of DicomStream. 
+4) Google protocol buffers: 
+   Google's data interchange format (http://code.google.com/apis/protocolbuffers/)
+
+
+Installation
 
 
 After cloning this project, do the following:
@@ -25,6 +33,10 @@ C) Install libev
 
 D) Install libeio
 
+F) install protocol buffers. protoc compiler is called from stream.sh shell script
+in DicomStream project. Change ROOT folder in stream.sh to match your environment
+(protoc does not accept relative paths)
+
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -33,6 +45,24 @@ ToDo:
 HIGH
 
 - c# client 
+
+- handle multi-frame images - For compressed images, assume that each frame is 
+stored in a separate pixel chunk; otherwise, server must decode entire multi-frame
+object and then serve frames one at a time.
+
+- increment file refcount when calling open, readahead, prefetch, etc. so that file is not
+closed while these operations are in progress
+
+- decide on strategy for when to close file, release file parser: best strategy is to write
+the parsed info to disk, for faster access next time. This should also be done by the PACS server
+when it receives the file.
+
+- use EIO to close file. prolly need a flag to indicate file slated for open/close.
+If we want to open a file that is slated for closing, we need to wait until close
+callback to open. Likewise for closing a file that is slated for opening. Should post
+on news group for this.
+
+MEDIUM
 
 - improve prefetch
    a) open all files
@@ -45,24 +75,9 @@ HIGH
 
 - in a branch, trim down Imebra to bare essentials, to avoid code bloat
 
-- increment file refcount when calling open, readahead, prefetch, etc. so that file is not
-closed while these operations are in progress
-
-- use EIO to close file. prolly need a flag to indicate file slated for open/close.
-If we want to open a file that is slated for closing, we need to wait until close
-callback to open. Likewise for closing a file that is slated for opening. Should post
-on news group for this.
-
 - improve error handling, check for leaks, decide when to close connection
  with client(FIN socket, etc)
 
-- implement weighted round-robin strategy on queue of frame groups
+- implement different streaming strategies on queue of frame groups, such as weighted round-robin 
 
 - add Pantheios logging framework - replace printf statements
-
-
-
-
-
-
-

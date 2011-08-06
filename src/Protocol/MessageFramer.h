@@ -140,16 +140,9 @@ public:
 		readSize = *((unsigned int*)readRawSize);
 		readSize = ntohl(readSize);
 
-		try
-		{
-			if (!readBuffer)
-				readBuffer = new unsigned char[readSize];
-		}
-		catch (std::bad_alloc& ba)
-		{
-			printf("MessageFramer:read caught bad alloc\n");
-			return false;
-		}
+
+		if (!readBuffer)
+			readBuffer = new unsigned char[readSize];
 
 		while ( readOffset < readSize)
 		{
@@ -263,11 +256,6 @@ private:
 	unsigned int writeSize;
 	unsigned int writeOffset;
 	unsigned char* writeBuffer;
-
-
-
-
-
 
 };
 

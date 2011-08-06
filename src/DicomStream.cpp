@@ -170,6 +170,17 @@ int DicomStream::eio_fadvise_cb_(eio_req *req)
 	return 0;
 }
 
+int DicomStream::close_cb_(eio_req *req)
+{
+	int res = EIO_RESULT (req);
+	if (res != -1)
+	{
+		TFileInfo* info =  (TFileInfo*)req->data;
+		info->fd = -1;
+	}
+
+   return 0;
+}
 
 int DicomStream::open_cb_(eio_req *req)
 {
@@ -179,6 +190,7 @@ int DicomStream::open_cb_(eio_req *req)
 		TEioData* data = (TEioData*)req->data;
 		TFileInfo* fileInfo = getFileInfo(data->frameGroup);
 		fileInfo->fd = fd;
+		release(fileInfo->fileName);
 
 		//trigger readahead
 		if (!fileInfo->parser)
@@ -473,8 +485,9 @@ void DicomStream::cleanup(string fileName)
 	   if (info)
 	   {
 		   if (info->fd != -1)
-				::close(info->fd);
-		   info->fd = -1;
+		   {
+			  eio_close (info->fd, 0, close_cb, (void*)info);
+		   }
 	   }
    }
 }
@@ -509,6 +522,7 @@ void DicomStream::triggerOpenOrWrite(int clientFd)
 	// trigger open file (which will initialize the FrameIterator)
 	if (info->fd == -1)
 	{
+		acquire(fileName);
 		TEioData* eioData = new TEioData(cli);
 		printf("[Server] trigger open on file %s\n", fileName.c_str());
 		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
@@ -960,7 +974,10 @@ int DicomStream::open_cb (eio_req *req)
 {
 	return Instance()->open_cb_(req);
 }
-
+int DicomStream::close_cb (eio_req *req)
+{
+	return Instance()->close_cb_(req);
+}
 int DicomStream::readahead_cb (eio_req *req)
 {
 	return Instance()->readahead_cb_(req);

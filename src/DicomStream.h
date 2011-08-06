@@ -157,6 +157,7 @@ private:
 	static void want_poll();
 	static void done_poll();
 	static int open_cb (eio_req *req);
+	static int close_cb (eio_req *req);
 	static int readahead_cb (eio_req *req);
 	static int sendfile_cb (eio_req *req);
 	static void eio_fadvise(eio_req *req);
@@ -165,6 +166,7 @@ private:
     void want_poll_();
 	void done_poll_();
     int open_cb_ (eio_req *req);
+    int close_cb_ (eio_req *req);
     int readahead_cb_ (eio_req *req);
     int sendfile_cb_ (eio_req *req);
     void eio_fadvise_(eio_req *req);
