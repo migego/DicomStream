@@ -139,6 +139,10 @@ private:
 	map<string, TClientResponseInfo*> clientResponseInfoMap;
 	/////////////////////////////////////////////////
 
+    ev_async my_eio_sig;
+
+	static void my_eio_sig_cb (EV_P_ ev_async *w, int revents);
+    void my_eio_sig_cb_ (EV_P_ ev_async *w, int revents);
 
 	int setNonBlock(int fd);
 	int setCork(int clientFd, bool cork);

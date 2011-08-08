@@ -50,17 +50,14 @@ HIGH
 stored in a separate pixel chunk; otherwise, server must decode entire multi-frame
 object and then serve frames one at a time.
 
-- increment file refcount when calling open, readahead, prefetch, etc. so that file is not
-closed while these operations are in progress
+- devise protobuf file format to serialize parser info; write parser info to disk
+and use this for subsequent reads. PACS server will use same format.
 
-- decide on strategy for when to close file, release file parser: best strategy is to write
-the parsed info to disk, for faster access next time. This should also be done by the PACS server
-when it receives the file.
+- open/close file: while there is a pending open/close, set a flag, and build up
+a queue of open/close requests; process this queue in open/close callback.
 
-- use EIO to close file. prolly need a flag to indicate file slated for open/close.
-If we want to open a file that is slated for closing, we need to wait until close
-callback to open. Likewise for closing a file that is slated for opening. Should post
-on news group for this.
+- improve error handling, check for leaks, decide when to close connection
+ with client(FIN socket, etc)
 
 MEDIUM
 
@@ -70,13 +67,9 @@ MEDIUM
    c) on readahead, do fadvise 
    d) on fadvise, exit
 
-
 - flesh out installation guide
 
 - in a branch, trim down Imebra to bare essentials, to avoid code bloat
-
-- improve error handling, check for leaks, decide when to close connection
- with client(FIN socket, etc)
 
 - implement different streaming strategies on queue of frame groups, such as weighted round-robin 
 

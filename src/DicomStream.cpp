@@ -35,16 +35,6 @@ using namespace std;
 #define CLIENT_TEST
 
 
-ev_async my_eio_sig;
-
-void my_eio_sig_cb (EV_P_ ev_async *w, int revents)
-{
-    if  (eio_poll())
-        ev_async_send (EV_DEFAULT_ &my_eio_sig);
-}
-
-
-
 DicomStream* DicomStream::instance=NULL;
 
 DicomStream::DicomStream() : path("")
@@ -111,7 +101,7 @@ void DicomStream::start()
     struct ev_loop *loop = ev_default_loop (0);
 	ev_io_start(loop,&ev_accept);
 
-    //listen for eio events
+    //listen for eio events in libev event loop
     ev_async_init (&my_eio_sig, my_eio_sig_cb);
     ev_async_start(loop, &my_eio_sig);
 
@@ -133,6 +123,12 @@ void DicomStream::want_poll_ ()
 void DicomStream::done_poll_ ()
 {
 
+}
+
+void DicomStream::my_eio_sig_cb_ (EV_P_ ev_async *w, int revents)
+{
+    if  (eio_poll())
+        ev_async_send (EV_DEFAULT_ &my_eio_sig);
 }
 
 
@@ -999,7 +995,10 @@ void DicomStream::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 	Instance()->accept_cb_(loop, w, revents);
 }
-
+void DicomStream::my_eio_sig_cb (EV_P_ ev_async *w, int revents)
+{
+    Instance()->my_eio_sig_cb_(loop,w,revents);
+}
 void DicomStream::clientTest()
 {
 
