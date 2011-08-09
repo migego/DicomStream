@@ -173,6 +173,9 @@ int DicomStream::close_cb_(eio_req *req)
 	{
 		TFileInfo* info =  (TFileInfo*)req->data;
 		info->fd = -1;
+		//if (info->nextPending == FILE_OPEN)
+		//	open
+		info->pending = FILE_NONE;
 	}
 
    return 0;
@@ -186,6 +189,7 @@ int DicomStream::open_cb_(eio_req *req)
 		TEioData* data = (TEioData*)req->data;
 		TFileInfo* fileInfo = getFileInfo(data->frameGroup);
 		fileInfo->fd = fd;
+		fileInfo->pending = FILE_NONE;
 		release(fileInfo->fileName);
 
 		//trigger readahead
@@ -482,7 +486,15 @@ void DicomStream::cleanup(string fileName)
 	   {
 		   if (info->fd != -1)
 		   {
-			  eio_close (info->fd, 0, close_cb, (void*)info);
+			  if (info->pending == FILE_NONE)
+			  {
+				 info->pending = FILE_CLOSE;
+			     eio_close (info->fd, 0, close_cb, (void*)info);
+			  }
+			  else if (info->pending == FILE_OPEN)
+			  {
+				  info->nextPending = FILE_CLOSE;
+			  }
 		   }
 	   }
    }
@@ -518,10 +530,7 @@ void DicomStream::triggerOpenOrWrite(int clientFd)
 	// trigger open file (which will initialize the FrameIterator)
 	if (info->fd == -1)
 	{
-		acquire(fileName);
-		TEioData* eioData = new TEioData(cli);
-		printf("[Server] trigger open on file %s\n", fileName.c_str());
-		eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
+		open(cli, fileName);
 	}
 	//trigger write of next fragment
 	else
@@ -536,6 +545,28 @@ void DicomStream::triggerOpenOrWrite(int clientFd)
 		struct ev_loop *loop = ev_default_loop (0);
 		triggerWrite(loop,cli);
 
+	}
+}
+
+void DicomStream::open(TClient* cli, string fileName)
+{
+	TFileInfo* info = getFileInfo(fileName);
+
+	// trigger open file (which will initialize the FrameIterator)
+	if (info->fd == -1)
+	{
+		if (info->pending == FILE_NONE)
+		{
+			acquire(fileName);
+			TEioData* eioData = new TEioData(cli);
+			printf("[Server] trigger open on file %s\n", fileName.c_str());
+			info->pending = FILE_OPEN;
+			eio_open (fileName.c_str(), O_RDONLY, 0777, 0, open_cb, (void*)eioData);
+		}
+		else if (info->pending == FILE_CLOSE)
+		{
+			info->nextPending = FILE_OPEN;
+		}
 	}
 }
 
