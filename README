@@ -53,9 +53,6 @@ object and then serve frames one at a time.
 - devise protobuf file format to serialize parser info; write parser info to disk
 and use this for subsequent reads. PACS server will use same format.
 
-- open/close file: while there is a pending open/close, set flag for next
-pending open/close requst, and  process this command in open/close callback.
-
 - improve error handling, check for leaks, decide when to close connection
  with client(FIN socket, etc)
 

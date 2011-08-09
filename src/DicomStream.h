@@ -64,19 +64,11 @@ private:
 		int advice;
 	};
 
-	enum ePendingOpenClose
-	{
-		FILE_NONE,
-		FILE_OPEN,
-		FILE_CLOSE
-	};
 
 	struct TFileInfo
 
 	{
 		TFileInfo() : fileName(""), fd(-1), refCount(0),
-				      pending(FILE_NONE),
-				      nextPending(FILE_NONE),
 				      parser(NULL)
 		{}
 		~TFileInfo()
@@ -87,8 +79,6 @@ private:
 		string fileName;
 		int fd;
 		int refCount;
-		ePendingOpenClose pending;
-		ePendingOpenClose nextPending;
 		DicomPixels* parser;
 
 	};
